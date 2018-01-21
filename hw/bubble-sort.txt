@@ -1,0 +1,45 @@
+      var x                       ;address
+
+      in    $at                   ;n
+      la    $k0   x               ;saves mem location
+
+                                  ;readsInList() {
+                                  ;==================
+      add   $a0   $k0     $zero   ;saves address to be changed
+      add   $a2   $zero   $zero   ;= counter
+back: beq   $at   $a2     next    ;while(len > counter) {
+
+      in    $a1
+      sw    $a1   0x0($a0)        ;save to memory
+      addi  $a0   $a0     4       ;get next mem location
+      addi  $a2   $a2     1
+
+      beq   $zero $zero   back    ;}
+                                  ;list imported of size n
+                                  ;==================
+                                  ;}
+
+                                  bubbleSort() {
+                                  ;==================
+next: add   $v0   $at     $zero   ;keeps times through
+bac3: addi  $v0   $v0     -1      ;
+      add   $a2   $zero   $zero   ;= counter
+      add   $a0   $k0     $zero   ;saves address to be changed temp
+
+bac2: lw    $t0   0x0($a0)        ;gets current index of list
+      lw    $t1   0x4($a0)        ;gets next index of list
+
+      bgt   $t1   $t0      noth   ;if(t0 > t1){
+      sw    $t1   0x0($a0)        ;save to memory
+      sw    $t0   0x0($a0)        ;save to memory
+                                  ;}
+noth: addi  $a2   $a2     1
+      addi  $a0   $a0     4       ;get next mem location
+      bgt   $v0   $a2     back2
+      addi  $a1   $zero   1
+      bgt   $v0   $a1   bac3      ;if(v0 > 1) then go to bac3
+                                  ;==================
+                                  ;}
+
+      halt                        ;list of size n is sorted by method of bubble
+                                  ;sort
