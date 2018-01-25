@@ -1,5 +1,5 @@
-#include "useful_classes/LList.h"
-//#include "MyString.h"
+
+#include "Simulator.h"
 #include <iostream>
 using namespace std;
 // Author: Thomas Peacemaker
@@ -8,10 +8,8 @@ using namespace std;
 // Post:
 int main(int argc, char * argv[])
 {
-  LList<int> llist;
-  llist.addBack(0);
-  llist.addBack(2);
-  llist.addBack(3);
-  llist.insertAfterNth(0,1);
-  cout << llist << endl;
+  Simulator s;
+
+  int line = 0x01200000;
+  s.executeLine(line);
 }

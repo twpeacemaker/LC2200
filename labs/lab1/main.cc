@@ -190,12 +190,12 @@ int BITS_IN_BYTES = 8;
 //      specifed s
 int getByteMask(int byte_num) {
   int return_value;
-  if (BYTES_IN_WORD < byte_num) {
+  if (BYTES_IN_WORD <= byte_num) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: byte_num must be less than the length of a byte." << endl;
   } else {
     int mask_template = 0xFFFFFFFF;
-    int mask_byte_num = 0xFF000000 >> ((byte_num - 1) * BITS_IN_BYTES);
+    int mask_byte_num = 0xFF000000 >> ((byte_num) * BITS_IN_BYTES);
     return_value = mask_template ^ mask_byte_num;
   }
   return return_value;
@@ -219,7 +219,8 @@ int insertByte (int num, int to_insert, int byte_num) {
       int mask = getByteMask(byte_num);
 
       int temp = num & mask;
-      int shifted_num2 = to_insert<<((BYTES_IN_WORD-byte_num) * BITS_IN_BYTES);
+      int shift = ((BYTES_IN_WORD-(byte_num + 1)) * BITS_IN_BYTES);
+      int shifted_num2 = to_insert << shift;
       return_value = shifted_num2 | temp;
       //printf("Mask: %#08x \n" , return_value);
   }
@@ -236,15 +237,23 @@ void part12() {
 //ask about part 14
 
 void part15() {
-  int num1;int num2;int num3;int num4;
-  cout << "Type first int : ";  cin >> num1;
-  cout << "Type second int: ";  cin >> num2;
-  cout << "Type third int: ";   cin >> num3;
-  cout << "Type fourth int: ";  cin >> num4;
+  char ch1;char ch2;
+  char ch3;char ch4;
+  cout << "Type first char : ";  cin >> ch1;
+  cout << "Type second char: ";  cin >> ch2;
+  cout << "Type third char: ";   cin >> ch3;
+  cout << "Type fourth char: ";  cin >> ch4;
+  printf("The four characters on input are: '%c', '%c', '%c', '%c'.\n", ch1, ch2, ch3, ch4);
+  printf("Their ASCII values in hexadecimal are: '%#0x', '%#0x', '%#0x', '%#0x'.\n", ch1, ch2, ch3, ch4);
 
-  printf("The four characters on input are: '%c', '%c', '%c', '%c'.", num1, num2, num3, num4);
-  printf("Their ASCII values in hexadecimal are: '%#0x', '%#0x', '%#0x', '%#0x'.", num1, num2, num3, num4);
-  
+  int word = 0x0;
+  word = insertByte(word, ch1, 0);
+  word = insertByte(word, ch2, 1);
+  word = insertByte(word, ch3, 2);
+  word = insertByte(word, ch4, 3);
+  printf("The 32 bit word in decimal: '%d'.\n", word);
+  printf("The 32 bit word as an unsigned decimal: '%d'.\n", (unsigned int)word);
+  printf("The 32 bit word as hexadecimal: '%#0x'.\n", word);
 }
 
 int main () {
