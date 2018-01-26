@@ -9,7 +9,5 @@ using namespace std;
 int main(int argc, char * argv[])
 {
   Simulator s;
-
-  int line = 0x01200000;
-  s.executeLine(line);
+  s.executeLine();
 }

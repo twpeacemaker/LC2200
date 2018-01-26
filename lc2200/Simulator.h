@@ -2,6 +2,7 @@
 #define INCLUDED_SIMULATOR
 
 #include "CPU.h"
+#include "Memory.h"
 #include "constants.h"
 
 class Simulator {
@@ -11,6 +12,7 @@ class Simulator {
   private:
 
     CPU cpu;
+    Memory * memory; // holds the pointer to memory
 
     //======================================
     // Word Getters
@@ -126,9 +128,13 @@ class Simulator {
     // Post: initlizes the Simulator class
     Simulator();
 
+    // Pre : @param unsigned int memory_size inits the size of memory
+    // Post: initlizes the Simulator class
+    Simulator(unsigned int memory_size);
+
     //PRE:  @param int line, is the line to be executed
     //POST:
-    void executeLine(int line);
+    void executeLine();
 
     // //PRE:
     // //POST:

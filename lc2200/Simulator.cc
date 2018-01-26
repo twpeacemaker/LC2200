@@ -1,22 +1,30 @@
 #include "Simulator.h"
 #include "CPU.h"
+#include "Memory.h"
 #include "constants.h"
-
 #include "useful_functions/bit_manipulation.cc"
 
 // Default Constructor
 // Pre :
 // Post: initlizes the Simulator class
 Simulator::Simulator() {
-
+  memory = new Memory(); //DEFAULT_MEM
 }
 
-//PRE:  @param int line, is the line to be executed
+
+// Pre : @param unsigned int memory_size inits the size of memory
+// Post: initlizes the Simulator class
+Simulator::Simulator(unsigned int memory_size) {
+  memory = new Memory(memory_size); ////if is specified
+}
+
+//PRE:
 //POST:
-void Simulator::executeLine(int line) {
+void Simulator::executeLine() {
   //printf("Execute Line: %#08x \n", line);
-  int opcode = getOpcode(line);
-  switch(opcode) {
+  int line = 0x01200000; //Fetch the line line and incrm PC
+  int opcode = getOpcode(line); //decode
+  switch(opcode) { //execute
     case ADD:
       add( getRegX(line), getRegY(line), getRegZ(line) );
       break;
@@ -103,8 +111,7 @@ int Simulator::getSignedOrOffset(int line) {
 void Simulator::add(int regX, int regY, int regZ) {
   int sum = cpu.getRegister(regY) + cpu.getRegister(regZ);
   cpu.setRegister(regX, sum);
-
-    //printf("regX(%d) = regY(%d) + regZ(%d)  \n", regX, regY, regZ);
+  //printf("regX(%d) = regY(%d) + regZ(%d)  \n", regX, regY, regZ);
 }
 
 //PRE:  @param int regX, regY, and regZ, range [0-15] inclusive
