@@ -1,5 +1,6 @@
 #ifndef INCLUDED_MEMORY
 #define INCLUDED_MEMORY
+#include "constants.h"
 
 class Memory {
 
@@ -30,6 +31,11 @@ class Memory {
     //      @param int word,  the word of memory to be inserted
     //POST: memory[index] = word
     void setIndex(int index, int word);
+
+    // Destructor
+    // Pre :
+    // Post: releases all dynamic memory
+    ~Memory();
 
 };
 

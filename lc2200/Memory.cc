@@ -30,3 +30,12 @@ int Memory::getIndex(int index) {
 void Memory::setIndex(int index, int word) {
   memory[index] = word;
 }
+
+// Destructor
+// Pre :
+// Post: releases all dynamic memory
+Memory::~Memory() {
+  if (memory != NULL) {
+    delete [] memory;
+  }
+}

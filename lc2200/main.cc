@@ -8,6 +8,6 @@ using namespace std;
 // Post:
 int main(int argc, char * argv[])
 {
-  Simulator s;
-  s.executeLine();
+  //Simulator s;
+  //s.executeLine();
 }
