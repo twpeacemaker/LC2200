@@ -1,5 +1,6 @@
+#include "Terminal.h"
+#include "Exception.h"
 
-#include "Simulator.h"
 #include <iostream>
 using namespace std;
 // Author: Thomas Peacemaker
@@ -8,6 +9,24 @@ using namespace std;
 // Post:
 int main(int argc, char * argv[])
 {
-  //Simulator s;
-  //s.executeLine();
+
+  if(argc <= 2){
+    try{
+      if(argc == 1) {
+        Terminal t = Terminal();
+        t.start();
+      } else {
+        //Assert: argc == 2
+        Terminal t = Terminal(argv[1]);
+        t.start();
+      }
+    } catch(Exception e){
+      e.handle();
+    }
+
+  } else{
+    cout << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;;
+  }
+
+
 }

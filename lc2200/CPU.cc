@@ -27,7 +27,7 @@ void CPU::setPC(unsigned int new_PC) {
 //PRE:
 //POST: PC += PC + bytes in a word
 void CPU::incrementPC() {
-  PC += BYTES_IN_WORD;
+  PC += 1;
 }
 
 //PRE:  @param int index, index of register [0-15] inclusive

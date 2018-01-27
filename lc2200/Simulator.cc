@@ -2,7 +2,12 @@
 #include "CPU.h"
 #include "Memory.h"
 #include "constants.h"
-#include "useful_functions/bit_manipulation.cc"
+#include "Exception.h"
+#include <stdio.h>
+
+
+#include "useful_functions/bit_manipulation.h"
+#include "useful_functions/char_arrays.h"
 
 // Default Constructor
 // Pre :
@@ -13,18 +18,20 @@ Simulator::Simulator() {
 
 
 // Pre : @param unsigned int memory_size inits the size of memory
+//       memory size is % 4
 // Post: initlizes the Simulator class
 Simulator::Simulator(unsigned int memory_size) {
-  memory = new Memory(memory_size); ////if is specified
+  memory = new Memory( (memory_size / BYTES_IN_WORD)); ////if is specified
 }
 
 //PRE:
 //POST:
-void Simulator::executeLine() {
-  //printf("Execute Line: %#08x \n", line);
-  int line = 0x01200000; //Fetch the line line and incrm PC
-  int opcode = getOpcode(line); //decode
-  switch(opcode) { //execute
+void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
+  int line = getCurrentLine(); //fetch: gets the current line
+  cpu.incrementPC();           //once the line is fetched the PC is incremented
+
+  int opcode = getOpcode(line); //decode: determines opcode being called
+  switch(opcode) { //execute: sends to the correct opcode
     case ADD:
       add( getRegX(line), getRegY(line), getRegZ(line) );
       break;
@@ -50,10 +57,11 @@ void Simulator::executeLine() {
       halt();
       break;
     case IN:
-      in( getRegX(line) );
+      in_bool = true; //signal to say the simulator needs input
       break;
     case OUT:
-      out( getRegX(line) );
+      out_bool = true;//signal to say the simulator needs output
+      out( getRegX(line), output ); //builds the output
       break;
     case LA:
       la( getRegX(line), getSignedOrOffset(line));
@@ -65,6 +73,32 @@ void Simulator::executeLine() {
       cerr << "default \n";
       break;
   }
+}
+
+//PRE: @param int num_step, the number of lines to execute
+//     @param bool in, iif true the program needs input
+//     @param book out iif true the program needs output
+//     @param done iff the progam has reached the halt statemetn
+//     @param char* output the output if out is true
+//POST:runs n steps of the currently loaded program
+void Simulator::stepSim(int & num_steps, bool & in, bool & out, bool & done, char * output) {
+  while(num_steps > 0) {
+    //cout << num_steps << endl;
+    executeLine(in, out, output);
+    num_steps--;
+  }
+  done = true;
+}
+
+//PRE:  @param char * input, takes the input to run
+//      @param char * output, takes the output to be build up
+//POST: @print the content of memory
+//      if 1 token given, 0 - memory size
+//      if 2 tokens token[1] - memory size
+//      if 3 tokens token[1] - token[2]
+void memSim(char * input, char * output) {
+
+    output = memory.getStatus(input);
 }
 
 //======================================
@@ -99,6 +133,35 @@ int Simulator::getRegZ(int line) {
 //POST: @return int Signed Value or Offset from the line is executed
 int Simulator::getSignedOrOffset(int line) {
   return getBits(line, SIGNED_OR_OFFSET_UPPER_BIT, SIGNED_OR_OFFSET_LOWER_BIT);
+}
+
+//PRE:
+//POST: @returns the current progame line
+int Simulator::getCurrentLine() {
+  //return memory->getIndex(cpu.getPC());
+  return 0xA0000000;
+}
+
+//PRE:
+//POST: @returns the previous progame line
+int Simulator::getPrevLine() {
+  //return memory->getIndex(cpu.getPC() - 1);
+  return 0xA0000000;
+}
+
+//======================================
+// INPUT
+//======================================
+
+//PRE:  @param int input, should be valid to be entered to a register at the
+//      current line
+//POST: sets the register specifed in the current line to the input taken
+void Simulator::giveInput(char * input) {
+  int line = getPrevLine();
+  int num = array_to_int(input);
+  in( getRegX(line), num );
+
+
 }
 
 //======================================
@@ -177,16 +240,19 @@ void Simulator::jalr(int regX, int regY) {
 // U - Type Operations
 //======================================
 
-//PRE:  @param int regX, range [0-15] inclusive
+//PRE: @param int regX, range [0-15] inclusive
+//PRE: @param int num, the number to be entered to regX
 //POST: takes input from terminal, x and sets regX = x;
-void Simulator::in(int regX) {
-
+void Simulator::in(int regX, int num) {
+    //cout << "REG: " << regX << " = " << num << endl;
+    cpu.setRegister(regX, num);
 }
 
 //PRE:  @param int regX, range [0-15] inclusive
+//      @param int & output, makes the output to send to the termainal
 //POST: prints the content of regX to the terminal
-void Simulator::out(int regX) {
-
+void Simulator::out(int regX, char output[]) {
+   sprintf (output, "%d", cpu.getRegister(regX));
 }
 
 //======================================

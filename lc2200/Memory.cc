@@ -1,6 +1,9 @@
 #include "constants.h"
 #include "Memory.h"
 
+#include <iostream>
+using namespace std;
+
 // Default Constructor
 // Pre :
 // Post: created an array of memory of size DEFAULT_MEM,
@@ -10,11 +13,11 @@ Memory::Memory() {
 }
 
 // Constructor
-// Pre : @param unsigned int memory_size, size of int, must be postitive
+// Pre : @param unsigned int memory_size, size of int, must be postitive and %4
 // Post: created an array of memory of size n
 Memory::Memory(unsigned int memory_size) {
-  memory = new unsigned int[memory_size];
-  size   = memory_size;
+    memory = new unsigned int[memory_size];
+    size   = memory_size;
 }
 
 //PRE:  @param int index, index of memory

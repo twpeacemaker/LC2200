@@ -1,12 +1,18 @@
 GCC=g++
 
-Simulator: main.o simulator.o cpu.o memory.o
-	$(GCC) main.o simulator.o cpu.o memory.o -o Simulator
+Simulator: terminal.o main.o simulator.o cpu.o memory.o MyString.o bit_manipulation.o char_arrays.o
+	$(GCC) main.o simulator.o cpu.o memory.o terminal.o MyString.o bit_manipulation.o char_arrays.o -o Simulator
 
-main.o: main.cc simulator.o
+terminal.o: Exception.h Terminal.h Terminal.cc MyString.o simulator.o  useful_functions/char_arrays.h
+	$(GCC) Terminal.cc -c
+
+MyString.o: useful_classes/MyString.cc useful_classes/MyString.h useful_classes/LList.h
+	$(GCC) useful_classes/MyString.cc -c
+
+main.o: main.cc terminal.o
 	$(GCC) main.cc -c
 
-simulator.o: cpu.o Simulator.h Simulator.cc bit_manipulation.o
+simulator.o: cpu.o Simulator.h Simulator.cc Exception.h useful_functions/bit_manipulation.h useful_functions/char_arrays.h
 	$(GCC) Simulator.cc -c
 
 cpu.o: constants.h CPU.h CPU.cc
@@ -17,6 +23,9 @@ memory.o: constants.h Memory.cc Memory.h
 
 bit_manipulation.o: useful_functions/bit_manipulation.cc useful_functions/bit_manipulation.h constants.h
 	$(GCC) useful_functions/bit_manipulation.cc -c
+
+char_arrays.o: useful_functions/char_arrays.cc useful_functions/char_arrays.h Exception.h constants.h
+	$(GCC) useful_functions/char_arrays.cc -c
 
 
 

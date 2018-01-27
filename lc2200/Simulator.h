@@ -1,9 +1,12 @@
 #ifndef INCLUDED_SIMULATOR
 #define INCLUDED_SIMULATOR
 
+#include "Simulator.h"
 #include "CPU.h"
 #include "Memory.h"
 #include "constants.h"
+#include "Exception.h"
+#include <stdio.h>
 
 class Simulator {
 
@@ -37,6 +40,14 @@ class Simulator {
     //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
     //POST: @return int Signed Value or Offset from the line is executed
     int getSignedOrOffset(int line);
+
+    //PRE:
+    //POST: @returns the current progame line
+    int getCurrentLine();
+
+    //PRE:
+    //POST: @returns the previous progame line
+    int getPrevLine();
 
     //======================================
     // R - Type Operations
@@ -94,13 +105,14 @@ class Simulator {
     // U - Type Operations
     //======================================
 
-    //PRE:  @param int regX, range [0-15] inclusive
+    //PRE: @param int regX, range [0-15] inclusive
+    //PRE: @param int num, the number to be entered to regX
     //POST: takes input from terminal, x and sets regX = x;
-    void in(int regX);
+    void in(int regX, int num);
 
     //PRE:  @param int regX, range [0-15] inclusive
     //POST: prints the content of regX to the terminal
-    void out(int regX);
+    void out(int regX, char output[]);
 
     //======================================
     // L - Type Operations
@@ -132,29 +144,47 @@ class Simulator {
     // Post: initlizes the Simulator class
     Simulator(unsigned int memory_size);
 
-    //PRE:  @param int line, is the line to be executed
+    //PRE:
     //POST:
-    void executeLine();
+    void executeLine(bool & in, bool & out, char output[]);
 
-    // //PRE:
-    // //POST:
-    // void load();
-    //
-    // //PRE:
-    // //POST:
-    // void cpu();
-    //
-    // //PRE:
-    // //POST:
-    // void step();
-    //
-    // //PRE:
-    // //POST:
-    // void run();
-    //
-    // //PRE:
-    // //POST:
-    // void exit();
+    //======================================
+    // INPUT
+    //======================================
+
+    //PRE:  @param char * input, should be valid to be entered to a register at the
+    //      current line
+    //POST: sets the register specifed in the current line to the input taken
+    void giveInput(char * input);
+
+    //PRE: @param int num_step, the number of lines to execute
+    //     @param bool in, iif true the program needs input
+    //     @param book out iif true the program needs output
+    //     @param done iff the progam has reached the halt statemetn
+    //     @param char* output the output if out is true
+    //POST:runs n steps of the currently loaded program
+    void loadSim();
+
+    //PRE:  @param char * input, takes the input to run
+    //      @param char * output, takes the output to be build up
+    //POST: @print the content of memory
+    //      if 1 token given, 0 - memory size is printed
+    //      if 2 tokens token[1] - memory size is printed
+    //      if 3 tokens token[1] - token[2] is printed
+    void memSim(char * input, char * output);
+
+    //PRE:
+    //POST:
+    void cpuSim();
+
+    //PRE:
+    //POST:
+    void stepSim(int & num_steps, bool & in, bool & out, bool & done, char output[]);
+
+    //PRE:
+    //POST:
+    void runSim();
+
 
 };
 

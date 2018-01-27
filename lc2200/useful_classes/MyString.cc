@@ -242,6 +242,7 @@ ostream & operator <<(ostream & str, const MyString * M){
   return (str);
 }
 
+
 //PRE: inited mystring, ch is the character you want the fuction to split the
 //     string up into
 //POST:returns a linked list object of of string split by the var given so if
@@ -249,15 +250,15 @@ ostream & operator <<(ostream & str, const MyString * M){
 //     "Peacemaker"],
 LList<MyString> MyString::split(char ch) {
      LList<MyString> list;
-     MyString * current = new MyString();
+     MyString current = MyString();
      for(int i = 0; i < currentSize + 1; i++) {
           //cout << requestindex(i) << ' ' << "Space"<< endl;
           if(requestindex(i) == ch || i == currentSize) {
-               MyString * temp = new MyString(current->getString());
-               list.addFront(temp);
-               current->resetString();
+               MyString temp = MyString(current.getString());
+               list.addBack(temp);
+               current.resetString();
           } else {
-               current->add(requestindex(i));
+               current.add(requestindex(i));
           }
      }
      return list;

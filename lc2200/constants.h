@@ -1,10 +1,14 @@
 #ifndef INCLUDED_CONSTANTS
 #define INCLUDED_CONSTANTS
 
+
+
 // static char ARRAY[][8] =
 // {
 // 	"example",
 // };
+
+#define MAX_INPUT_SIZE 80
 
 //default config
 #define DEFAULT_MEM 1024
@@ -15,6 +19,11 @@
 #define BYTES_IN_WORD 4
 #define BITS_IN_BYTES 8
 #define WORD_SIZE 		32
+
+//char arrays
+#define AOFFSET 10
+
+#define MAX_OUTPUT_REGISTER_SIZE 5
 
 
 #define OPCODE_UPPER_BIT 31
@@ -51,6 +60,33 @@ enum opcodes
 	LA = 12,
 	BGT
 };
+
+static char COMMANDS[][6] =
+{
+"load",
+"mem",
+"cpu",
+"step",
+"run",
+"exit"
+};
+
+#define LOAD_NUM 	0
+#define MEM_NUM 	1
+#define CPU_NUM 	2
+#define STEP_NUM 	3
+#define RUN_NUM 	4
+#define EXIT_NUM 	5
+
+#define NUMBER_OF_LOAD_PARAMS 2
+#define NUMBER_OF_MEM_PARAMS 	3
+#define NUMBER_OF_CPU_PARAMS 	1
+#define NUMBER_OF_STEP_PARAMS 2
+#define NUMBER_OF_RUN_PARAMS 	1
+#define NUMBER_OF_EXIT_PARAMS 1
+
+#define STEP_TOKEN_N 1
+
 
 // #define LOAD_NUM 0
 // #define MEM_NUM  1
