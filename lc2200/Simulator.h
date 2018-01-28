@@ -171,7 +171,7 @@ class Simulator {
     //      if 1 token given, 0 - memory size is printed
     //      if 2 tokens token[1] - memory size is printed
     //      if 3 tokens token[1] - token[2] is printed
-    void memSim(char * input, char * output);
+    char * memSim(char * input);
 
     //PRE:
     //POST:

@@ -133,7 +133,7 @@ void Terminal::load(char * input) {
 // Post: prints to termmial the memory ranage inclusive
 void Terminal::mem(char * input) {
   char * output;
-  simulator->memSim(input, output);
+  output = simulator->memSim(input);
   cout << output << endl;
 }
 

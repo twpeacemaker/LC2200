@@ -91,14 +91,12 @@ void Simulator::stepSim(int & num_steps, bool & in, bool & out, bool & done, cha
 }
 
 //PRE:  @param char * input, takes the input to run
-//      @param char * output, takes the output to be build up
-//POST: @print the content of memory
+//POST: @return char*, the content of memory
 //      if 1 token given, 0 - memory size
 //      if 2 tokens token[1] - memory size
 //      if 3 tokens token[1] - token[2]
-void memSim(char * input, char * output) {
-
-    output = memory.getStatus(input);
+char * Simulator::memSim(char * input) {
+    return memory->getOutput(input);
 }
 
 //======================================

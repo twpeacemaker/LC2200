@@ -11,7 +11,7 @@
 #define MAX_INPUT_SIZE 80
 
 //default config
-#define DEFAULT_MEM 1024
+#define DEFAULT_MEM 256
 #define DEFAULT_STACK 64
 
 //bit manipulation
