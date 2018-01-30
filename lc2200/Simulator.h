@@ -166,16 +166,15 @@ class Simulator {
     void loadSim();
 
     //PRE:  @param char * input, takes the input to run
-    //      @param char * output, takes the output to be build up
     //POST: @print the content of memory
     //      if 1 token given, 0 - memory size is printed
     //      if 2 tokens token[1] - memory size is printed
     //      if 3 tokens token[1] - token[2] is printed
     char * memSim(char * input);
 
-    //PRE:
-    //POST:
-    void cpuSim();
+    //PRE:  @param char * input, takes the input to run
+    //POST: @returns a char* that is properly formated
+    char * cpuSim();
 
     //PRE:
     //POST:

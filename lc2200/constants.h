@@ -3,16 +3,29 @@
 
 
 
-// static char ARRAY[][8] =
-// {
-// 	"example",
-// };
+
+static char REGISTER_NAMES[][6] =
+{
+	"$zero", "$at", "$v0", "$a0", "$a1", "$a2",
+	"$t0"  , "$t1", "$t2", "$s0", "$s1", "$s2",
+	"$k0"  , "$sp", "$fp", "$ra"
+};
 
 #define MAX_INPUT_SIZE 80
 
 //default config
-#define DEFAULT_MEM 256
+#define DEFAULT_MEM 1024
 #define DEFAULT_STACK 64
+
+#define NUMBER_OF_COLS_IN_MEM 4
+#define COL_ONE_MEM 1
+#define COL_TWO_MEM 2
+#define COL_THREE_MEM 3
+#define MAX_COL_MEM 40
+
+#define MAX_COL_CPU 40
+#define NUMBER_OF_COLS_IN_CPU 4
+
 
 //bit manipulation
 #define MAX_BYTE_SIZE 0x000000FF

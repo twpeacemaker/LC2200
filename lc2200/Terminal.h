@@ -35,9 +35,10 @@ class Terminal {
     // Post: prints to termmial the memory ranage inclusive
     void mem(char * input);
 
-    // Pre:
+    // Pre: @param char * input, int input string the user specifed
     // Post: prints to termmial the the values of registers
     void cpu();
+
     // Pre: @param char * input, int input string the user specifed
     // Post: exe n number of lines or until the program is done
     void step(char * input);

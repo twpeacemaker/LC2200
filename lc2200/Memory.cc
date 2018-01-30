@@ -4,6 +4,7 @@
 #include "useful_functions/char_arrays.h"
 #include "Exception.h"
 
+
 #include <iostream>
 using namespace std;
 
@@ -41,19 +42,45 @@ void Memory::setIndex(int index, int word) {
 //      @param char * output, takes the output to be build up
 //POST: @return the array to sent to the terminal to display
 char * Memory::getOutput(char * input) {
-
-                   //removes the command from the list
-
+  //removes the command from the list
   int lower_bound = 0;
   int upper_bound = size;
   getUpperLowerBound(input, lower_bound, upper_bound); // all are validated
-  for (int i = lower_bound; i <= upper_bound; i) {
-
+  MyString string;
+  char * temp;
+  for (int i = lower_bound; i <= upper_bound; i = i + NUMBER_OF_COLS_IN_MEM) {
+    if (i <= upper_bound) {
+      temp = getMemCommandCol(i);
+      string.addString(temp);
+      delete [] temp;
+      temp = NULL;
+    } if (i + COL_ONE_MEM <= upper_bound) {
+      temp = getMemCommandCol(i + COL_ONE_MEM);
+      string.addString(temp);
+      delete [] temp;
+      temp = NULL;
+    } if (i + COL_TWO_MEM <= upper_bound) {
+      temp = getMemCommandCol(i + COL_TWO_MEM);
+      string.addString(temp);
+      delete [] temp;
+      temp = NULL;
+    } if (i + COL_THREE_MEM <= upper_bound) {
+      temp = getMemCommandCol(i + COL_THREE_MEM);
+      string.addString(temp);
+      delete [] temp;
+      temp = NULL;
+    }
+    string.add('\n'); // adds the new line character
   }
+  return string.getStringDeepCopy();
+}
 
-  cout << lower_bound * 4 << " : " << upper_bound * 4 << endl;
-
-  return (char*)"the output";
+//PRE: @param int index, takes the index of memory
+//POST:@return char* creates appropriate string to add to the cols
+char * Memory::getMemCommandCol(int index) {
+  char * temp = new char[MAX_COL_MEM];
+  sprintf (temp, " %d: 0x%#08x %d ", index * BYTES_IN_WORD, memory[index], memory[index]);
+  return temp;
 }
 
 //PRE: @param char * input, takes the input from the terminal
@@ -64,21 +91,21 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bou
   MyString string = input;
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   tokens.deleteFront();
-
   //ASSERT: tokens size is no more than 2
   if (tokens.getSize() == 1) {
     //first token to the end of memory
-    if (lower_bound > size) {
+    if ( lower_bound >= (size * BYTES_IN_WORD) ) {
       throw(Exception((char *)"LOWER BOUND IS GREATER THAN SIZE"));
     } else if (lower_bound % 4 != 0) {
       throw(Exception((char *)"LOWER BOUND IS NOT A FACTOR OF 4"));
+    } else if (lower_bound < 0) {
+      throw(Exception((char *)"LOWER BOUND IS MUST BE GREATER THAN 0"));
     } else {
-      lower_bound = array_to_int(tokens.getFront().getString()) / 4;
+      lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
     }
-
   } else if(tokens.getSize() > 1) {
-    if (lower_bound > size) {
-      throw(Exception((char *)"LOWER BOUND IS GREATER THAN SIZE"));
+    if (lower_bound >= (size * BYTES_IN_WORD)||upper_bound >= BYTES_IN_WORD) {
+      throw(Exception((char *)"PARAMETER IS GREATER THAN SIZE"));
     } else if (lower_bound > upper_bound) {
       throw(Exception((char *)"LOWER BOUND IS GREATER THAN SIZE"));
     } else if(0 > lower_bound) {
@@ -88,8 +115,8 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bou
     } else if (lower_bound % 4 != 0) {
       throw(Exception((char *)"UPPER BOUND IS NOT A FACTOR OF 4"));
     } else {
-      lower_bound = array_to_int(tokens.getFront().getString()) / 4;
-      upper_bound = array_to_int(tokens.getBack().getString()) / 4;
+      lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
+      upper_bound = array_to_int(tokens.getBack().getString())  / BYTES_IN_WORD;
     }
   }
 }

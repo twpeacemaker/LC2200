@@ -1,6 +1,7 @@
 #include "constants.h"
 #include <iostream>
 #include "CPU.h"
+#include "useful_classes/MyString.h"
 using namespace std;
 
 
@@ -53,6 +54,28 @@ int CPU::getSP() {
 //POST: register[SP] = value
 void CPU::setSP(int value) {
   registers[STACK_POINTER_INDEX] = value;
+}
+
+
+//PRE:
+//POST: @return the array to sent to the terminal to display
+char * CPU::getOutput() {
+  MyString string;
+  char * pc_line = new char [MAX_COL_CPU];
+  sprintf (pc_line, " PC: %d \n", PC * BYTES_IN_WORD);
+  string.addString(pc_line);
+  delete [] pc_line;
+
+  for (int i = 0; i < MAX_REGISTERS; i++) {
+    char * col = new char [MAX_COL_CPU];
+    sprintf (col, " %s: 0x%#08x (%d) ", REGISTER_NAMES[i], registers[i], registers[i]);
+    string.addString(col);
+    if((i + 1) % NUMBER_OF_COLS_IN_CPU == 0) {
+      string.add('\n');
+    }
+    delete [] col;
+  }
+  return string.getStringDeepCopy(); // edit it be a deep
 }
 
 CPU::~CPU() {

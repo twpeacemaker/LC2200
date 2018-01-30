@@ -22,6 +22,7 @@ Simulator::Simulator() {
 // Post: initlizes the Simulator class
 Simulator::Simulator(unsigned int memory_size) {
   memory = new Memory( (memory_size / BYTES_IN_WORD)); ////if is specified
+
 }
 
 //PRE:
@@ -83,7 +84,6 @@ void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
 //POST:runs n steps of the currently loaded program
 void Simulator::stepSim(int & num_steps, bool & in, bool & out, bool & done, char * output) {
   while(num_steps > 0) {
-    //cout << num_steps << endl;
     executeLine(in, out, output);
     num_steps--;
   }
@@ -96,7 +96,13 @@ void Simulator::stepSim(int & num_steps, bool & in, bool & out, bool & done, cha
 //      if 2 tokens token[1] - memory size
 //      if 3 tokens token[1] - token[2]
 char * Simulator::memSim(char * input) {
-    return memory->getOutput(input);
+  return memory->getOutput(input);
+}
+
+//PRE:  @param char * input, takes the input to run
+//POST: @returns a char* that is properly formated
+char * Simulator::cpuSim() {
+  return cpu.getOutput();
 }
 
 //======================================

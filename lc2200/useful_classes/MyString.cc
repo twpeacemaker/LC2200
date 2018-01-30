@@ -160,6 +160,17 @@ char * MyString::getString(){
   return (theString);
 }
 
+// Pre :
+// Post: we will return a deep copy of theString, allocates the proper amount
+//       memory
+char * MyString::getStringDeepCopy(){
+  char * newString = new char[currentMax + 1];
+  for(int i = 0; currentMax + 1 > i; i++ ) {
+    newString[i] = theString[i];
+  }
+  return newString;
+}
+
 // Pre : MyString ch is the MyString object we want to add
 // Post: we will cycle through all the characters of ch
 //       and add them to our current object

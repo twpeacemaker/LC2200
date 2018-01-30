@@ -23,13 +23,10 @@ Terminal::Terminal() {
 // Post: makes the simulator and sets the memory size
 Terminal::Terminal(char * memory_size_char) {
   int memory_size = array_to_int(memory_size_char);
-  if(memory_size % BYTES_IN_WORD == 0) {
-    running = false;
-    //Assert: check to make sure memory / 4
-    simulator = new Simulator(memory_size);
-  } else {
-    throw(Exception((char *)"INVALID MEMORY PARAMETER GIVEN"));
-  }
+  running = false;
+  //Assert: check to make sure memory / 4
+  simulator = new Simulator(memory_size);
+
 
 }
 
@@ -39,13 +36,10 @@ void Terminal::start() {
   running = true;
   while (running == true) {
     try{
-      cout << ">";
-
+      cout << "> ";
       char input [MAX_INPUT_SIZE];
       cin.getline(input, MAX_INPUT_SIZE);
       runCommand(input);
-
-
     } catch(Exception e){
       e.handle();
     }
@@ -98,26 +92,25 @@ void Terminal::runCommand(char * input) {
   } else {
     throw(Exception((char *)"INVALID COMMAND GIVEN"));
   }
+
 }
 
 
 // Pre:
 // Post: @return a array of characters that was given from input
 char * Terminal::getInput() {
-
-  char * input = new char [MAX_INPUT_SIZE];
+  char * input = new char [MAX_INPUT_SIZE]; //fix to be char []
   bool valid_input = false;
   while(!valid_input){
-    cout << "Input : ";
+    cout << "Input: ";
     cin.getline(input, MAX_INPUT_SIZE);
     MyString string = input;
     LList<MyString> tokens = string.split(' ');
-
     if(tokens.getSize() == 1){
       //ASSERT: the input is only one word
       valid_input = true;
     }else{
-      cout << "ERROR: INCORRECT INPUT SIZE." << endl;
+      cout << "ERROR: INCORRECT INPUT SIZE" << endl;
     }
   }
   return input;
@@ -134,13 +127,21 @@ void Terminal::load(char * input) {
 void Terminal::mem(char * input) {
   char * output;
   output = simulator->memSim(input);
-  cout << output << endl;
+  cout << output;
+  delete [] output;
+  output = NULL;
+
 }
 
 // Pre:
 // Post: prints to termmial the the values of registers
 void Terminal::cpu() {
-  cout << "cpu method" << endl;
+  char * output;
+  output = simulator->cpuSim();
+  cout << output;
+  delete [] output;
+  output = NULL;
+
 }
 
 // Pre: @param char * input, int input string the user specifed
@@ -161,24 +162,22 @@ void Terminal::step(char * input) {
     simulator->stepSim(num_steps, in, out, done, output);
     if(in){
       //ASSERT: recived the signal from Simulator asking for input
-      input = getInput();         // gets that input
-      simulator->giveInput(input);// sets that input to the simulator
+      input = getInput();          // gets that input needs to be delted
+      simulator->giveInput(input); // sets that input to the simulator
+      delete [] input;
+      input = NULL;
 
-      if(input != NULL) {
-        delete [] input;
-        input = NULL;
-      }
-    }
-    if (out){
+    } else if (out){
       cout << output << endl;
     }
   }
+
 }
 
 // Pre: @param char * input, int input string the user specifed
 // Post: runs until the program is finnished
 void Terminal::run(char * input) {
-  cout << "run method" << endl;
+  //simulator->stepRun();
 }
 
 // Pre:

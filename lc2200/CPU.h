@@ -50,6 +50,10 @@ class CPU {
      //POST: register[SP] = value
      void setSP(int value);
 
+     //PRE:  @param char * input, takes the input from the terminal
+     //POST: @return the array to sent to the terminal to display
+     char * getOutput();
+
 
      ~CPU();
 

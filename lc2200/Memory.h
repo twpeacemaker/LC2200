@@ -43,6 +43,10 @@ class Memory {
     //POST:
     void getUpperLowerBound(char * input, int & lower_bound, int & upper_bound);
 
+    //PRE: @param int index, takes the index of memory
+    //POST:@return char* creates appropriate string to add to the cols
+    char * getMemCommandCol(int index);
+
     // Destructor
     // Pre :
     // Post: releases all dynamic memory

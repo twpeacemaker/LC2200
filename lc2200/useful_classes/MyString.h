@@ -98,6 +98,11 @@ class MyString {
   // Post: we will return theString
   char * getString();
 
+  // Pre :
+  // Post: we will return a deep copy of theString, allocates the proper amount
+  //       memory
+  char * getStringDeepCopy();
+
   // Pre : MyLines object is defined and statisfies the CI
   //       requested is an integer
   // Post: OS contains the requested index
