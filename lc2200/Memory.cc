@@ -46,31 +46,15 @@ char * Memory::getOutput(char * input) {
   int lower_bound = 0;
   int upper_bound = size;
   getUpperLowerBound(input, lower_bound, upper_bound); // all are validated
-  MyString string;
+  MyString string;                                     // string to be created
   char * temp;
-  for (int i = lower_bound; i <= upper_bound; i = i + NUMBER_OF_COLS_IN_MEM) {
-    if (i <= upper_bound) {
-      temp = getMemCommandCol(i);
-      string.addString(temp);
-      delete [] temp;
-      temp = NULL;
-    } if (i + COL_ONE_MEM <= upper_bound) {
-      temp = getMemCommandCol(i + COL_ONE_MEM);
-      string.addString(temp);
-      delete [] temp;
-      temp = NULL;
-    } if (i + COL_TWO_MEM <= upper_bound) {
-      temp = getMemCommandCol(i + COL_TWO_MEM);
-      string.addString(temp);
-      delete [] temp;
-      temp = NULL;
-    } if (i + COL_THREE_MEM <= upper_bound) {
-      temp = getMemCommandCol(i + COL_THREE_MEM);
-      string.addString(temp);
-      delete [] temp;
-      temp = NULL;
+  for (int i = lower_bound; i <= upper_bound; i++) {
+    temp = getMemCommandCol(i);
+    string.addString(temp);
+    delete [] temp; 
+    if((i + 1) % NUMBER_OF_COLS_IN_MEM == 0 || i ==  upper_bound) {
+      string.add('\n');
     }
-    string.add('\n'); // adds the new line character
   }
   return string.getStringDeepCopy();
 }
@@ -93,33 +77,29 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bou
   tokens.deleteFront();
   //ASSERT: tokens size is no more than 2
   if (tokens.getSize() == 1) {
+    //3
     //first token to the end of memory
-    if ( lower_bound >= (size * BYTES_IN_WORD) ) {
-      throw(Exception((char *)"LOWER BOUND IS GREATER THAN SIZE"));
-    } else if (lower_bound % 4 != 0) {
-      throw(Exception((char *)"LOWER BOUND IS NOT A FACTOR OF 4"));
-    } else if (lower_bound < 0) {
-      throw(Exception((char *)"LOWER BOUND IS MUST BE GREATER THAN 0"));
-    } else {
-      lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
+    if (lower_bound >= (size * BYTES_IN_WORD) ||
+        lower_bound % 4 != 0 ||
+        lower_bound < 0) {
+      throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
     }
+    lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
+
   } else if(tokens.getSize() > 1) {
-    if (lower_bound >= (size * BYTES_IN_WORD)||upper_bound >= BYTES_IN_WORD) {
-      throw(Exception((char *)"PARAMETER IS GREATER THAN SIZE"));
-    } else if (lower_bound > upper_bound) {
-      throw(Exception((char *)"LOWER BOUND IS GREATER THAN SIZE"));
-    } else if(0 > lower_bound) {
-      throw(Exception((char *)"LOWER BOUND IS LESS THAN 0"));
-    } else if (upper_bound % 4 != 0) {
-      throw(Exception((char *)"LOWER BOUND IS NOT A FACTOR OF 4"));
-    } else if (lower_bound % 4 != 0) {
-      throw(Exception((char *)"UPPER BOUND IS NOT A FACTOR OF 4"));
-    } else {
-      lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
-      upper_bound = array_to_int(tokens.getBack().getString())  / BYTES_IN_WORD;
+    if (lower_bound >= (size * BYTES_IN_WORD) ||
+        upper_bound >= (size * BYTES_IN_WORD) ||
+        lower_bound % 4 != 0 ||
+        upper_bound % 4 != 0 ||
+        lower_bound < 0 ||
+        lower_bound > upper_bound) {
+      throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
     }
-  }
+    lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
+    upper_bound = array_to_int(tokens.getBack().getString())  / BYTES_IN_WORD;
+    }
 }
+
 
 // Destructor
 // Pre :

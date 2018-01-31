@@ -11,6 +11,8 @@ static char REGISTER_NAMES[][6] =
 	"$k0"  , "$sp", "$fp", "$ra"
 };
 
+typedef unsigned int uint;
+
 #define MAX_INPUT_SIZE 80
 
 //default config

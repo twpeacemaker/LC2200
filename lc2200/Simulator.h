@@ -7,6 +7,7 @@
 #include "constants.h"
 #include "Exception.h"
 #include <stdio.h>
+#include "PCB.h"
 
 class Simulator {
 
@@ -15,7 +16,9 @@ class Simulator {
   private:
 
     CPU cpu;
-    Memory * memory; // holds the pointer to memory
+    Memory * memory;       // holds the pointer to memory
+    PCB * current_process; // holds the information about the currently loaded
+                           // program
 
     //======================================
     // Word Getters

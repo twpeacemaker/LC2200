@@ -36,7 +36,8 @@ void Terminal::start() {
   running = true;
   while (running == true) {
     try{
-      cout << "> ";
+      //cout << "> ";
+      cout << "LC-2200> ";
       char input [MAX_INPUT_SIZE];
       cin.getline(input, MAX_INPUT_SIZE);
       runCommand(input);

@@ -9,7 +9,7 @@ using namespace std;
 //POST: returns the mask with ones from the left index to the right index
 //      if there is no errors, if the function throws an error the function
 //      return garbage data;
-int getMaskBit(int left_index, int right_index) {
+uint getMaskBit(int left_index, int right_index) {
   int return_value; //Assert: will hold garbage data
   if (left_index < right_index) {
     //Assert: error catch & will return garbage data
@@ -23,8 +23,8 @@ int getMaskBit(int left_index, int right_index) {
   } else {
     int size_of = (left_index - right_index) + 1;;
     //Assert: (1) must be added because the numbers are inclusive
-    int template_mask = 0x00000001;
-    int created_mask  = 0;
+    uint template_mask = 0x00000001;
+    uint created_mask  = 0;
     //Assert: mask is all 0 till the last byte then it is 0001
     for (int i = 0; i < size_of; i++) {
       created_mask  = created_mask + template_mask;
@@ -44,7 +44,7 @@ int getMaskBit(int left_index, int right_index) {
 //      changen int num.
 //POST: will return the sub-bit of int num from left index to right index
 //      inclusive if no errors, if errors will return garbage data
-int getBits(int num, int left_index, int right_index) {
+uint getBits(uint num, int left_index, int right_index) {
     int return_value; //Assert: will hold garbage data
     if (left_index < right_index) {
       //Assert: error catch & will return garbage data
@@ -57,17 +57,17 @@ int getBits(int num, int left_index, int right_index) {
       cerr << "ERROR: The right index is less than 0." << endl;
     } else {
       //Assert: the left index is greater than the right
-      int mask = getMaskBit(left_index, right_index);
-      int new_num = (mask & num) >> right_index;
+      uint mask = getMaskBit(left_index, right_index);
+      uint new_num = (mask & num) >> right_index;
       //printf("Created Mask: %#08x \n" , mask);
       //printf("Num: %#08x \n" , new_num);
-      int new_num_size = left_index - right_index;
+      //int new_num_size = left_index - right_index;
       //printf("new_num_size: %d \n" , new_num_size);
-      int remove_leading_one_mask = getMaskBit(new_num_size, 0);
+      //int remove_leading_one_mask = getMaskBit(new_num_size, 0);
       //printf("remove_leading_one_mask: %#08x \n" , remove_leading_one_mask);
-      return_value = remove_leading_one_mask & new_num;
+      //return_value = remove_leading_one_mask & new_num;
       //printf("Num: %#08x \n" , return_value);
-
+      return_value = new_num;
 
     }
     return (return_value);
@@ -77,14 +77,14 @@ int getBits(int num, int left_index, int right_index) {
 //PRE:  @param int byte_num, [1-4]
 //POST: returns the mask where ones are everywhere other than the byte_num
 //      specifed s
-int getByteMask(int byte_num) {
+uint getByteMask(int byte_num) {
   int return_value;
   if (BYTES_IN_WORD <= byte_num) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: byte_num must be less than the length of a byte." << endl;
   } else {
-    int mask_template = 0xFFFFFFFF;
-    int mask_byte_num = 0xFF000000 >> ((byte_num) * BITS_IN_BYTES);
+    uint mask_template = 0xFFFFFFFF;
+    uint mask_byte_num = 0xFF000000 >> ((byte_num) * BITS_IN_BYTES);
     return_value = mask_template ^ mask_byte_num;
   }
   return return_value;
@@ -96,7 +96,7 @@ int getByteMask(int byte_num) {
 //     @param int byte_num: [0-7]the byte number that to_insert will be
 //            inserted to
 //POST: return num[new_num] where num is replaced by the to_insert
-int insertByte (int num, int to_insert, int byte_num) {
+uint insertByte (uint num, uint to_insert, int byte_num) {
   int return_value;
   if (to_insert > MAX_BYTE_SIZE) {
     //Assert: error catch & will return garbage data
@@ -105,11 +105,11 @@ int insertByte (int num, int to_insert, int byte_num) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: byte_num must be less than the length of a byte." << endl;
   } else {
-      int mask = getByteMask(byte_num);
+      uint mask = getByteMask(byte_num);
 
-      int temp = num & mask;
-      int shift = ((BYTES_IN_WORD-(byte_num + 1)) * BITS_IN_BYTES);
-      int shifted_num2 = to_insert << shift;
+      uint temp = num & mask;
+      uint shift = ((BYTES_IN_WORD-(byte_num + 1)) * BITS_IN_BYTES);
+      uint shifted_num2 = to_insert << shift;
       return_value = shifted_num2 | temp;
       //printf("Mask: %#08x \n" , return_value);
   }

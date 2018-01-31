@@ -4,6 +4,8 @@
 #include "constants.h"
 #include "Exception.h"
 #include <stdio.h>
+#include "PCB.h"
+
 
 
 #include "useful_functions/bit_manipulation.h"
@@ -142,15 +144,13 @@ int Simulator::getSignedOrOffset(int line) {
 //PRE:
 //POST: @returns the current progame line
 int Simulator::getCurrentLine() {
-  //return memory->getIndex(cpu.getPC());
-  return 0xA0000000;
+  return memory->getIndex(cpu.getPC());
 }
 
 //PRE:
 //POST: @returns the previous progame line
 int Simulator::getPrevLine() {
-  //return memory->getIndex(cpu.getPC() - 1);
-  return 0xA0000000;
+  return memory->getIndex(cpu.getPC() - 1);
 }
 
 //======================================
