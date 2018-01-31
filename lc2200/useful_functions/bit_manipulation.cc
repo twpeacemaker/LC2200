@@ -111,7 +111,6 @@ uint insertByte (uint num, uint to_insert, int byte_num) {
       uint shift = ((BYTES_IN_WORD-(byte_num + 1)) * BITS_IN_BYTES);
       uint shifted_num2 = to_insert << shift;
       return_value = shifted_num2 | temp;
-      //printf("Mask: %#08x \n" , return_value);
   }
   return(return_value);
 }
