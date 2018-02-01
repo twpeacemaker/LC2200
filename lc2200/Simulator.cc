@@ -3,11 +3,16 @@
 #include "Memory.h"
 #include "constants.h"
 #include "Exception.h"
-#include <stdio.h>
 #include "PCB.h"
 
+#include <stdio.h>
+
+#include <fstream>
+using namespace std;
 
 
+#include "useful_classes/LList.h"
+#include "useful_classes/MyString.h"
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
 
@@ -19,11 +24,11 @@ Simulator::Simulator() {
 }
 
 
-// Pre : @param unsigned int memory_size inits the size of memory
+// Pre : @param uint memory_size inits the size of memory
 //       memory size is % 4
 // Post: initlizes the Simulator class
-Simulator::Simulator(unsigned int memory_size) {
-  memory = new Memory( (memory_size / BYTES_IN_WORD)); ////if is specified
+Simulator::Simulator(uint memory_size) {
+  memory = new Memory( (memory_size) ); ////if is specified
 
 }
 
@@ -60,10 +65,10 @@ void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
       halt();
       break;
     case IN:
-      in_bool = true; //signal to say the simulator needs input
+      in_bool = true;  //signal to say the simulator needs input
       break;
     case OUT:
-      out_bool = true;//signal to say the simulator needs output
+      out_bool = true; //signal to say the simulator needs output
       out( getRegX(line), output ); //builds the output
       break;
     case LA:
@@ -72,10 +77,40 @@ void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
     case BGT:
       bgt( getRegX(line), getRegY(line), getSignedOrOffset(line) );
       break;
-    default:
-      cerr << "default \n";
-      break;
   }
+}
+
+//PRE:  @param char * input, takes the input from the terminal
+//                           must be no longer than 2 words
+//POST: loads the program into the memory location starting at 0
+void Simulator::loadSim(char * input) {
+  MyString string = input;                   //copies the char* into a MyString
+  LList<MyString> tokens = string.split(' ');//splits the string at ' '
+  MyString name = tokens.getBack();          //gets the second param
+  name.addString((char*)".lce");             //adds the .lce to the program
+
+  ifstream inFile(name.getString()); //openfile stream
+  if(inFile == NULL) {
+    //ASSERT: The file could not be opened
+    throw(Exception((char *)"FILE FAILED TO OPEN"));
+  }
+  //ASSERT: the file is can me read from
+  uint length;           // holds the lenght of progam 
+  inFile >> length;      // gets the length of the program
+  char ch;               // will hold each charater
+  uint current_line = 0; // of memory
+  for(int word_count = 0; word_count < length; word_count++) {
+    uint word = 0;
+    //to build the word
+    for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) {
+      //to add the char in the correct place
+      inFile >> ch;
+      word = insertByte (word, (uint)ch, byte_num);
+    }
+    memory->setIndex(current_line, word); //adds the line to memory
+    current_line++;
+  }
+  inFile.close(); // close the filestream
 }
 
 //PRE: @param int num_step, the number of lines to execute

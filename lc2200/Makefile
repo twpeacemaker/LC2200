@@ -12,13 +12,13 @@ MyString.o: useful_classes/MyString.cc useful_classes/MyString.h useful_classes/
 main.o: main.cc terminal.o
 	$(GCC) main.cc -c
 
-simulator.o: cpu.o Simulator.h Simulator.cc Exception.h useful_functions/bit_manipulation.h useful_functions/char_arrays.h
+simulator.o: cpu.o Simulator.h Simulator.cc Exception.h useful_functions/bit_manipulation.h useful_functions/char_arrays.h useful_classes/MyString.h useful_classes/LList.h
 	$(GCC) Simulator.cc -c
 
-cpu.o: constants.h CPU.h CPU.cc MyString.o
+cpu.o: constants.h CPU.h CPU.cc MyString.o Exception.h
 	$(GCC) CPU.cc -c
 
-memory.o: constants.h Memory.cc Memory.h MyString.o useful_functions/char_arrays.h Exception.h MyString.o
+memory.o: constants.h Memory.cc Memory.h MyString.o useful_functions/char_arrays.h Exception.h 
 	$(GCC) Memory.cc -c
 
 bit_manipulation.o: useful_functions/bit_manipulation.cc useful_functions/bit_manipulation.h constants.h

@@ -10,7 +10,7 @@ using namespace std;
 //      if there is no errors, if the function throws an error the function
 //      return garbage data;
 uint getMaskBit(int left_index, int right_index) {
-  int return_value; //Assert: will hold garbage data
+  uint return_value; //Assert: will hold garbage data
   if (left_index < right_index) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: The left index must be larger than the right index." << endl;
@@ -45,7 +45,7 @@ uint getMaskBit(int left_index, int right_index) {
 //POST: will return the sub-bit of int num from left index to right index
 //      inclusive if no errors, if errors will return garbage data
 uint getBits(uint num, int left_index, int right_index) {
-    int return_value; //Assert: will hold garbage data
+    uint return_value; //Assert: will hold garbage data
     if (left_index < right_index) {
       //Assert: error catch & will return garbage data
       cerr << "ERROR: The left index must be larger than the right index." << endl;
@@ -78,7 +78,7 @@ uint getBits(uint num, int left_index, int right_index) {
 //POST: returns the mask where ones are everywhere other than the byte_num
 //      specifed s
 uint getByteMask(int byte_num) {
-  int return_value;
+  uint return_value;
   if (BYTES_IN_WORD <= byte_num) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: byte_num must be less than the length of a byte." << endl;
@@ -97,7 +97,7 @@ uint getByteMask(int byte_num) {
 //            inserted to
 //POST: return num[new_num] where num is replaced by the to_insert
 uint insertByte (uint num, uint to_insert, int byte_num) {
-  int return_value;
+  uint return_value;
   if (to_insert > MAX_BYTE_SIZE) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: to_insert must be less than the length of a byte." << endl;

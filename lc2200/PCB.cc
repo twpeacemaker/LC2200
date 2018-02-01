@@ -14,12 +14,12 @@ PCB::PCB(char * given_name) {
 //======================================
 
 //PRE:
-//POST: @return, unsigned int program_length
-unsigned int PCB::getLength() {return program_length;}
+//POST: @return, uint program_length
+uint PCB::getLength() {return program_length;}
 
 //PRE:
 //POST: @return, int steps
-unsigned int PCB::getSteps() {return steps;}
+uint PCB::getSteps() {return steps;}
 
 
 //PRE:
@@ -32,7 +32,7 @@ char * PCB::getName() {return name.getString();}
 
 //PRE:  int n, the length of the program
 //POST: sets lenth = n;
-void PCB::setLength(int n) {program_length = n;}
+void PCB::setLength(uint n) {program_length = n;}
 
 //PRE:
 //POST: increments the steps by 1
@@ -44,7 +44,7 @@ void PCB::resetSteps() {steps = 0;}
 
 //PRE:  @param int n, the number to to set to steps
 //POST: sets steps = n
-void PCB::setSteps(int n) {steps = n;}
+void PCB::setSteps(uint n) {steps = n;}
 
 //PRE:  @param char * name, takes the array to set to the new name
 //POST: sets name = new_name

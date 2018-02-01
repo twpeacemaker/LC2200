@@ -143,9 +143,9 @@ class Simulator {
     // Post: initlizes the Simulator class
     Simulator();
 
-    // Pre : @param unsigned int memory_size inits the size of memory
+    // Pre : @param uint memory_size inits the size of memory
     // Post: initlizes the Simulator class
-    Simulator(unsigned int memory_size);
+    Simulator(uint memory_size);
 
     //PRE:
     //POST:
@@ -160,13 +160,10 @@ class Simulator {
     //POST: sets the register specifed in the current line to the input taken
     void giveInput(char * input);
 
-    //PRE: @param int num_step, the number of lines to execute
-    //     @param bool in, iif true the program needs input
-    //     @param book out iif true the program needs output
-    //     @param done iff the progam has reached the halt statemetn
-    //     @param char* output the output if out is true
-    //POST:runs n steps of the currently loaded program
-    void loadSim();
+    //PRE:  @param char * input, takes the input from the terminal
+    //                           must be no longer than 2 words
+    //POST: loads the program into the memory location starting at 0
+    void loadSim(char * input);
 
     //PRE:  @param char * input, takes the input to run
     //POST: @print the content of memory

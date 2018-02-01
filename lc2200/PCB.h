@@ -1,13 +1,13 @@
 #ifndef INCLUDED_PCB
 #define INCLUDED_PCB
-
+#include "constants.h"
 #include "useful_classes/MyString.h"
 
 class PCB {
   private:
-    unsigned int program_length;  //holds the length of the program
-    MyString name;                //holds the name of the progame
-    unsigned int steps;                    //holds the number of steps conducted on pass
+    uint program_length;  //holds the length of the program
+    MyString name;        //holds the name of the progame
+    uint steps;           //holds the number of steps conducted on pass
 
   public:
 
@@ -21,12 +21,12 @@ class PCB {
     //======================================
 
     //PRE:
-    //POST: @return, unsigned int program_length
-    unsigned int getLength();
+    //POST: @return, uint program_length
+    uint getLength();
 
     //PRE:
     //POST: @return, int steps
-    unsigned int getSteps();
+    uint getSteps();
 
     //PRE:
     //POST: returns the name of the progam as a char*
@@ -38,7 +38,7 @@ class PCB {
 
     //PRE:  int n, the length of the program
     //POST: sets lenth = n;
-    void setLength(int n);
+    void setLength(uint n);
 
     //PRE:
     //POST: increments the steps by 1
@@ -50,7 +50,7 @@ class PCB {
 
     //PRE:  @param int n, the number to to set to steps
     //POST: sets steps = n
-    void setSteps(int n);
+    void setSteps(uint n);
 
     //PRE:  @param char * name, takes the array to set to the new name
     //POST: sets name = new_name

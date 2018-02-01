@@ -25,9 +25,9 @@ class CPU {
      //POST: @return int PC, the value that PC contains
      int getPC();
 
-     //PRE:  @param unsigned int new_PC, new_PC >= 0
+     //PRE:  @param uint new_PC, new_PC >= 0
      //POST: PC = new_PC
-     void setPC(unsigned int new_PC);
+     void setPC(uint new_PC);
 
      //PRE:
      //POST: PC += PC + bytes in a word

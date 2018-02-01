@@ -8,8 +8,8 @@ class Memory {
 
   private:
 
-    unsigned int * memory;
-    unsigned int   size;
+    uint * memory;
+    uint   size;
 
   public:
 
@@ -19,9 +19,9 @@ class Memory {
     Memory();
 
     // Constructor
-    // Pre : @param unsigned int memory_size, size of int, must be postitive
+    // Pre : @param uint memory_size, size of int, must be postitive
     // Post: created an array of memory of size n
-    Memory(unsigned int memory_size);
+    Memory(uint memory_size);
 
     //PRE:  @param int index, index of memory
     //POST: @return memory[index]

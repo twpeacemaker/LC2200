@@ -12,15 +12,15 @@ using namespace std;
 // Pre :
 // Post: created an array of memory of size DEFAULT_MEM,
 Memory::Memory() {
-  memory = new unsigned int[DEFAULT_MEM];
+  memory = new uint[DEFAULT_MEM];
   size   = DEFAULT_MEM;
 }
 
 // Constructor
-// Pre : @param unsigned int memory_size, size of int, must be postitive and %4
+// Pre : @param uint memory_size, size of int, must be postitive and %4
 // Post: created an array of memory of size n
-Memory::Memory(unsigned int memory_size) {
-    memory = new unsigned int[memory_size];
+Memory::Memory(uint memory_size) {
+    memory = new uint[memory_size];
     size   = memory_size;
 }
 
@@ -51,7 +51,7 @@ char * Memory::getOutput(char * input) {
   for (int i = lower_bound; i <= upper_bound; i++) {
     temp = getMemCommandCol(i);
     string.addString(temp);
-    delete [] temp; 
+    delete [] temp;
     if((i + 1) % NUMBER_OF_COLS_IN_MEM == 0 || i ==  upper_bound) {
       string.add('\n');
     }

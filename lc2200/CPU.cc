@@ -1,4 +1,5 @@
 #include "constants.h"
+#include "Exception.h"
 #include <iostream>
 #include "CPU.h"
 #include "useful_classes/MyString.h"
@@ -19,9 +20,9 @@ int CPU::getPC() {
   return PC;
 }
 
-//PRE:  @param unsigned int new_PC, new_PC >= 0
+//PRE:  @param uint new_PC, new_PC >= 0
 //POST: PC = new_PC
-void CPU::setPC(unsigned int new_PC) {
+void CPU::setPC(uint new_PC) {
   PC = new_PC;
 }
 
@@ -41,7 +42,11 @@ int CPU::getRegister(int index) {
 //      @param int value, the value you want register[index] to be
 //POST: register[index] = value
 void CPU::setRegister(int index, int value) {
-  registers[index] = value;
+  if (index == 0 && value != 0) {
+    throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
+  } else {
+    registers[index] = value;
+  }
 }
 
 //PRE:

@@ -117,10 +117,10 @@ char * Terminal::getInput() {
   return input;
 }
 
-// Pre: @param char * input, int input string the user specifed
-// Post:
+// Pre:  @param char * input, int input string the user specifed
+// Post: sends the input to the simulator to be loaded
 void Terminal::load(char * input) {
-  cout << "load method" << endl;
+  simulator->loadSim(input);
 }
 
 // Pre: @param char * input, int input string the user specifed
