@@ -1,11 +1,19 @@
-#include "useful_classes/MyString.h"
 #include "PCB.h"
+
+
+//PRE:
+//POST:
+PCB::PCB() {
+
+}
 
 //Constructor
 //PRE:  @param char * name, the name of the program
+//      @param uint given_length, the length of the progam
 //POST: creates the object
-PCB::PCB(char * given_name) {
+PCB::PCB(char * given_name, uint length) {
   name = given_name;
+  program_length = length;
   steps = 0;
 }
 
@@ -24,7 +32,7 @@ uint PCB::getSteps() {return steps;}
 
 //PRE:
 //POST: returns the name of the progam as a char*
-char * PCB::getName() {return name.getString();}
+char * PCB::getName() {return name;}
 
 //======================================
 // Setters
@@ -49,3 +57,12 @@ void PCB::setSteps(uint n) {steps = n;}
 //PRE:  @param char * name, takes the array to set to the new name
 //POST: sets name = new_name
 void PCB::setName(char * new_name) {name = new_name;}
+
+//PRE:
+//POST: deletes the dynamic memory
+PCB::~PCB() {
+  if (name != NULL) {
+    delete [] name;
+    name = NULL;
+  }
+}

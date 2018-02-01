@@ -1,20 +1,25 @@
 #ifndef INCLUDED_PCB
 #define INCLUDED_PCB
 #include "constants.h"
-#include "useful_classes/MyString.h"
+#include <stdio.h>
 
 class PCB {
   private:
     uint program_length;  //holds the length of the program
-    MyString name;        //holds the name of the progame
+    char * name;        //holds the name of the progame
     uint steps;           //holds the number of steps conducted on pass
 
   public:
 
+    //PRE:
+    //POST:
+    PCB();
+
     //Constructor
     //PRE:  @param char * name, the name of the program
+    //      @param uint given_length, the length of the progam
     //POST: creates the object
-    PCB(char * given_name);
+    PCB(char * given_name, uint length);
 
     //======================================
     // Getters
@@ -55,5 +60,9 @@ class PCB {
     //PRE:  @param char * name, takes the array to set to the new name
     //POST: sets name = new_name
     void setName(char * new_name);
+
+    //PRE:
+    //POST: deletes the dynamic memory
+    ~PCB();
 };
 #endif

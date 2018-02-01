@@ -80,22 +80,31 @@ void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
   }
 }
 
-//PRE:  @param char * input, takes the input from the terminal
-//                           must be no longer than 2 words
-//POST: loads the program into the memory location starting at 0
-void Simulator::loadSim(char * input) {
+//PRE:  @param char * input gets thr program name from the input
+//                    takes the input from the terminal
+//                    must be no longer than 2 words
+//POST: @returns a dynamicly created char* of the progam name + .lce
+char * Simulator::getProgamName(char * input) {
   MyString string = input;                   //copies the char* into a MyString
   LList<MyString> tokens = string.split(' ');//splits the string at ' '
   MyString name = tokens.getBack();          //gets the second param
   name.addString((char*)".lce");             //adds the .lce to the program
+  return name.getStringDeepCopy();
+}
 
-  ifstream inFile(name.getString()); //openfile stream
+
+//PRE:  @param char * input, takes the input from the terminal
+//                           must be no longer than 2 words
+//POST: loads the program into the memory location starting at 0
+void Simulator::loadSim(char * input) {
+  char * file_name = getProgamName(input); //gets the progam name with + .lce
+  ifstream inFile(file_name); //openfile stream
   if(inFile == NULL) {
     //ASSERT: The file could not be opened
     throw(Exception((char *)"FILE FAILED TO OPEN"));
   }
   //ASSERT: the file is can me read from
-  uint length;           // holds the lenght of progam 
+  uint length;           // holds the lenght of progam
   inFile >> length;      // gets the length of the program
   char ch;               // will hold each charater
   uint current_line = 0; // of memory
@@ -111,6 +120,7 @@ void Simulator::loadSim(char * input) {
     current_line++;
   }
   inFile.close(); // close the filestream
+  current_process = new PCB(file_name, length);
 }
 
 //PRE: @param int num_step, the number of lines to execute
@@ -120,11 +130,7 @@ void Simulator::loadSim(char * input) {
 //     @param char* output the output if out is true
 //POST:runs n steps of the currently loaded program
 void Simulator::stepSim(int & num_steps, bool & in, bool & out, bool & done, char * output) {
-  while(num_steps > 0) {
-    executeLine(in, out, output);
-    num_steps--;
-  }
-  done = true;
+
 }
 
 //PRE:  @param char * input, takes the input to run

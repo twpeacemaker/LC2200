@@ -134,6 +134,9 @@ class Simulator {
     //POST: stops the program
     void halt();
 
+    //PRE:  @param char * input gets thr program name from the input
+    //POST: @returns a dynamicly created char* of the progam name
+    char * getProgamName(char * input);
 
 
   public:
