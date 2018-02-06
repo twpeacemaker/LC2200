@@ -6,3 +6,4 @@ NAND $t1 $a0 $a0
 ADDI $a1 $t1 1
 
 HALT
+
