@@ -115,7 +115,7 @@ class Simulator {
 
     //PRE:  @param int regX, range [0-15] inclusive
     //POST: prints the content of regX to the terminal
-    void out(int regX, char output[]);
+    char * out(int regX);
 
     //======================================
     // L - Type Operations
@@ -151,8 +151,12 @@ class Simulator {
     Simulator(uint memory_size);
 
     //PRE:
+    //POST: @return iif out_bool is true is the return meaningful
+    char * executeLine(bool & in_bool, bool & out_bool);
+
+    //PRE:  @param char * input, the number
     //POST:
-    void executeLine(bool & in, bool & out, char output[]);
+    char * runCommand(char * input, bool & in_bool, bool & out_bool, bool & done);
 
     //======================================
     // INPUT
@@ -181,7 +185,7 @@ class Simulator {
 
     //PRE:
     //POST:
-    void stepSim(int & num_steps, bool & in, bool & out, bool & done, char output[]);
+    char * stepSim(int num_steps, bool & in, bool & out, bool & done);
 
     //PRE:
     //POST:

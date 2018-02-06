@@ -21,6 +21,7 @@ using namespace std;
 // Post: initlizes the Simulator class
 Simulator::Simulator() {
   memory = new Memory(); //DEFAULT_MEM
+  current_process = NULL;
 }
 
 
@@ -29,16 +30,17 @@ Simulator::Simulator() {
 // Post: initlizes the Simulator class
 Simulator::Simulator(uint memory_size) {
   memory = new Memory( (memory_size) ); ////if is specified
+  current_process = NULL;
 
 }
 
 //PRE:
-//POST:
-void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
+//POST: @return iif out_bool is true is the return meaningful
+char * Simulator::executeLine(bool & in_bool, bool & out_bool) {
   int line = getCurrentLine(); //fetch: gets the current line
   cpu.incrementPC();           //once the line is fetched the PC is incremented
-
   int opcode = getOpcode(line); //decode: determines opcode being called
+  char * output;
   switch(opcode) { //execute: sends to the correct opcode
     case ADD:
       add( getRegX(line), getRegY(line), getRegZ(line) );
@@ -69,7 +71,7 @@ void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
       break;
     case OUT:
       out_bool = true; //signal to say the simulator needs output
-      out( getRegX(line), output ); //builds the output
+      output = out( getRegX(line)); //builds the output
       break;
     case LA:
       la( getRegX(line), getSignedOrOffset(line));
@@ -78,6 +80,42 @@ void Simulator::executeLine(bool & in_bool, bool & out_bool, char output[]) {
       bgt( getRegX(line), getRegY(line), getSignedOrOffset(line) );
       break;
   }
+  return output;
+}
+
+//PRE:  @param char * input, the number
+//POST:
+char * Simulator::runCommand(char * input, bool & in_bool, bool & out_bool, bool & done) {
+  char * return_value;
+  MyString string = input;                    //copies the char* into a MyString
+  LList<MyString> tokens = string.split(' '); //splits the string at ' '
+  MyString command = tokens.getFront();       //gets the command
+
+  if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
+    loadSim(input);
+    out_bool = false;
+    done = true;
+  }
+  else if( compareCharArray(command.getString(), COMMANDS[MEM_NUM]) ) {
+    return_value = memSim(input);
+    out_bool = true;
+    done = true;
+  }
+  else if( compareCharArray(command.getString(), COMMANDS[CPU_NUM]) ) {
+    return_value = cpuSim();
+    out_bool = true;
+    done = true;
+  }
+  else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
+    out_bool = false;
+    done = false;
+    int num_steps = array_to_int( tokens.getNth(STEP_TOKEN_N).getString() );
+    return_value = stepSim(num_steps, in_bool, out_bool, done);
+  }
+  else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
+
+  }
+  return return_value;
 }
 
 //PRE:  @param char * input gets thr program name from the input
@@ -92,7 +130,6 @@ char * Simulator::getProgamName(char * input) {
   return name.getStringDeepCopy();
 }
 
-
 //PRE:  @param char * input, takes the input from the terminal
 //                           must be no longer than 2 words
 //POST: loads the program into the memory location starting at 0
@@ -101,17 +138,17 @@ void Simulator::loadSim(char * input) {
   ifstream inFile(file_name); //openfile stream
   if(inFile == NULL) {
     //ASSERT: The file could not be opened
-    throw(Exception((char *)"FILE FAILED TO OPEN"));
+    throw(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
   }
   //ASSERT: the file is can me read from
-  uint length;           // holds the lenght of progam
+  uint length;           // holds the length of progam
   inFile >> length;      // gets the length of the program
   char ch;               // will hold each charater
   uint current_line = 0; // of memory
   for(int word_count = 0; word_count < length; word_count++) {
-    uint word = 0;
+    uint word = 0;        //0x00000000
     //to build the word
-    for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) {
+    for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) { //x00112233
       //to add the char in the correct place
       inFile >> ch;
       word = insertByte (word, (uint)ch, byte_num);
@@ -127,10 +164,23 @@ void Simulator::loadSim(char * input) {
 //     @param bool in, iif true the program needs input
 //     @param book out iif true the program needs output
 //     @param done iff the progam has reached the halt statemetn
-//     @param char* output the output if out is true
 //POST:runs n steps of the currently loaded program
-void Simulator::stepSim(int & num_steps, bool & in, bool & out, bool & done, char * output) {
-
+char * Simulator::stepSim(int num_steps, bool & in, bool & out, bool & done) {
+  char * output; // holds the memory location of output only meaningful iff
+                 // out = True otherwise is garbage
+  if(current_process != NULL) {
+    while((num_steps > current_process->getSteps()) && !in && !out && !done) {
+        output = executeLine(in, out);
+        current_process->incrementSteps();
+    }
+    if(num_steps == current_process->getSteps()) {
+        done = true;
+        current_process->resetSteps();
+    }
+  } else {
+    throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
+  }
+  return output;
 }
 
 //PRE:  @param char * input, takes the input to run
@@ -294,10 +344,12 @@ void Simulator::in(int regX, int num) {
 }
 
 //PRE:  @param int regX, range [0-15] inclusive
-//      @param int & output, makes the output to send to the termainal
 //POST: prints the content of regX to the terminal
-void Simulator::out(int regX, char output[]) {
-   sprintf (output, "%d", cpu.getRegister(regX));
+char * Simulator::out(int regX) {
+  //this will have to be edited to char * and allocated memory to it
+  char * output = new char [MAX_PROG_OUTPUT_SIZE];
+  sprintf (output, "%d \n", cpu.getRegister(regX));
+  return output;
 }
 
 //======================================

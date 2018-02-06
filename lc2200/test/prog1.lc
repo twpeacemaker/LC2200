@@ -1,0 +1,8 @@
+IN   $a0
+OUT  $a0
+ADD  $a1 $a0 $a0
+
+NAND $t1 $a0 $a0
+ADDI $a1 $t1 1
+
+HALT

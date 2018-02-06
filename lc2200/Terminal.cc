@@ -37,7 +37,7 @@ void Terminal::start() {
   while (running == true) {
     try{
       //cout << "> ";
-      cout << "LC-2200> ";
+      cout << "> ";
       char input [MAX_INPUT_SIZE];
       cin.getline(input, MAX_INPUT_SIZE);
       runCommand(input);
@@ -53,35 +53,58 @@ void Terminal::start() {
 void Terminal::runCommand(char * input) {
   MyString string = input;
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
+  validateInput(tokens);
+  if(running == true) {
+    //Assert: have not hit the exit command and the command
+    //        has the correct number of inputs
+    bool done = false;
+    bool in;
+    bool out;
+    while(!done) {
+      in = false;
+      out = false;
+      char * output = simulator->runCommand(input, in, out, done);
+      if(in){
+        //ASSERT: recived the signal from Simulator asking for input
+        input = getInput();          // gets that input needs to be delted
+        simulator->giveInput(input); // sets that input to the simulator
+        delete [] input;
+        input = NULL;
+
+      } else if (out){
+        cout << output;
+        delete [] output;
+        output = NULL;
+      }
+    }
+  }
+
+}
+
+//PRE:  @param LList<MyString> tokens, the separed tokens for the program
+//POST: validates that the commands are correct and that the command is not
+//      the exit command, if the exit command is given thent the program is
+//      exited
+void Terminal::validateInput(LList<MyString> tokens) {
   MyString command = tokens.getFront();       //gets the command
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
-    if(tokens.getSize() == NUMBER_OF_LOAD_PARAMS) {
-      load(input);
-    } else {
+    if(tokens.getSize() != NUMBER_OF_LOAD_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[MEM_NUM]) ) {
-    if(tokens.getSize() <= NUMBER_OF_MEM_PARAMS) {
-      mem(input);
-    } else {
+    if(tokens.getSize() > NUMBER_OF_MEM_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO MEM"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[CPU_NUM]) ) {
-    if(tokens.getSize() == NUMBER_OF_CPU_PARAMS) {
-      cpu();
-    } else {
+    if(tokens.getSize() != NUMBER_OF_CPU_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CPU"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
-    if(tokens.getSize() == NUMBER_OF_STEP_PARAMS) {
-      step(input);
-    } else {
+    if(tokens.getSize() != NUMBER_OF_STEP_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-    if(tokens.getSize() == NUMBER_OF_RUN_PARAMS) {
-      run(input);
-    } else {
+    if(tokens.getSize() != NUMBER_OF_RUN_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[EXIT_NUM]) ) {
@@ -93,7 +116,6 @@ void Terminal::runCommand(char * input) {
   } else {
     throw(Exception((char *)"INVALID COMMAND GIVEN"));
   }
-
 }
 
 
@@ -117,69 +139,6 @@ char * Terminal::getInput() {
   return input;
 }
 
-// Pre:  @param char * input, int input string the user specifed
-// Post: sends the input to the simulator to be loaded
-void Terminal::load(char * input) {
-  simulator->loadSim(input);
-}
-
-// Pre: @param char * input, int input string the user specifed
-// Post: prints to termmial the memory ranage inclusive
-void Terminal::mem(char * input) {
-  char * output;
-  output = simulator->memSim(input);
-  cout << output;
-  delete [] output;
-  output = NULL;
-
-}
-
-// Pre:
-// Post: prints to termmial the the values of registers
-void Terminal::cpu() {
-  char * output;
-  output = simulator->cpuSim();
-  cout << output;
-  delete [] output;
-  output = NULL;
-
-}
-
-// Pre: @param char * input, int input string the user specifed
-// Post: exe n number of lines or until the program is done
-void Terminal::step(char * input) {
-
-  MyString string = input;
-  LList<MyString> tokens = string.split(' ');
-
-  bool done = false;
-  bool in; bool out;
-  char output [MAX_OUTPUT_REGISTER_SIZE];
-  int num_steps = array_to_int( tokens.getNth(STEP_TOKEN_N).getString() );
-
-  while(!done){
-    in = false;
-    out = false;
-    simulator->stepSim(num_steps, in, out, done, output);
-    if(in){
-      //ASSERT: recived the signal from Simulator asking for input
-      input = getInput();          // gets that input needs to be delted
-      simulator->giveInput(input); // sets that input to the simulator
-      delete [] input;
-      input = NULL;
-
-    } else if (out){
-      cout << output << endl;
-    }
-  }
-
-}
-
-// Pre: @param char * input, int input string the user specifed
-// Post: runs until the program is finnished
-void Terminal::run(char * input) {
-  //simulator->stepRun();
-}
 
 // Pre:
 // Post: exits the terminal

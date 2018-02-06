@@ -14,6 +14,7 @@ static char REGISTER_NAMES[][6] =
 typedef unsigned int uint;
 
 #define MAX_INPUT_SIZE 80
+#define MAX_PROG_OUTPUT_SIZE 30
 
 //default config
 #define DEFAULT_MEM 1024

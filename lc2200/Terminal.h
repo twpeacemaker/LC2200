@@ -5,6 +5,7 @@
 #include "Terminal.h"
 #include "Exception.h"
 #include "Simulator.h"
+#include "useful_classes/MyString.h"
 
 #include <fstream>
 #include <iostream>
@@ -23,29 +24,15 @@ class Terminal {
     // Post:
     void runCommand(char * input);
 
+    //PRE:  @param LList<MyString> tokens, the separed tokens for the program
+    //POST: validates that the commands are correct and that the command is not
+    //      the exit command, if the exit command is given thent the program is
+    //      exited
+    void validateInput(LList<MyString> tokens);
+
     // Pre:
     // Post: @return a array of characters that was given from input
     char * getInput();
-
-    // Pre: @param char * input, int input string the user specifed
-    // Post:
-    void load(char * input);
-
-    // Pre: @param char * input, int input string the user specifed
-    // Post: prints to termmial the memory ranage inclusive
-    void mem(char * input);
-
-    // Pre: @param char * input, int input string the user specifed
-    // Post: prints to termmial the the values of registers
-    void cpu();
-
-    // Pre: @param char * input, int input string the user specifed
-    // Post: exe n number of lines or until the program is done
-    void step(char * input);
-
-    // Pre: @param char * input, int input string the user specifed
-    // Post: runs until the program is finnished
-    void run(char * input);
 
     // Pre:
     // Post: exits the terminal
