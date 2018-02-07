@@ -1,4 +1,4 @@
-VAR X
+VAR X 2
 IN $a0
 LA $a1 X
 SW $a0 0x0($a1)
