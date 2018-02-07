@@ -8,6 +8,7 @@ class PCB {
     uint program_length;  //holds the length of the program
     char * name;        //holds the name of the progame
     uint steps;           //holds the number of steps conducted on pass
+    bool halted;
 
   public:
 
@@ -32,6 +33,10 @@ class PCB {
     //PRE:
     //POST: @return, int steps
     uint getSteps();
+
+    //PRE:
+    //POST: @return, whether the program is halted or not
+    bool getHalt();
 
     //PRE:
     //POST: returns the name of the progam as a char*
@@ -60,6 +65,15 @@ class PCB {
     //PRE:  @param char * name, takes the array to set to the new name
     //POST: sets name = new_name
     void setName(char * new_name);
+
+    //PRE:
+    //POST: sets the program to be halted
+    void haltProgram();
+
+    //PRE:  int num_steps, the number of steps the user wanted to run the program
+    //POST: @return whether the program is able to run
+    bool ableToRun(int num_steps);
+
 
     //PRE:
     //POST: deletes the dynamic memory

@@ -63,7 +63,7 @@ char * Memory::getOutput(char * input) {
 //POST:@return char* creates appropriate string to add to the cols
 char * Memory::getMemCommandCol(int index) {
   char * temp = new char[MAX_COL_MEM];
-  sprintf (temp, " %d: 0x%#08x %d ", index * BYTES_IN_WORD, memory[index], memory[index]);
+  sprintf (temp, " %d: 0x%08X %d ", index * BYTES_IN_WORD, memory[index], memory[index]);
   return temp;
 }
 

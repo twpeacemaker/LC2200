@@ -66,10 +66,11 @@ void Terminal::runCommand(char * input) {
       char * output = simulator->runCommand(input, in, out, done);
       if(in){
         //ASSERT: recived the signal from Simulator asking for input
-        input = getInput();          // gets that input needs to be delted
-        simulator->giveInput(input); // sets that input to the simulator
-        delete [] input;
-        input = NULL;
+        char * input_term;
+        input_term = getInput();          // gets that input needs to be delted
+        simulator->giveInput(input_term); // sets that input to the simulator
+        delete [] input_term;
+        input_term = NULL;
 
       } else if (out){
         cout << output;

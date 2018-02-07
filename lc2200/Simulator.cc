@@ -87,6 +87,7 @@ char * Simulator::executeLine(bool & in_bool, bool & out_bool) {
 //POST:
 char * Simulator::runCommand(char * input, bool & in_bool, bool & out_bool, bool & done) {
   char * return_value;
+
   MyString string = input;                    //copies the char* into a MyString
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   MyString command = tokens.getFront();       //gets the command
@@ -107,8 +108,6 @@ char * Simulator::runCommand(char * input, bool & in_bool, bool & out_bool, bool
     done = true;
   }
   else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
-    out_bool = false;
-    done = false;
     int num_steps = array_to_int( tokens.getNth(STEP_TOKEN_N).getString() );
     return_value = stepSim(num_steps, in_bool, out_bool, done);
   }
@@ -151,13 +150,15 @@ void Simulator::loadSim(char * input) {
     for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) { //x00112233
       //to add the char in the correct place
       inFile >> ch;
-      word = insertByte (word, (uint)ch, byte_num);
+      int byte = getBits((int)ch, 7, 0);
+      word = insertByte (word, byte, byte_num);
     }
     memory->setIndex(current_line, word); //adds the line to memory
     current_line++;
   }
   inFile.close(); // close the filestream
   current_process = new PCB(file_name, length);
+  cpu.setPC(0);
 }
 
 //PRE: @param int num_step, the number of lines to execute
@@ -169,13 +170,19 @@ char * Simulator::stepSim(int num_steps, bool & in, bool & out, bool & done) {
   char * output; // holds the memory location of output only meaningful iff
                  // out = True otherwise is garbage
   if(current_process != NULL) {
-    while((num_steps > current_process->getSteps()) && !in && !out && !done) {
+    while(current_process->ableToRun(num_steps) && !in && !out && !done) {
         output = executeLine(in, out);
         current_process->incrementSteps();
     }
     if(num_steps == current_process->getSteps()) {
         done = true;
         current_process->resetSteps();
+    } if (current_process->getHalt()) {
+      done = true;
+      out = true;
+      output = new char [DONE_MESSAGE_LENGTH];
+      sprintf (output, "Process compleated. \n"); // forward: PID will
+                                                  // have to use this
     }
   } else {
     throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
@@ -297,6 +304,9 @@ void Simulator::addi(int regX, int regY, int num) {
 //POST: loads the content register[regY]+ address and stores it to
 //      register[regX]
 void Simulator::lw(int regX, int regY, int num) {
+  int address = (regY + num) / BYTES_IN_WORD;
+  int content_at_index = memory->getIndex(address);
+  cpu.setRegister(regX, content_at_index);
 
 }
 
@@ -304,7 +314,9 @@ void Simulator::lw(int regX, int regY, int num) {
 //      @param int num, holds the int be be added to regY to solve location
 //POST: stored the content of register[regX] to register[regY]+ address
 void Simulator::sw(int regX, int regY, int num) {
-
+  int address          = (regY + num) / BYTES_IN_WORD;
+  int content_to_store = cpu.getRegister(regX)
+  memory->setIndex(content_at_index, content_to_store); //adds the line to memory
 }
 
 //PRE:  @param int regX and regY, range [0-15] inclusive
@@ -370,5 +382,5 @@ void Simulator::la(int regX, int offset) {
 //PRE:  takes no params
 //POST: stops the program
 void Simulator::halt() {
-
+  current_process->haltProgram();
 }

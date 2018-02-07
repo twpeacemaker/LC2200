@@ -1,0 +1,6 @@
+VAR X
+IN $a0
+LA $a1 X
+SW $a0 0x0($a1)
+LW $a2 0x0($a1)
+HALT
