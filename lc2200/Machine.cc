@@ -113,10 +113,15 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     return_value = stepSim(num_steps, in_bool, out_bool, done);
   }
   else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-    //ASSERT: run the program for its length, if the halt statement is hit it
-    //        will stop
-    return_value = stepSim(current_process->getLength(), in_bool, out_bool,
-                           done);
+    if(current_process->getHalt() == false) {
+      //ASSERT: the program has not hit a halt statement run another step of
+      //        the program
+      return_value = stepSim(1, in_bool, out_bool, done);
+      done = false;
+    } else {
+      //ASSERT: the program has hit its halt statement and now is done
+      done = true;
+    }
   }
   return return_value;
 }

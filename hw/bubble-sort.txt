@@ -1,4 +1,3 @@
-      var x                       ;address
 
       in    $at                   ;n
       la    $k0   x               ;saves mem location

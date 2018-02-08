@@ -1,0 +1,13 @@
+IN  $at
+;n
+ADD $a2 $zero $zero
+;= counter
+back: BEQ $at $a2 next
+;while(len > counter) {
+IN $a1
+SW $a1 0x0($sp)
+ADDI $sp $sp -4
+ADDI $a2 $a2 1
+BEQ $zero $zero back
+;unconditional back
+next:HALT
