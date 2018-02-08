@@ -43,7 +43,7 @@ void Memory::setIndex(int index, int word) {
 char * Memory::getOutput(char * input) {
   //removes the command from the list
   int lower_bound = 0;
-  int upper_bound = size;
+  int upper_bound = (size - 1) * BYTES_IN_WORD;
   getUpperLowerBound(input, lower_bound, upper_bound); // all are validated
   MyString string;                                     // string to be created
   char * temp;
@@ -99,6 +99,19 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bou
       }
     }
 }
+
+//PRE:
+//POST: @return, the size of current memory
+int Memory::getSize() {
+  return size;
+}
+
+//PRE:
+//POST: @return, what the stack pointer should be initlized to
+int Memory::getLastAddress() {
+  return (size - 1) * BYTES_IN_WORD;
+}
+
 
 
 // Destructor

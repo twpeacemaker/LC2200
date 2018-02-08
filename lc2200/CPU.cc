@@ -16,7 +16,7 @@ CPU::CPU() {
 
 //PRE:
 //POST: @return int PC, the value that PC contains
-int CPU::getPC() {
+uint CPU::getPC() {
   return PC;
 }
 
@@ -34,14 +34,14 @@ void CPU::incrementPC() {
 
 //PRE:  @param int index, index of register [0-15] inclusive
 //POST: @return register[index]
-int CPU::getRegister(int index) {
+uint CPU::getRegister(uint index) {
   return registers[index];
 }
 
 //PRE:  @param int index, index of registers [0-15] inclusive
 //      @param int value, the value you want register[index] to be
 //POST: register[index] = value
-void CPU::setRegister(int index, int value) {
+void CPU::setRegister(uint index, uint value) {
   if (index == 0 && value != 0) {
     throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
   } else {
@@ -51,13 +51,13 @@ void CPU::setRegister(int index, int value) {
 
 //PRE:
 //POST: @return the value at the register[SP]
-int CPU::getSP() {
+uint CPU::getSP() {
   return registers[STACK_POINTER_INDEX];
 }
 
 //PRE: @param int value, the value you want to be set to SP
 //POST: register[SP] = value
-void CPU::setSP(int value) {
+void CPU::setSP(uint value) {
   registers[STACK_POINTER_INDEX] = value;
 }
 

@@ -24,7 +24,6 @@ Terminal::Terminal() {
 Terminal::Terminal(char * memory_size_char) {
   int memory_size = array_to_int(memory_size_char);
   running = false;
-  //Assert: check to make sure memory / 4
   machine = new Machine(memory_size);
 
 

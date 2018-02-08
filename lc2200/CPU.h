@@ -11,8 +11,8 @@ class CPU {
 
  private:
 
-      int PC;
-      int registers[MAX_REGISTERS];
+      uint PC;
+      uint registers[MAX_REGISTERS];
 
  public:
 
@@ -23,7 +23,7 @@ class CPU {
 
      //PRE:
      //POST: @return int PC, the value that PC contains
-     int getPC();
+     uint getPC();
 
      //PRE:  @param uint new_PC, new_PC >= 0
      //POST: PC = new_PC
@@ -35,20 +35,20 @@ class CPU {
 
      //PRE:  @param int index, index of register [0-15] inclusive
      //POST: @return register[index]
-     int getRegister(int index);
+     uint getRegister(uint index);
 
      //PRE:  @param int index, index of registers [0-15] inclusive
      //      @param int value, the value you want register[index] to be
      //POST: register[index] = value
-     void setRegister(int index, int value);
+     void setRegister(uint index, uint value);
 
      //PRE:
      //POST: @return the value at the register[SP]
-     int getSP();
+     uint getSP();
 
      //PRE: @param int value, the value you want to be set to SP
      //POST: register[SP] = value
-     void setSP(int value);
+     void setSP(uint value);
 
      //PRE:  @param char * input, takes the input from the terminal
      //POST: @return the array to sent to the terminal to display

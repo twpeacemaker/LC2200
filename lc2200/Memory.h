@@ -47,10 +47,20 @@ class Memory {
     //POST:@return char* creates appropriate string to add to the cols
     char * getMemCommandCol(int index);
 
+    //PRE:
+    //POST: @return, int the size of current memory
+    int getSize();
+
+    //PRE:
+    //POST: @return, what the stack pointer should be initlized to
+    int getLastAddress();
+
     // Destructor
     // Pre :
     // Post: releases all dynamic memory
     ~Memory();
+
+
 
 };
 

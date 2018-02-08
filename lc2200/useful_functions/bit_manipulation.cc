@@ -14,7 +14,7 @@ uint getMaskBit(int left_index, int right_index) {
   if (left_index < right_index) {
     //Assert: error catch & will return garbage data
     cerr << "ERROR: The left index must be larger than the right index." << endl;
-  } else if(left_index >= WORD_SIZE) {
+  } else if(left_index > WORD_SIZE) {
     ///Assert: error catch & will return garbage data
     cerr << "ERROR: The left index if greater than the word size." << endl;
   } else if(right_index < 0) {
@@ -59,19 +59,30 @@ uint getBits(uint num, int left_index, int right_index) {
       //Assert: the left index is greater than the right
       uint mask = getMaskBit(left_index, right_index);
       uint new_num = (mask & num) >> right_index;
+      accountForNeg(new_num, left_index);
       //printf("Created Mask: %#08x \n" , mask);
       //printf("Num in get bits: %#08x \n" , new_num);
-      int new_num_size = left_index - right_index;
+      //int new_num_size = left_index - right_index;
       //printf("new_num_size: %d \n" , new_num_size);
-      int remove_leading_one_mask = getMaskBit(new_num_size, 0);
+      //int remove_leading_one_mask = getMaskBit(new_num_size, 0);
       //printf("remove_leading_one_mask: %#08x \n" , remove_leading_one_mask);
-      return_value = remove_leading_one_mask & new_num;
+      //return_value = remove_leading_one_mask & new_num;
       //printf("Num: %#08x \n" , return_value);
-      //return_value = new_num;
+      return_value = new_num;
 
     }
 
     return (return_value);
+}
+
+//PRE: uint num, the number that is being tested to be neg
+//     int left_index, the left most index
+//POST:returns the correct number with negitive accounted for
+uint accountForNeg(uint num, int left_index) {
+  uint new_num = 0;
+  uint mask = getMaskBit(left_index, left_index);
+  printf("Mask: %#08x \n" , mask);
+  return new_num;
 }
 
 

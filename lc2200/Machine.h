@@ -24,107 +24,107 @@ class Machine {
     // Word Getters
     //======================================
 
-    //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
-    //POST: @return int opcode from the line is executed
-    int getOpcode(int line);
+    //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
+    //POST: @return uint opcode from the line is executed
+    uint getOpcode(uint line);
 
-    //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
-    //POST: @return int regX from the line is executed
-    int getRegX(int line);
+    //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
+    //POST: @return uint regX from the line is executed
+    uint getRegX(uint line);
 
-    //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
-    //POST: @return int regY from the line is executed
-    int getRegY(int line);
+    //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
+    //POST: @return uint regY from the line is executed
+    uint getRegY(uint line);
 
-    //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
-    //POST: @return int regZ from the line is executed
-    int getRegZ(int line);
+    //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
+    //POST: @return uint regZ from the line is executed
+    uint getRegZ(uint line);
 
-    //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
-    //POST: @return int Signed Value or Offset from the line is executed
-    int getSignedOrOffset(int line);
+    //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
+    //POST: @return uint Signed Value or Offset from the line is executed
+    uint getSignedOrOffset(uint line);
 
     //PRE:
     //POST: @returns the current progame line
-    int getCurrentLine();
+    uint getCurrentLine();
 
     //PRE:
     //POST: @returns the previous progame line
-    int getPrevLine();
+    uint getPrevLine();
 
     //======================================
     // R - Type Operations
     //======================================
 
-    //PRE:  @param int regX, regY, and regZ, range [0-15] inclusive
+    //PRE:  @param uint regX, regY, and regZ, range [0-15] inclusive
     //POST: register[regX] will reflect the sum of register[regY] and
     //      register[regY]
-    void add(int regX, int regY, int regZ);
+    void add(uint regX, uint regY, uint regZ);
 
-    //PRE:  @param int regX, regY, and regZ, range [0-15] inclusive
+    //PRE:  @param uint regX, regY, and regZ, range [0-15] inclusive
     //POST: register[regX] will reflect the ~and of register[regY] and
     //      register[regY]
-    void nand(int regX, int regY, int regZ);
+    void nand(uint regX, uint regY, uint regZ);
 
     //======================================
     // I - Type Operations
     //======================================
 
-    //PRE:  @param int regX and regY, range [0-15] inclusive
-    //      @param int num, holds int to be added
+    //PRE:  @param uint regX and regY, range [0-15] inclusive
+    //      @param uint num, holds uint to be added
     //POST: register[regX] = register[regY] + num
-    void addi(int regX, int regY, int num);
+    void addi(uint regX, uint regY, uint num);
 
-    //PRE:  @param int regX and regY, range [0-15] inclusive
-    //      @param int num, holds the int be be added to regY to solve location
+    //PRE:  @param uint regX and regY, range [0-15] inclusive
+    //      @param uint num, holds the uint be be added to regY to solve location
     //POST: loads the content register[regY]+ address and stores it to
     //      register[regX]
-    void lw(int regX, int regY, int num);
+    void lw(uint regX, uint regY, uint num);
 
-    //PRE:  @param int regX and regY, range [0-15] inclusive
-    //      @param int num, holds the int be be added to regY to solve location
+    //PRE:  @param uint regX and regY, range [0-15] inclusive
+    //      @param uint num, holds the uint be be added to regY to solve location
     //POST: stored the content of register[regX] to register[regY]+ address
-    void sw(int regX, int regY, int num);
+    void sw(uint regX, uint regY, uint num);
 
-    //PRE:  @param int regX and regY, range [0-15] inclusive
-    //      @param int offset, holds the signed_value or offset
+    //PRE:  @param uint regX and regY, range [0-15] inclusive
+    //      @param uint offset, holds the signed_value or offset
     //POST: if regX == regY offset added to PC else nothing
-    void beq(int regX, int regY, int offset);
+    void beq(uint regX, uint regY, uint offset);
 
-    //PRE:  @param int regX and regY, range [0-15] inclusive
-    //      @param int offset, holds the signed_value or offset
+    //PRE:  @param uint regX and regY, range [0-15] inclusive
+    //      @param uint offset, holds the signed_value or offset
     //POST: if regX > regY offset added to PC else nothing
-    void bgt(int regX, int regY, int offset);
+    void bgt(uint regX, uint regY, uint offset);
 
     //======================================
     // J - Type Operations
     //======================================
 
-    //PRE:  @param int regX and regY, range [0-15] inclusive
+    //PRE:  @param uint regX and regY, range [0-15] inclusive
     //POST: set regX to be PC, set PC to be regY
-    void jalr(int regX, int regY);
+    void jalr(uint regX, uint regY);
 
     //======================================
     // U - Type Operations
     //======================================
 
-    //PRE: @param int regX, range [0-15] inclusive
-    //PRE: @param int num, the number to be entered to regX
+    //PRE: @param uint regX, range [0-15] inclusive
+    //PRE: @param uint num, the number to be entered to regX
     //POST: takes input from terminal, x and sets regX = x;
-    void in(int regX, int num);
+    void in(uint regX, uint num);
 
-    //PRE:  @param int regX, range [0-15] inclusive
+    //PRE:  @param uint regX, range [0-15] inclusive
     //POST: prints the content of regX to the terminal
-    char * out(int regX);
+    char * out(uint regX);
 
     //======================================
     // L - Type Operations
     //======================================
 
-    //PRE:  @param int regX, range [0-15] inclusive
-    //      @param int offset, holds the signed_value or offset
+    //PRE:  @param uint regX, range [0-15] inclusive
+    //      @param uint offset, holds the signed_value or offset
     //POST: prints the content of regX to the terminal
-    void la(int regX, int offset);
+    void la(uint regX, uint offset);
 
     //======================================
     // O - Type Operations

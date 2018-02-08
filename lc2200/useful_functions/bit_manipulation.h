@@ -34,5 +34,10 @@ uint getByteMaskX(int byte_num);
 //POST: return num[new_num] where num is replaced by the to_insert
 uint insertByte (uint num, uint to_insert, int byte_num);
 
+//PRE: uint num, the number that is being tested to be neg
+//     int left_index, the left most index
+//POST:returns the correct number with negitive accounted for
+uint accountForNeg(uint num, int left_index);
+
 
 #endif
