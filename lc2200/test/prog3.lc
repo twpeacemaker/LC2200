@@ -1,8 +1,10 @@
-     
-     IN $a0
-     IN $a1
-     BEQ $a0 $01 EQL
-     ADDI $rv $zero 0
-     OUT $rv
-EQL: ADDI $rv $zero 1
-     OUT $rv
+IN $a0
+IN $a1
+BEQ $a0 $a1 equal
+ADDI $t0 $zero 0
+OUT $t0
+equal: ADDI $t0 $zero 1
+OUT $t0
+
+
+
