@@ -27,15 +27,14 @@ Memory::Memory(uint memory_size) {
 //PRE:  @param int index, index of memory
 //POST: @return memory[index]
 int Memory::getIndex(int index) {
-  return memory[index];
-
+  return memory[index / BYTES_IN_WORD];
 }
 
 //PRE:  @param int index, index of memory
 //      @param int word,  the word of memory to be inserted
 //POST: memory[index] = word
 void Memory::setIndex(int index, int word) {
-  memory[index] = word;
+  memory[index / BYTES_IN_WORD] = word;
 }
 
 //PRE:  @param char * input, takes the input from the terminal
@@ -48,11 +47,11 @@ char * Memory::getOutput(char * input) {
   getUpperLowerBound(input, lower_bound, upper_bound); // all are validated
   MyString string;                                     // string to be created
   char * temp;
-  for (int i = lower_bound; i <= upper_bound; i++) {
+  for (int i = (lower_bound / BYTES_IN_WORD); i <= (upper_bound / BYTES_IN_WORD); i++) {
     temp = getMemCommandCol(i);
     string.addString(temp);
     delete [] temp;
-    if((i + 1) % NUMBER_OF_COLS_IN_MEM == 0 || i ==  upper_bound) {
+    if((i + 1) % NUMBER_OF_COLS_IN_MEM == 0 || i == (upper_bound / BYTES_IN_WORD)) {
       string.add('\n');
     }
   }
@@ -79,24 +78,25 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bou
   if (tokens.getSize() == 1) {
     //3
     //first token to the end of memory
+    lower_bound = array_to_int(tokens.getFront().getString());
     if (lower_bound >= (size * BYTES_IN_WORD) ||
         lower_bound % 4 != 0 ||
         lower_bound < 0) {
       throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
     }
-    lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
+
 
   } else if(tokens.getSize() > 1) {
-    if (lower_bound >= (size * BYTES_IN_WORD) ||
-        upper_bound >= (size * BYTES_IN_WORD) ||
-        lower_bound % 4 != 0 ||
-        upper_bound % 4 != 0 ||
-        lower_bound < 0 ||
-        lower_bound > upper_bound) {
-      throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
-    }
-    lower_bound = array_to_int(tokens.getFront().getString()) / BYTES_IN_WORD;
-    upper_bound = array_to_int(tokens.getBack().getString())  / BYTES_IN_WORD;
+      lower_bound = array_to_int(tokens.getFront().getString());
+      upper_bound = array_to_int(tokens.getBack().getString());
+      if (lower_bound >= (size * BYTES_IN_WORD) ||
+          upper_bound >= (size * BYTES_IN_WORD) ||
+          lower_bound % 4 != 0 ||
+          upper_bound % 4 != 0 ||
+          lower_bound < 0 ||
+          lower_bound > upper_bound) {
+        throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
+      }
     }
 }
 

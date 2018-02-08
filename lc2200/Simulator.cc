@@ -144,17 +144,18 @@ void Simulator::loadSim(char * input) {
   inFile >> length;      // gets the length of the program
   char ch;               // will hold each charater
   uint current_line = 0; // of memory
+  inFile.get(ch);        //gets the new line character
   for(int word_count = 0; word_count < length; word_count++) {
     uint word = 0;        //0x00000000
     //to build the word
     for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) { //x00112233
       //to add the char in the correct place
-      inFile >> ch;
-      int byte = getBits((int)ch, 7, 0);
+      inFile.get(ch);
+      int byte = getBits((uint)ch, 7, 0);
       word = insertByte (word, byte, byte_num);
     }
     memory->setIndex(current_line, word); //adds the line to memory
-    current_line++;
+    current_line = (current_line + BYTES_IN_WORD);
   }
   inFile.close(); // close the filestream
   current_process = new PCB(file_name, length);
@@ -181,7 +182,7 @@ char * Simulator::stepSim(int num_steps, bool & in, bool & out, bool & done) {
       done = true;
       out = true;
       output = new char [DONE_MESSAGE_LENGTH];
-      sprintf (output, "Process compleated. \n"); // forward: PID will
+      sprintf (output, "Process completed. \n"); // forward: PID will
                                                   // have to use this
     }
   } else {
@@ -236,7 +237,8 @@ int Simulator::getRegZ(int line) {
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int Signed Value or Offset from the line is executed
 int Simulator::getSignedOrOffset(int line) {
-  return getBits(line, SIGNED_OR_OFFSET_UPPER_BIT, SIGNED_OR_OFFSET_LOWER_BIT);
+  int rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT, SIGNED_OR_OFFSET_LOWER_BIT);
+  return rv;
 }
 
 //PRE:
@@ -248,7 +250,7 @@ int Simulator::getCurrentLine() {
 //PRE:
 //POST: @returns the previous progame line
 int Simulator::getPrevLine() {
-  return memory->getIndex(cpu.getPC() - 1);
+  return memory->getIndex(cpu.getPC() - BYTES_IN_WORD);
 }
 
 //======================================
@@ -304,19 +306,20 @@ void Simulator::addi(int regX, int regY, int num) {
 //POST: loads the content register[regY]+ address and stores it to
 //      register[regX]
 void Simulator::lw(int regX, int regY, int num) {
-  int address = (regY + num) / BYTES_IN_WORD;
-  int content_at_index = memory->getIndex(address);
-  cpu.setRegister(regX, content_at_index);
-
+  cout << "LW" << endl;
+  int address = num + cpu.getRegister(regY);
+  int content = memory->getIndex(address); //adds the line to memory
+  cpu.setRegister(regX, content);
 }
 
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //      @param int num, holds the int be be added to regY to solve location
 //POST: stored the content of register[regX] to register[regY]+ address
 void Simulator::sw(int regX, int regY, int num) {
-  int address          = (regY + num) / BYTES_IN_WORD;
-  int content_to_store = cpu.getRegister(regX)
-  memory->setIndex(content_at_index, content_to_store); //adds the line to memory
+  cout << "SW" << endl;
+  int address = num + cpu.getRegister(regY);
+  int content = cpu.getRegister(regX);
+  memory->setIndex(address, content);
 }
 
 //PRE:  @param int regX and regY, range [0-15] inclusive
@@ -351,7 +354,6 @@ void Simulator::jalr(int regX, int regY) {
 //PRE: @param int num, the number to be entered to regX
 //POST: takes input from terminal, x and sets regX = x;
 void Simulator::in(int regX, int num) {
-    //cout << "REG: " << regX << " = " << num << endl;
     cpu.setRegister(regX, num);
 }
 
@@ -371,8 +373,9 @@ char * Simulator::out(int regX) {
 //PRE:  @param int regX, range [0-15] inclusive
 //      @param int offset, holds the signed_value or offset
 //POST: prints the content of regX to the terminal
-void Simulator::la(int regX, int offset) {
-
+void Simulator::la(int regX, int num) {
+  int address = num + cpu.getPC(); //fix to go to the current addresses
+  cpu.setRegister(regX, address);
 }
 
 //======================================

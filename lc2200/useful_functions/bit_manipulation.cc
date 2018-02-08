@@ -60,16 +60,17 @@ uint getBits(uint num, int left_index, int right_index) {
       uint mask = getMaskBit(left_index, right_index);
       uint new_num = (mask & num) >> right_index;
       //printf("Created Mask: %#08x \n" , mask);
-      //printf("Num: %#08x \n" , new_num);
+      //printf("Num in get bits: %#08x \n" , new_num);
       int new_num_size = left_index - right_index;
       //printf("new_num_size: %d \n" , new_num_size);
       int remove_leading_one_mask = getMaskBit(new_num_size, 0);
       //printf("remove_leading_one_mask: %#08x \n" , remove_leading_one_mask);
       return_value = remove_leading_one_mask & new_num;
       //printf("Num: %#08x \n" , return_value);
-      return_value = new_num;
+      //return_value = new_num;
 
     }
+
     return (return_value);
 }
 
@@ -100,7 +101,7 @@ uint insertByte (uint num, uint to_insert, int byte_num) {
   uint return_value;
   if (to_insert > MAX_BYTE_SIZE) {
     cout << to_insert << " > " << MAX_BYTE_SIZE << endl;
-    printf("Created Mask: %#08x \n" , to_insert);
+    //printf("Created Mask: %#08x \n" , to_insert);
     //Assert: error catch & will return garbage data
     cerr << "ERROR: to_insert must be less than the length of a byte." << endl;
   } else if (BYTES_IN_WORD < byte_num) {

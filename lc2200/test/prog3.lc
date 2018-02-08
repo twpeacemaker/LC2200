@@ -1,0 +1,7 @@
+     IN $a0
+     IN $a1
+     BEQ $a0 $01 EQL
+     ADDI $rv $zero 0
+     OUT $rv
+EQL: ADDI $rv $zero 1
+     OUT $rv

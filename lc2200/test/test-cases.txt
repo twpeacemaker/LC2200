@@ -1,0 +1,247 @@
+Author: Thomas Peacemaker
+Created to test the simulator program
+
+To Start the program
+make
+./Simulator
+
+Test Programs:
+  prog1:
+  1 0x00000000 0x93000000 IN   $a0
+  2 0x00000004 0xA3000000 OUT  $a0
+  3 0x00000008 0x04300003 ADD  $a1 $a0 $a0
+  4
+  5 0x0000000C 0x17300003 NAND $t1 $a0 $a0
+  6 0x00000010 0x24700001 ADDI $a1 $t1 1
+  7
+  8 0x00000014 0x70000000 HALT
+  9
+
+  prog2:
+  1                       VAR X 2
+  2 0x00000000 0x93000000 IN $a0
+  3 0x00000004 0xC400000C LA $a1 X
+  4 0x00000008 0x43400000 SW $a0 0x0($a1)
+  5 0x0000000C 0x35400000 LW $a2 0x0($a1)
+  6 0x00000010 0x70000000 HALT
+
+
+1. test if a user can load a program that is not accessible
+Terminal:
+  > load progNotThere
+  ERROR: FILE FAILED TO OPEN
+
+2. test if a user can properly load a program
+Terminal:
+  > load test/prog1
+  > mem 0 20
+   0: 0x93000000 -1828716544  4: 0xA3000000 -1560281088  8: 0x04300003 70254595  12: 0x17300003 389021699
+   16: 0x24700001 611319809  20: 0x70000000 1879048192
+
+3. test the mem command with no params
+Terminal:
+  > load test/prog1
+  > mem
+  0: 0x93000000 -1828716544  4: 0xA3000000 -1560281088  8: 0x04300003 70254595  12: 0x17300003 389021699
+  16: 0x24700001 611319809  20: 0x70000000 1879048192  24: 0x00000000 0  28: 0x00000000 0
+  32: 0x00000000 0  36: 0x00000000 0  40: 0x00000000 0  44: 0x00000000 0
+  48: 0x00000000 0  52: 0x00000000 0  56: 0x00000000 0  60: 0x00000000 0
+  64: 0x00000000 0  68: 0x00000000 0  72: 0x00000000 0  76: 0x00000000 0
+  .
+  .
+  .
+  4080: 0x00000000 0  4084: 0x00000000 0  4088: 0x00000000 0  4092: 0x00000000 0
+  4096: 0x4F52203E 1330782270
+
+4. test the mem command with one param
+Terminal:
+  > mem 4000
+  4000: 0x00000000 0  4004: 0x00000000 0  4008: 0x00000000 0  4012: 0x00000000 0
+  4016: 0x00000000 0  4020: 0x00000000 0  4024: 0x00000000 0  4028: 0x00000000 0
+  4032: 0x00000000 0  4036: 0x00000000 0  4040: 0x00000000 0  4044: 0x00000000 0
+  4048: 0x00000000 0  4052: 0x00000000 0  4056: 0x00000000 0  4060: 0x00000000 0
+  4064: 0x00000000 0  4068: 0x00000000 0  4072: 0x00000000 0  4076: 0x00000000 0
+  4080: 0x00000000 0  4084: 0x00000000 0  4088: 0x00000000 0  4092: 0x00000000 0
+  4096: 0x3A36203E 976625726
+
+5. test mem with 2 commands
+Terminal:
+  > load test/prog1
+  > mem 0 20
+   0: 0x93000000 -1828716544  4: 0xA3000000 -1560281088  8: 0x04300003 70254595  12: 0x17300003 389021699
+   16: 0x24700001 611319809  20: 0x70000000 1879048192
+
+6. test cpu displays correctly
+Terminal:
+> cpu
+ PC: 0
+ $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xD0000000 (-805306368)  $a0: 0xAE360010 (-1372192752)
+ $a1: 0x00007FFF (32767)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xAE36F168 (-1372130968)
+ $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+ $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+ 7. test invalid commands
+ Terminal:
+   > dip'asfjpds'a
+  INVALID COMMAND GIVEN
+
+8. test mem with to many commands
+Terminal:
+  > mem 0 4 5
+  INVALID NUMBER OF PARAMS GIVEN TO MEM
+
+9. test mem with params not in factors of 4
+Terminal:
+  > mem 3
+  PARAMETERS ARE INCORRECT
+  > mem 4 5
+  PARAMETERS ARE INCORRECT
+  > mem 5 8
+  PARAMETERS ARE INCORRECT
+  > mem 5 9
+  PARAMETERS ARE INCORRECT
+
+10. if user can put more more than one param to cpu
+Terminal:
+  > cpu 1
+  INVALID NUMBER OF PARAMS GIVEN TO CPU
+
+11. test if the user can exit the program
+Terminal:
+  > exit
+
+12. test input form the user
+Terminal:
+  > load test/prog1
+  > step 1
+  Input: 1
+  > cpu
+   PC: 4
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+   $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+   $a0 took the input correctly
+
+13. test if the program can properly output
+Terminal:
+  > load test/prog1
+  > step 1
+  Input: 1
+  > cpu
+   PC: 4
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+   $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+  > step 1
+  1
+
+14. test if the program can properly add
+  Terminal:
+  > load test/prog1
+  > step 1
+  Input: 1
+  > step 1
+  1
+  > step 1
+  > cpu
+   PC: 12
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+   $a1: 0x00000002 (2)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+   $a1 now correctly holds $a0 + $a0 = 1 + 1
+
+15. test if the program can properly nand
+  > load test/prog1
+  > step 1
+  Input: 1
+  > step 1
+  1
+  > step 1
+  > step 1
+  > cpu
+   PC: 16
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+   $a1: 0x00000002 (2)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+   $t1 now properly holds the ~& of 1
+
+16. test if the program an properly addi
+  > load test/prog1
+  > step 1
+  Input: 1
+  > step 1
+  1
+  > step 1
+  > step 1
+  > step 1
+  > cpu
+   PC: 20
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+   $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+   $a1 now holds the 2s compliment of 1
+
+17. test the program halts when the halt statement is hit
+Terminal:
+  > load test/prog1
+  > step 9
+  Input: 1
+  1
+  Process completed.
+  > cpu
+  PC: 24
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+  $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+18. test the step program works for consecutive steps
+Terminal:
+  > load test/prog1
+  > step 9
+  Input: 1
+  1
+  Process completed.
+  > cpu
+  PC: 24
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+  $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+19. test the IN/OUT would when used in consecutive steps
+Terminal:
+  > load test/prog1
+  > step 9
+  Input: 1
+  1
+  Process completed.
+  > cpu
+  PC: 24
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+  $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+20. test the PC is at the correct location after running a program
+Terminal:
+  > load test/prog1
+  > step 9
+  Input: 1
+  1
+  Process completed.
+  > cpu
+  PC: 24
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0xA0000000 (-1610612736)  $a0: 0x00000001 (1)
+  $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)

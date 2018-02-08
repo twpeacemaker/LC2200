@@ -29,7 +29,7 @@ void CPU::setPC(uint new_PC) {
 //PRE:
 //POST: PC += PC + bytes in a word
 void CPU::incrementPC() {
-  PC += 1;
+  PC += BYTES_IN_WORD;
 }
 
 //PRE:  @param int index, index of register [0-15] inclusive
@@ -67,7 +67,7 @@ void CPU::setSP(int value) {
 char * CPU::getOutput() {
   MyString string;
   char * pc_line = new char [MAX_COL_CPU];
-  sprintf (pc_line, " PC: %d \n", PC * BYTES_IN_WORD);
+  sprintf (pc_line, " PC: %d \n", PC);
   string.addString(pc_line);
   delete [] pc_line;
 
