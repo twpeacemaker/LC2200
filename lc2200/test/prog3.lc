@@ -3,8 +3,9 @@ IN $a1
 BEQ $a0 $a1 equal
 ADDI $t0 $zero 0
 OUT $t0
+HALT
 equal: ADDI $t0 $zero 1
 OUT $t0
-
+HALT
 
 
