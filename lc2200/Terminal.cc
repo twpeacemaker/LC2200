@@ -130,11 +130,12 @@ char * Terminal::getInput() {
     cin.getline(input, MAX_INPUT_SIZE);
     MyString string = input;
     LList<MyString> tokens = string.split(' ');
-    if(tokens.getSize() == 1){
+    if(tokens.getSize() == 1){ //EDIT FOR INVALID INPUT 
       //ASSERT: the input is only one word
       valid_input = true;
     }else{
       cout << "ERROR: INCORRECT INPUT SIZE" << endl;
+      valid_input = false;
     }
   }
   return input;

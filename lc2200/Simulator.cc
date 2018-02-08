@@ -306,7 +306,6 @@ void Simulator::addi(int regX, int regY, int num) {
 //POST: loads the content register[regY]+ address and stores it to
 //      register[regX]
 void Simulator::lw(int regX, int regY, int num) {
-  cout << "LW" << endl;
   int address = num + cpu.getRegister(regY);
   int content = memory->getIndex(address); //adds the line to memory
   cpu.setRegister(regX, content);
@@ -316,7 +315,6 @@ void Simulator::lw(int regX, int regY, int num) {
 //      @param int num, holds the int be be added to regY to solve location
 //POST: stored the content of register[regX] to register[regY]+ address
 void Simulator::sw(int regX, int regY, int num) {
-  cout << "SW" << endl;
   int address = num + cpu.getRegister(regY);
   int content = cpu.getRegister(regX);
   memory->setIndex(address, content);
@@ -326,14 +324,20 @@ void Simulator::sw(int regX, int regY, int num) {
 //      @param int offset, holds the signed_value or offset
 //POST: if regX == regY offset added to PC else nothing
 void Simulator::beq(int regX, int regY, int offset) {
-
+  if ( cpu.getRegister(regX) == cpu.getRegister(regY) ) {
+    //ASSERT: change pc if they are equal
+    cpu.setPC( offset + cpu.getPC() );
+  } //assert else do nothing
 }
 
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //      @param int offset, holds the signed_value or offset
 //POST: if regX > regY offset added to PC else nothing
 void Simulator::bgt(int regX, int regY, int offset) {
-
+  if ( cpu.getRegister(regX) > cpu.getRegister(regY) ) {
+    //ASSERT: change pc if they are equal
+    cpu.setPC( offset + cpu.getPC() );
+  } //assert else do nothing
 }
 
 //======================================
