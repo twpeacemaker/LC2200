@@ -1,7 +1,7 @@
-#ifndef INCLUDED_SIMULATOR
-#define INCLUDED_SIMULATOR
+#ifndef INCLUDED_Machine
+#define INCLUDED_Machine
 
-#include "Simulator.h"
+#include "Machine.h"
 #include "CPU.h"
 #include "Memory.h"
 #include "constants.h"
@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "PCB.h"
 
-class Simulator {
+class Machine {
 
   // Class Invariant (CI):
 
@@ -143,12 +143,12 @@ class Simulator {
 
     // Default Constructor
     // Pre :
-    // Post: initlizes the Simulator class
-    Simulator();
+    // Post: initlizes the Machine class
+    Machine();
 
     // Pre : @param uint memory_size inits the size of memory
-    // Post: initlizes the Simulator class
-    Simulator(uint memory_size);
+    // Post: initlizes the Machine class
+    Machine(uint memory_size);
 
     //PRE:
     //POST: @return iif out_bool is true is the return meaningful

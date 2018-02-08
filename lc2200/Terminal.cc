@@ -2,7 +2,7 @@
 #include "Terminal.h"
 #include "Exception.h"
 #include "useful_classes/MyString.h"
-#include "Simulator.h"
+#include "Machine.h"
 
 #include "useful_functions/char_arrays.h"
 
@@ -15,23 +15,23 @@ using namespace std;
 // Post:
 Terminal::Terminal() {
   running = false;
-  simulator = new Simulator();
+  machine = new Machine();
 }
 
 // Constructor
-// Pre:  @param char * memory_size, the memory size to send to the simulator
-// Post: makes the simulator and sets the memory size
+// Pre:  @param char * memory_size, the memory size to send to the Machine
+// Post: makes the Machine and sets the memory size
 Terminal::Terminal(char * memory_size_char) {
   int memory_size = array_to_int(memory_size_char);
   running = false;
   //Assert: check to make sure memory / 4
-  simulator = new Simulator(memory_size);
+  machine = new Machine(memory_size);
 
 
 }
 
 // Pre:
-// Post: makes the simulator to be Default size
+// Post: makes the Machine to be Default size
 void Terminal::start() {
   running = true;
   while (running == true) {
@@ -63,12 +63,12 @@ void Terminal::runCommand(char * input) {
     while(!done) {
       in = false;
       out = false;
-      char * output = simulator->runCommand(input, in, out, done);
+      char * output = machine->runCommand(input, in, out, done);
       if(in){
-        //ASSERT: recived the signal from Simulator asking for input
+        //ASSERT: recived the signal from Machine asking for input
         char * input_term;
         input_term = getInput();          // gets that input needs to be delted
-        simulator->giveInput(input_term); // sets that input to the simulator
+        machine->giveInput(input_term); // sets that input to the Machine
         delete [] input_term;
         input_term = NULL;
 
@@ -130,7 +130,7 @@ char * Terminal::getInput() {
     cin.getline(input, MAX_INPUT_SIZE);
     MyString string = input;
     LList<MyString> tokens = string.split(' ');
-    if(tokens.getSize() == 1){ //EDIT FOR INVALID INPUT 
+    if(tokens.getSize() == 1){ //EDIT FOR INVALID INPUT
       //ASSERT: the input is only one word
       valid_input = true;
     }else{

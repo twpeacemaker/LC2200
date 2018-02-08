@@ -4,7 +4,7 @@
 #include "constants.h"
 #include "Terminal.h"
 #include "Exception.h"
-#include "Simulator.h"
+#include "Machine.h"
 #include "useful_classes/MyString.h"
 
 #include <fstream>
@@ -18,7 +18,7 @@ class Terminal {
   private:
 
     bool running;          // whether the terminal is runnning
-    Simulator * simulator; // pointer to the simulator
+    Machine * machine; // pointer to the Machine
 
     // Pre: @param char user_input[], the input given by the user
     // Post:
@@ -44,12 +44,12 @@ class Terminal {
 
     // Default Constructor
     // Pre:
-    // Post: makes the simulator to be Default size
+    // Post: makes the Machine to be Default size
     Terminal();
 
     // Constructor
-    // Pre:  @param char * memory_size, the memory size to send to the simulator
-    // Post: makes the simulator and sets the memory size
+    // Pre:  @param char * memory_size, the memory size to send to the Machine
+    // Post: makes the Machine and sets the memory size
     Terminal(char * memory_size_char);
 
     // Pre:

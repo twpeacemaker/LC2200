@@ -1,16 +1,12 @@
-#include "Simulator.h"
+#include "Machine.h"
 #include "CPU.h"
 #include "Memory.h"
 #include "constants.h"
 #include "Exception.h"
 #include "PCB.h"
-
 #include <stdio.h>
-
 #include <fstream>
 using namespace std;
-
-
 #include "useful_classes/LList.h"
 #include "useful_classes/MyString.h"
 #include "useful_functions/bit_manipulation.h"
@@ -18,25 +14,27 @@ using namespace std;
 
 // Default Constructor
 // Pre :
-// Post: initlizes the Simulator class
-Simulator::Simulator() {
+// Post: initlizes the Machine class
+Machine::Machine() {
   memory = new Memory(); //DEFAULT_MEM
   current_process = NULL;
 }
 
 
 // Pre : @param uint memory_size inits the size of memory
-//       memory size is % 4
-// Post: initlizes the Simulator class
-Simulator::Simulator(uint memory_size) {
+// Post: initlizes the Machine class
+Machine::Machine(uint memory_size) {
   memory = new Memory( (memory_size) ); ////if is specified
   current_process = NULL;
 
 }
 
-//PRE:
-//POST: @return iif out_bool is true is the return meaningful
-char * Simulator::executeLine(bool & in_bool, bool & out_bool) {
+//PRE:  @param bool & in_bool, if true the Machine needs input
+//      @param bool & out_bool, if true the Machine is requesting to output
+//                              to the terminal
+//POST: @return iif out_bool is true is the return meaningful, the output
+//      reprents the output to send to the terminal
+char * Machine::executeLine(bool & in_bool, bool & out_bool) {
   int line = getCurrentLine(); //fetch: gets the current line
   cpu.incrementPC();           //once the line is fetched the PC is incremented
   int opcode = getOpcode(line); //decode: determines opcode being called
@@ -67,10 +65,10 @@ char * Simulator::executeLine(bool & in_bool, bool & out_bool) {
       halt();
       break;
     case IN:
-      in_bool = true;  //signal to say the simulator needs input
+      in_bool = true;  //signal to say the Machine needs input
       break;
     case OUT:
-      out_bool = true; //signal to say the simulator needs output
+      out_bool = true; //signal to say the Machine needs output
       output = out( getRegX(line)); //builds the output
       break;
     case LA:
@@ -84,14 +82,16 @@ char * Simulator::executeLine(bool & in_bool, bool & out_bool) {
 }
 
 //PRE:  @param char * input, the number
-//POST:
-char * Simulator::runCommand(char * input, bool & in_bool, bool & out_bool, bool & done) {
+//      @param bool & in_bool, is true iff the Machine needs input
+//      @param bool & out_bool,is true iff the Machine needs to output
+//      @param bool $ done, is true iff the Machine has hit the halt statement
+//POST: @return if out_bool is true return value is meaningful and is requesting
+//              for the terminal to output the return value
+char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool, bool & done) {
   char * return_value;
-
   MyString string = input;                    //copies the char* into a MyString
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   MyString command = tokens.getFront();       //gets the command
-
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
     loadSim(input);
     out_bool = false;
@@ -112,7 +112,7 @@ char * Simulator::runCommand(char * input, bool & in_bool, bool & out_bool, bool
     return_value = stepSim(num_steps, in_bool, out_bool, done);
   }
   else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-
+    //build
   }
   return return_value;
 }
@@ -121,7 +121,7 @@ char * Simulator::runCommand(char * input, bool & in_bool, bool & out_bool, bool
 //                    takes the input from the terminal
 //                    must be no longer than 2 words
 //POST: @returns a dynamicly created char* of the progam name + .lce
-char * Simulator::getProgamName(char * input) {
+char * Machine::getProgamName(char * input) {
   MyString string = input;                   //copies the char* into a MyString
   LList<MyString> tokens = string.split(' ');//splits the string at ' '
   MyString name = tokens.getBack();          //gets the second param
@@ -132,7 +132,7 @@ char * Simulator::getProgamName(char * input) {
 //PRE:  @param char * input, takes the input from the terminal
 //                           must be no longer than 2 words
 //POST: loads the program into the memory location starting at 0
-void Simulator::loadSim(char * input) {
+void Machine::loadSim(char * input) {
   char * file_name = getProgamName(input); //gets the progam name with + .lce
   ifstream inFile(file_name); //openfile stream
   if(inFile == NULL) {
@@ -166,8 +166,8 @@ void Simulator::loadSim(char * input) {
 //     @param bool in, iif true the program needs input
 //     @param book out iif true the program needs output
 //     @param done iff the progam has reached the halt statemetn
-//POST:runs n steps of the currently loaded program
-char * Simulator::stepSim(int num_steps, bool & in, bool & out, bool & done) {
+//POST:@return if out is true returns the output to the termainl
+char * Machine::stepSim(int num_steps, bool & in, bool & out, bool & done) {
   char * output; // holds the memory location of output only meaningful iff
                  // out = True otherwise is garbage
   if(current_process != NULL) {
@@ -182,8 +182,7 @@ char * Simulator::stepSim(int num_steps, bool & in, bool & out, bool & done) {
       done = true;
       out = true;
       output = new char [DONE_MESSAGE_LENGTH];
-      sprintf (output, "Process completed. \n"); // forward: PID will
-                                                  // have to use this
+      sprintf (output, "Process completed. \n"); //PID will have to use this
     }
   } else {
     throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
@@ -196,13 +195,13 @@ char * Simulator::stepSim(int num_steps, bool & in, bool & out, bool & done) {
 //      if 1 token given, 0 - memory size
 //      if 2 tokens token[1] - memory size
 //      if 3 tokens token[1] - token[2]
-char * Simulator::memSim(char * input) {
+char * Machine::memSim(char * input) {
   return memory->getOutput(input);
 }
 
 //PRE:  @param char * input, takes the input to run
 //POST: @returns a char* that is properly formated
-char * Simulator::cpuSim() {
+char * Machine::cpuSim() {
   return cpu.getOutput();
 }
 
@@ -212,44 +211,44 @@ char * Simulator::cpuSim() {
 
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int opcode from the line is executed
-int Simulator::getOpcode(int line){
+int Machine::getOpcode(int line){
   return getBits(line, OPCODE_UPPER_BIT, OPCODE_LOWER_BIT);
 }
 
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int regX from the line is executed
-int Simulator::getRegX(int line) {
+int Machine::getRegX(int line) {
   return getBits(line, REGX_UPPER_BIT, REGX_LOWER_BIT);
 }
 
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int regY from the line is executed
-int Simulator::getRegY(int line) {
+int Machine::getRegY(int line) {
   return getBits(line, REGY_UPPER_BIT, REGY_LOWER_BIT);
 }
 
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int regZ from the line is executed
-int Simulator::getRegZ(int line) {
+int Machine::getRegZ(int line) {
   return getBits(line, REGZ_UPPER_BIT, REGZ_LOWER_BIT);
 }
 
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int Signed Value or Offset from the line is executed
-int Simulator::getSignedOrOffset(int line) {
+int Machine::getSignedOrOffset(int line) {
   int rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT, SIGNED_OR_OFFSET_LOWER_BIT);
   return rv;
 }
 
 //PRE:
 //POST: @returns the current progame line
-int Simulator::getCurrentLine() {
+int Machine::getCurrentLine() {
   return memory->getIndex(cpu.getPC());
 }
 
 //PRE:
 //POST: @returns the previous progame line
-int Simulator::getPrevLine() {
+int Machine::getPrevLine() {
   return memory->getIndex(cpu.getPC() - BYTES_IN_WORD);
 }
 
@@ -260,12 +259,10 @@ int Simulator::getPrevLine() {
 //PRE:  @param int input, should be valid to be entered to a register at the
 //      current line
 //POST: sets the register specifed in the current line to the input taken
-void Simulator::giveInput(char * input) {
+void Machine::giveInput(char * input) {
   int line = getPrevLine();
   int num = array_to_int(input);
   in( getRegX(line), num );
-
-
 }
 
 //======================================
@@ -275,7 +272,7 @@ void Simulator::giveInput(char * input) {
 //PRE:  @param int regX, regY, and regZ, range [0-15] inclusive
 //POST: register[regX] will reflect the sum of register[regY] and
 //      register[regY]
-void Simulator::add(int regX, int regY, int regZ) {
+void Machine::add(int regX, int regY, int regZ) {
   int sum = cpu.getRegister(regY) + cpu.getRegister(regZ);
   cpu.setRegister(regX, sum);
   //printf("regX(%d) = regY(%d) + regZ(%d)  \n", regX, regY, regZ);
@@ -284,7 +281,7 @@ void Simulator::add(int regX, int regY, int regZ) {
 //PRE:  @param int regX, regY, and regZ, range [0-15] inclusive
 //POST: register[regX] will reflect the ~and of register[regY] and
 //      register[regY]
-void Simulator::nand(int regX, int regY, int regZ) {
+void Machine::nand(int regX, int regY, int regZ) {
   int not_and = ~( cpu.getRegister(regY) & cpu.getRegister(regZ) );
   cpu.setRegister(regX, not_and);
 }
@@ -296,7 +293,7 @@ void Simulator::nand(int regX, int regY, int regZ) {
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //      @param int num, holds int to be added
 //POST: register[regX] = register[regY] + num
-void Simulator::addi(int regX, int regY, int num) {
+void Machine::addi(int regX, int regY, int num) {
   int sum = cpu.getRegister(regY) + num;
   cpu.setRegister(regX, sum);
 }
@@ -305,7 +302,7 @@ void Simulator::addi(int regX, int regY, int num) {
 //      @param int num, holds the int be be added to regY to solve location
 //POST: loads the content register[regY]+ address and stores it to
 //      register[regX]
-void Simulator::lw(int regX, int regY, int num) {
+void Machine::lw(int regX, int regY, int num) {
   int address = num + cpu.getRegister(regY);
   int content = memory->getIndex(address); //adds the line to memory
   cpu.setRegister(regX, content);
@@ -314,7 +311,7 @@ void Simulator::lw(int regX, int regY, int num) {
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //      @param int num, holds the int be be added to regY to solve location
 //POST: stored the content of register[regX] to register[regY]+ address
-void Simulator::sw(int regX, int regY, int num) {
+void Machine::sw(int regX, int regY, int num) {
   int address = num + cpu.getRegister(regY);
   int content = cpu.getRegister(regX);
   memory->setIndex(address, content);
@@ -323,7 +320,7 @@ void Simulator::sw(int regX, int regY, int num) {
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //      @param int offset, holds the signed_value or offset
 //POST: if regX == regY offset added to PC else nothing
-void Simulator::beq(int regX, int regY, int offset) {
+void Machine::beq(int regX, int regY, int offset) {
   if ( cpu.getRegister(regX) == cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
     cpu.setPC( offset + cpu.getPC() );
@@ -333,11 +330,11 @@ void Simulator::beq(int regX, int regY, int offset) {
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //      @param int offset, holds the signed_value or offset
 //POST: if regX > regY offset added to PC else nothing
-void Simulator::bgt(int regX, int regY, int offset) {
+void Machine::bgt(int regX, int regY, int offset) {
   if ( cpu.getRegister(regX) > cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
     cpu.setPC( offset + cpu.getPC() );
-  } //assert else do nothing
+  }
 }
 
 //======================================
@@ -346,8 +343,9 @@ void Simulator::bgt(int regX, int regY, int offset) {
 
 //PRE:  @param int regX and regY, range [0-15] inclusive
 //POST: set regX to be PC, set PC to be regY
-void Simulator::jalr(int regX, int regY) {
-
+void Machine::jalr(int regX, int regY) {
+    cpu.setRegister(regY, cpu.getPC() );
+    cpu.setPC( cpu.getRegister(regX) ); //test jalr
 }
 
 //======================================
@@ -357,13 +355,13 @@ void Simulator::jalr(int regX, int regY) {
 //PRE: @param int regX, range [0-15] inclusive
 //PRE: @param int num, the number to be entered to regX
 //POST: takes input from terminal, x and sets regX = x;
-void Simulator::in(int regX, int num) {
+void Machine::in(int regX, int num) {
     cpu.setRegister(regX, num);
 }
 
 //PRE:  @param int regX, range [0-15] inclusive
 //POST: prints the content of regX to the terminal
-char * Simulator::out(int regX) {
+char * Machine::out(int regX) {
   //this will have to be edited to char * and allocated memory to it
   char * output = new char [MAX_PROG_OUTPUT_SIZE];
   sprintf (output, "%d \n", cpu.getRegister(regX));
@@ -377,7 +375,7 @@ char * Simulator::out(int regX) {
 //PRE:  @param int regX, range [0-15] inclusive
 //      @param int offset, holds the signed_value or offset
 //POST: prints the content of regX to the terminal
-void Simulator::la(int regX, int num) {
+void Machine::la(int regX, int num) {
   int address = num + cpu.getPC(); //fix to go to the current addresses
   cpu.setRegister(regX, address);
 }
@@ -388,6 +386,6 @@ void Simulator::la(int regX, int num) {
 
 //PRE:  takes no params
 //POST: stops the program
-void Simulator::halt() {
+void Machine::halt() {
   current_process->haltProgram();
 }
