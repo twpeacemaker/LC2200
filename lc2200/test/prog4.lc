@@ -1,9 +1,9 @@
 IN $a0
 IN $a1
-BEQ $a0 $a1 equal
+BGT $a0 $a1 greater
 ADDI $t0 $zero 0
 OUT $t0
 HALT
-equal: ADDI $t0 $zero 1
+greater: ADDI $t0 $zero 1
 OUT $t0
 HALT
