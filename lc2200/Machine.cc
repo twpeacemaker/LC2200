@@ -87,7 +87,8 @@ char * Machine::executeLine(bool & in_bool, bool & out_bool) {
 //      @param bool $ done, is true iff the Machine has hit the halt statement
 //POST: @return if out_bool is true return value is meaningful and is requesting
 //              for the terminal to output the return value
-char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool, bool & done) {
+char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
+                           bool & done) {
   char * return_value;
   MyString string = input;                    //copies the char* into a MyString
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
@@ -112,7 +113,10 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool, bool &
     return_value = stepSim(num_steps, in_bool, out_bool, done);
   }
   else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-    //build
+    //ASSERT: run the program for its length, if the halt statement is hit it
+    //        will stop
+    return_value = stepSim(current_process->getLength(), in_bool, out_bool,
+                           done);
   }
   return return_value;
 }
@@ -236,7 +240,8 @@ int Machine::getRegZ(int line) {
 //PRE:  @param int line, is the line to be executed, lenth = 4 bytes
 //POST: @return int Signed Value or Offset from the line is executed
 int Machine::getSignedOrOffset(int line) {
-  int rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT, SIGNED_OR_OFFSET_LOWER_BIT);
+  int rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT,
+                   SIGNED_OR_OFFSET_LOWER_BIT);
   return rv;
 }
 

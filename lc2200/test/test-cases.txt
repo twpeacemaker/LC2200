@@ -245,3 +245,117 @@ Terminal:
   $a1: 0xFFFFFFFF (-1)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xFFFFFFFE (-2)
   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+21 test whether the beq statement works
+Terminal:
+
+  > load test/prog3
+  > step 9
+  Input: 1
+  Input: 1
+  1
+  Process completed.
+  the program gave an output of 1 because the registers were =
+  > load test/prog3
+  > step 9
+  Input: 1
+  Input: 2
+  0
+  Process completed.
+  the program gave an output of 0 because they were not equal
+
+22 test whether the bgt is working correctly
+Terminal:
+  > load test/prog4
+  > step 9
+  Input: 1
+  Input: 2
+  0
+  Process completed.
+  the program gave an output of 0 becuase 1 !> 2
+  > load test/prog4
+  > step 9
+  Input: 2
+  Input: 1
+  1
+  Process completed.
+  the program gave an output of 0 becuase 2 > 1
+  > load test/prog4
+  > step 9
+  Input: 1
+  Input: 1
+  0
+  Process completed.
+  the program gave an output of 0 becuase 1 !> 1
+
+23. test test the LA opcode is correct
+Terminal:
+> load test/prog2
+> step 1
+Input: 1
+> step 1
+> cpu
+ PC: 8
+ $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x30000000 (805306368)  $a0: 0x00000001 (1)
+ $a1: 0x00000014 (20)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00000000 (0)  $t1: 0xAE36F168 (-1372130968)
+ $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+ $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+
+ $a1 now holds the correct value of 20
+
+24. test if SW is working correctly
+Terminal:
+  > load test/prog2
+  > step 1
+  Input: 1
+  > step 1
+  > cpu
+  PC: 8
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x30000000 (805306368)  $a0: 0x00000001 (1)
+  $a1: 0x00000014 (20)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00000000 (0)  $t1: 0xAE36F168 (-1372130968)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+  > step 1
+  > mem 0 32
+  0: 0x93000000 -1828716544  4: 0xC400000C -1006632948  8: 0x43400000 1128267776  12: 0x35400000 893386752
+  16: 0x70000000 1879048192  20: 0x00000001 1  24: 0x00000000 0  28: 0xA6000000 -1509949440
+  32: 0x70000000 1879048192
+  the address of location now correctly holds the number 1
+
+25. test if the LW is working correctly
+Terminal:
+  > load test/prog2
+  > step 1
+  Input: 1
+  > step 1
+  > cpu
+   PC: 8
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x30000000 (805306368)  $a0: 0x00000001 (1)
+   $a1: 0x00000014 (20)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00000000 (0)  $t1: 0xAE36F168 (-1372130968)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+  > step 1
+  > mem 0 32
+   0: 0x93000000 -1828716544  4: 0xC400000C -1006632948  8: 0x43400000 1128267776  12: 0x35400000 893386752
+   16: 0x70000000 1879048192  20: 0x00000001 1  24: 0x00000000 0  28: 0xA6000000 -1509949440
+   32: 0x70000000 1879048192
+  > step 1
+  > cpu
+   PC: 16
+   $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x30000000 (805306368)  $a0: 0x00000001 (1)
+   $a1: 0x00000014 (20)  $a2: 0x00000001 (1)  $t0: 0x00000000 (0)  $t1: 0xAE36F168 (-1372130968)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
+  > step 1
+  Process completed.
+  $a0 now correctly holds the value at address 20 with was the integer 1
+
+26. test if the run command runs the program till the halt statement
+  > load test/prog3
+  > run
+  Input: 1
+  Input: 1
+  1
+  Process completed.
+
+  the process is ran to completion

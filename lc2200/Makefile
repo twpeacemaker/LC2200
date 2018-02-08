@@ -1,7 +1,7 @@
 GCC=g++
 
 Machine: Terminal.o main.o Machine.o CPU.o Memory.o MyString.o bit_manipulation.o char_arrays.o PCB.o
-	$(GCC) main.o Machine.o cpu.o Memory.o terminal.o MyString.o bit_manipulation.o char_arrays.o PCB.o -o Simulator
+	$(GCC) main.o Machine.o CPU.o Memory.o Terminal.o MyString.o bit_manipulation.o char_arrays.o PCB.o -o Simulator
 
 Terminal.o: Exception.h Terminal.h Terminal.cc useful_classes/MyString.h Machine.h  useful_functions/char_arrays.h
 	$(GCC) Terminal.cc -c
