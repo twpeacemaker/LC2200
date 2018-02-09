@@ -1,6 +1,6 @@
 IN $a0
-LA $v0 subtract
 back: BEQ $a0 $zero halt
+LA $v0 subtract
 JALR $v0 $ra
 BGT $a0 $zero back
 halt: HALT
