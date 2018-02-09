@@ -122,7 +122,9 @@ void Terminal::validateInput(LList<MyString> tokens) {
 
 
 // Pre:
-// Post: @return a array of characters that was given from input
+// Post: @return a array of characters that was given from input if the input
+//       is not an valid input it will re-ask the user until valid input is
+//       taken
 char * Terminal::getInput() {
   char * input = new char [MAX_INPUT_SIZE]; //fix to be char []
   bool valid_input = false;

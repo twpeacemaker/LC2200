@@ -44,9 +44,9 @@ class CPU {
      //POST: @return register[index]
      uint getRegister(uint index);
 
-     //PRE:  @param int index, index of registers [0-15] inclusive
      //      @param int value, the value you want register[index] to be
      //POST: register[index] = value
+     //throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
      void setRegister(uint index, uint value);
 
      //PRE:

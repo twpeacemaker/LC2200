@@ -6,7 +6,7 @@
 // Pre : @param char * firstArray
 //       @param char * secondArray
 // Post: returns true if the two arrays are =
-bool compareCharArray(char * firstArray, char * secondArray){
+bool compareCharArray(char * firstArray, char * secondArray) {
   bool match  = true;
   int index = 0;
   while(match && firstArray[index] != '\0' && secondArray[index] != '\0') {
@@ -28,9 +28,9 @@ bool isDigit( char c ) {
 }
 
 // Pre : @param char character, takes a charater
-// Post: @returns an intager verion of the character 
+// Post: @returns an intager verion of the character
 //throw(Exception((char *)"ERROR: INVALID INPUT"));
-int charToInteger(char c){
+int charToInteger(char c) {
   int ascii_value = (int)(c);
   int baseline;
   if (!isDigit(c)){

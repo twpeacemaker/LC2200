@@ -9,7 +9,7 @@
 //POST: returns the mask with ones from the left index to the right index
 //      if there is no errors, if the function throws an error the function
 //      return garbage data;
-uint getMaskBit(int left_index, int right_index);
+uint getMaskBit(int left_index, int right_index) ;
 
 //PRE:  @param int num: # which you want to get a sub-bit for
 //      @param int left_index: [right_index-0]the left most index of the sub-bit
@@ -21,13 +21,13 @@ uint getMaskBit(int left_index, int right_index);
 //POST: will return the sub-bit of int num from left index to right index
 //      inclusive if no errors, if errors will return garbage data
 uint getBits(uint num, int left_index, int right_index,
-             bool check_for_neg = false);
+             bool check_for_neg);
 
 
 //PRE:  @param int byte_num, [1-4]
 //POST: returns the mask where ones are everywhere other than the byte_num
 //      specifed s
-uint getByteMaskX(int byte_num);
+uint getByteMask(int byte_num);
 
 //PRE: @param int num: the number to be inserted to
 //     @param int to_insert: the number being inserted, should only be a byte

@@ -10,8 +10,9 @@
 bool compareCharArray(char * firstArray, char * secondArray);
 
 // Pre : @param char character, takes a charater
-// Post: @returns an intager
-int charToInteger(char character);
+// Post: @returns an intager verion of the character
+//throw(Exception((char *)"ERROR: INVALID INPUT"));
+int charToInteger(char c);
 
 // Pre:  @param char * characters takes an array of characters to be converted
 //       to an int

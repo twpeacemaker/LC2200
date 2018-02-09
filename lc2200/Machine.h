@@ -143,8 +143,11 @@ class Machine {
     //POST: stops the program
     void halt();
 
-    //PRE:  @param char * input gets thr program name from the input
-    //POST: @returns a dynamicly created char* of the progam name
+    //PRE:  @param char * input gets the program name from the input
+    //                    takes the input from the terminal
+    //                    must be no longer than 2 words
+    //                    must be a load command
+    //POST: @returns a dynamicly created char* of the progam name + .lce
     char * getProgamName(char * input);
 
 
@@ -159,46 +162,58 @@ class Machine {
     // Post: initlizes the Machine class
     Machine(uint memory_size);
 
-    //PRE:
-    //POST: @return iif out_bool is true is the return meaningful
+    //PRE:  @param bool & in_bool, iif true the Machine needs input
+    //      @param bool & out_bool, iif true the Machine is requesting to output
+    //                              to the terminal
+    //POST: @return iif out_bool is true is the return meaningful, the output
+    //      reprents the output to send to the terminal
     char * executeLine(bool & in_bool, bool & out_bool);
 
     //PRE:  @param char * input, the number
-    //POST:
+    //      @param bool & in_bool, is true iff the Machine needs input
+    //      @param bool & out_bool, is true iff the Machine needs to output
+    //      @param bool $ done, is true iff the Machine has hit the halt statement
+    //POST: @return if out_bool is true return value is meaningful and is requesting
+    //              for the terminal to output the return value
     char * runCommand(char * input, bool & in_bool, bool & out_bool, bool & done);
 
     //======================================
     // INPUT
     //======================================
 
-    //PRE:  @param char * input, should be valid to be entered to a register at
-    //the current line
-    //POST: sets the register specifed in the current line to the input taken
+    //PRE:  @param char * input, takes the input to run
+    //POST: @return char*, the content of memory
+    //      if 1 token given, 0 - memory size
+    //      if 2 tokens token[1] - memory size
+    //      if 3 tokens token[1] - token[2]
     void giveInput(char * input);
 
     //PRE:  @param char * input, takes the input from the terminal
     //                           must be no longer than 2 words
+    //                           F
     //POST: loads the program into the memory location starting at 0
+    //(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
     void loadSim(char * input);
 
     //PRE:  @param char * input, takes the input to run
-    //POST: @print the content of memory
-    //      if 1 token given, 0 - memory size is printed
-    //      if 2 tokens token[1] - memory size is printed
-    //      if 3 tokens token[1] - token[2] is printed
+    //POST: @return char*, the content of memory
+    //      if 1 token given, 0 - memory size
+    //      if 2 tokens token[1] - memory size
+    //      if 3 tokens token[1] - token[2]
     char * memSim(char * input);
 
     //PRE:  @param char * input, takes the input to run
     //POST: @returns a char* that is properly formated
     char * cpuSim();
 
-    //PRE:
-    //POST:
+    //PRE: @param int num_step, the number of lines to execute
+    //     @param bool in, iif true the program needs input
+    //     @param book out iif true the program needs output
+    //     @param done iff the progam has reached the halt statemetn
+    //POST:@return if out is true returns the output to the termainl
+    //current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM
+    //                                                LOADED"));
     char * stepSim(int num_steps, bool & in, bool & out, bool & done);
-
-    //PRE:
-    //POST:
-    void runSim();
 
 
 };

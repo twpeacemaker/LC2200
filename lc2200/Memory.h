@@ -47,7 +47,8 @@ class Memory {
     //PRE: @param char * input, takes the input from the terminal
     //     @param int & lower_bound, is the lower requested by user
     //     @param int & upper_bound, is the upper requested by user
-    //POST:
+    //POST:changes the upper and lower bound to correspond with the input request
+    //throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
     void getUpperLowerBound(char * input, int & lower_bound, int & upper_bound);
 
     //PRE: @param int index, takes the index of memory

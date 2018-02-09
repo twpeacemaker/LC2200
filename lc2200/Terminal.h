@@ -21,18 +21,26 @@ class Terminal {
     bool running;          // whether the terminal is runnning
     Machine * machine; // pointer to the Machine
 
-    // Pre: @param char user_input[], the input given by the user
-    // Post:
+    //PRE:  @param char * input, int input string the user specifed
+    //POST: decodes the input, assures it has the proper number of parameters and
+    //      sends it to the appropriate function
     void runCommand(char * input);
 
     //PRE:  @param LList<MyString> tokens, the separed tokens for the program
     //POST: validates that the commands are correct and that the command is not
     //      the exit command, if the exit command is given thent the program is
     //      exited
+    //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
+    //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO MEM"));
+    //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CPU"));
+    //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
+    //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO EXIT"));
     void validateInput(LList<MyString> tokens);
 
     // Pre:
-    // Post: @return a array of characters that was given from input
+    // Post: @return a array of characters that was given from input if the input
+    //       is not an valid input it will re-ask the user until valid input is
+    //       taken
     char * getInput();
 
     // Pre:
