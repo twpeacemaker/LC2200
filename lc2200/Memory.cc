@@ -76,19 +76,15 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bou
   tokens.deleteFront();
   //ASSERT: tokens size is no more than 2
   if (tokens.getSize() == 1) {
-    //3
     //first token to the end of memory
-    lower_bound = array_to_int(tokens.getFront().getString());
-    if (lower_bound >= (size * BYTES_IN_WORD) ||
-        lower_bound % 4 != 0 ||
+    lower_bound = arrayToInt(tokens.getFront().getString());
+    if (lower_bound >= (size * BYTES_IN_WORD) || lower_bound % 4 != 0 ||
         lower_bound < 0) {
       throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
     }
-
-
   } else if(tokens.getSize() > 1) {
-      lower_bound = array_to_int(tokens.getFront().getString());
-      upper_bound = array_to_int(tokens.getBack().getString());
+      lower_bound = arrayToInt(tokens.getFront().getString());
+      upper_bound = arrayToInt(tokens.getBack().getString());
       if (lower_bound >= (size * BYTES_IN_WORD) ||
           upper_bound >= (size * BYTES_IN_WORD) ||
           lower_bound % 4 != 0 ||

@@ -49,6 +49,28 @@ Test Programs:
  8 0x0000001C 0xA6000000 OUT $t0
  9 0x00000020 0x70000000 HALT
 
+ prog5:
+ 1 0x00000000 0x91000000 IN  $at
+ 2                       ;n
+ 3 0x00000004 0x05000000 ADD $a2 $zero $zero
+ 4                       ;= counter
+ 5 0x00000008 0x51500014 back: BEQ $at $a2 next
+ 6                       ;while(len > counter) {
+ 7 0x0000000C 0x94000000 IN $a1
+ 8 0x00000010 0x44D00000 SW $a1 0x0($sp)
+ 9 0x00000014 0x2DDFFFFC ADDI $sp $sps -4
+10 0x00000018 0x25500001 ADDI $a2 $a2 1scs
+11 0x0000001C 0x500FFFE8 BEQ $zero $zero back
+12                       ;unconditional back
+13 0x00000020 0x70000000 next: HALT
+
+prog6:
+1 0x00000000 0x93000000 IN $a0
+2 0x00000004 0x233FFFFC ADDI $a0 $a0 -4
+3 0x00000008 0x70000000 HALT
+
+
+
 
 1. test if a user can load a program that is not accessible
 Terminal:
@@ -270,7 +292,7 @@ Terminal:
   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
   $k0: 0x00000000 (0)  $sp: 0x00000000 (0)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
 
-21 test whether the beq statement works
+21 test whether the beq statement works when they are = to each other
 Terminal:
 
   > load test/prog3
@@ -280,6 +302,8 @@ Terminal:
   1
   Process completed.
   the program gave an output of 1 because the registers were =
+
+22 test whether the beq statement works when they are != to each other
   > load test/prog3
   > step 9
   Input: 1
@@ -288,7 +312,7 @@ Terminal:
   Process completed.
   the program gave an output of 0 because they were not equal
 
-22 test whether the bgt is working correctly
+23 test whether the bgt is working correctly when regX !< RegY
 Terminal:
   > load test/prog4
   > step 9
@@ -296,6 +320,8 @@ Terminal:
   Input: 2
   0
   Process completed.
+
+24 test whether the bgt is working correctly when regX > RegY
   the program gave an output of 0 becuase 1 !> 2
   > load test/prog4
   > step 9
@@ -304,6 +330,8 @@ Terminal:
   1
   Process completed.
   the program gave an output of 0 becuase 2 > 1
+
+25 test whether the bgt is working correctly when regX = RegY
   > load test/prog4
   > step 9
   Input: 1
@@ -312,7 +340,7 @@ Terminal:
   Process completed.
   the program gave an output of 0 becuase 1 !> 1
 
-23. test test the LA opcode is correct
+26. test test the LA opcode is correct
 Terminal:
 > load test/prog2
 > step 1
@@ -327,7 +355,7 @@ Input: 1
 
  $a1 now holds the correct value of 20
 
-24. test if SW is working correctly
+27. test if SW is working correctly
 Terminal:
   > load test/prog2
   > step 1
@@ -346,7 +374,7 @@ Terminal:
   32: 0x70000000 1879048192
   the address of location now correctly holds the number 1
 
-25. test if the LW is working correctly
+28. test if the LW is working correctly
 Terminal:
   > load test/prog2
   > step 1
@@ -374,7 +402,7 @@ Terminal:
   Process completed.
   $a0 now correctly holds the value at address 20 with was the integer 1
 
-26. test if the run command runs the program till the halt statement
+29. test if the run command runs the program till the halt statement
   > load test/prog3
   > run
   Input: 1
@@ -392,3 +420,40 @@ Terminal:
   16: 0xA6000000 -1509949440  20: 0x70000000 1879048192  24: 0x26000001 637534209  28: 0xA6000000 -1509949440
 
   the process is ran to halt, hit halt at address 20
+
+30. test if the program can insert onto the stack
+Terminal:
+  > load test/prog5
+  > run
+  Input: 5
+  Input: 1
+  Input: 2
+  Input: 3
+  Input: 4
+  Input: 5
+  Process completed.
+  > mem
+   0: 0x91000000 -1862270976  4: 0x05000000 83886080  8: 0x51500014 1364197396  12: 0x94000000 -1811939328
+   16: 0x44D00000 1154482176  20: 0x2DDFFFFC 769654780  24: 0x25500001 625999873  28: 0x500FFFE8 1343225832
+   32: 0x70000000 1879048192  36: 0x00000000 0  40: 0x00000000 0  44: 0x00000000 0
+   48: 0x00000000 0  52: 0x00000000 0  56: 0x00000000 0  60: 0x00000000 0
+   64: 0x00000000 0  68: 0x00000000 0  72: 0x00000000 0  76: 0x00000000 0
+   80: 0x00000000 0  84: 0x00000000 0  88: 0x00000000 0  92: 0x00000000 0
+   96: 0x00000000 0  100: 0x00000000 0  104: 0x00000000 0  108: 0x00000000 0
+   112: 0x00000000 0  116: 0x00000000 0  120: 0x00000000 0  124: 0x00000000 0
+   128: 0x00000000 0  132: 0x00000000 0  136: 0x00000000 0  140: 0x00000005 5
+   144: 0x00000004 4  148: 0x00000003 3  152: 0x00000002 2  156: 0x00000001 1
+
+31. test if the program can account for neg number being contained in the offset
+    or signed_value
+Terminal:
+  > load test/prog6
+  > run
+  Input: 1
+  Process completed.
+  > cpu
+   PC: 12
+   $zero: 0x00000000 (0)  $at: 0x00000005 (5)  $v0: 0xF0000000 (-268435456)  $a0: 0xFFFFFFFD (-3)
+   $a1: 0x00000005 (5)  $a2: 0x00000005 (5)  $t0: 0x00007FFF (32767)  $t1: 0xAE36F168 (-1372130968)
+   $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+   $k0: 0x00000000 (0)  $sp: 0x0000009C (156)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)

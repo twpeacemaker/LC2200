@@ -22,11 +22,9 @@ Terminal::Terminal() {
 // Pre:  @param char * memory_size, the memory size to send to the Machine
 // Post: makes the Machine and sets the memory size
 Terminal::Terminal(char * memory_size_char) {
-  int memory_size = array_to_int(memory_size_char);
+  int memory_size = arrayToInt(memory_size_char);
   running = false;
   machine = new Machine(memory_size);
-
-
 }
 
 // Pre:
@@ -101,7 +99,7 @@ void Terminal::validateInput(LList<MyString> tokens) {
     }
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_STEP_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
+      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO STEP"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_RUN_PARAMS) {

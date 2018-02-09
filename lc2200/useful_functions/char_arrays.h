@@ -8,11 +8,16 @@ bool compareCharArray(char * firstArray, char * secondArray);
 
 // Pre : @param char character, takes a charater
 // Post: @returns an intager
-int char_to_integer(char character);
+int charToInteger(char character);
 
 // Pre:  @param char * characters takes an array of characters to be converted
 //       to an int
 // Post: @return the intager, represented by the array
-int array_to_int(char * characters);
+int arrayToInt(char * characters);
+
+//PRE:  char c any character
+//POST: @return bool true iff the characer is a number
+bool isDigit( char c );
+
 
 #endif

@@ -9,10 +9,7 @@
 bool compareCharArray(char * firstArray, char * secondArray){
   bool match  = true;
   int index = 0;
-  while(match &&
-        firstArray[index] != '\0' &&
-        secondArray[index] != '\0')
-  {
+  while(match && firstArray[index] != '\0' && secondArray[index] != '\0') {
     if(firstArray[index] != secondArray[index]){
        match = false;
     }
@@ -24,39 +21,35 @@ bool compareCharArray(char * firstArray, char * secondArray){
   return (match);
 }
 
+//PRE:  char c any character
+//POST: @return bool true iff the characer is a number
+bool isDigit( char c ) {
+  return ( '0' <= c && c <= '9' && c != ' ');
+}
 
 // Pre : @param char character, takes a charater
 // Post: @returns an intager
-int char_to_integer(char character){
+int charToInteger(char c){
 
-  int ascii_value = (int)(character);
-  int ascii_baseline;
-
-  if (ascii_value > (int)('F') || ascii_value < (int)('0')){
+  int ascii_value = (int)(c);
+  int baseline;
+  if (!isDigit(c)){
     throw(Exception((char *)"ERROR: INVALID INPUT"));
-  }else{
-    if (ascii_value > (int)('9')){
-      // convert the value of A into an ascii value integer
-      ascii_baseline = (int)('A');
-      //  pad the ascii_baseline with our Apadding
-      ascii_baseline -= AOFFSET;
-    }else{
-      ascii_baseline = (int)('0');
-    }
-    // ASSERT:  determined the nature of ascii_value
-    //         and aligned
-    int updated_value = ascii_value - ascii_baseline;
-    // ASSERT: updated_value is now the converted value of
-    //       character
-    // from character to integer
-    return (updated_value);
   }
+  baseline = (int)('0');
+  // ASSERT:  determined the nature of ascii_value
+  //         and aligned
+  int rv = ascii_value - baseline;
+  // ASSERT: updated_value is now the converted value of
+  //       character
+  // from character to integer
+  return (rv);
 }
 
 // Pre:  @param char * characters takes an array of characters to be converted
 //       to an int
 // Post: @return the intager, represented by the array
-int array_to_int(char * characters){
+int arrayToInt(char * characters){
   // variables for the array hunting
   int index = 0;
   char current_char = characters[index];
@@ -66,10 +59,7 @@ int array_to_int(char * characters){
   while (current_char != '\0'){
     if(current_char != '-'){
       //  have not found a end of string character
-      current_int = char_to_integer(current_char);
-      if (current_int <= (int)('9') && current_int >= (int)('0')){
-	       throw(Exception((char *)"Invalid character input"));
-      }
+      current_int = charToInteger(current_char);
       // update the value
       updated_value = (updated_value * 10) + current_int;
     }else{

@@ -42,9 +42,11 @@ uint getMaskBit(int left_index, int right_index) {
 //             sub-bit
 //      the left and right indexes are inclusive and this function will not
 //      changen int num.
+//      @param bool check_for_neg optional, tells the program to check for neg
 //POST: will return the sub-bit of int num from left index to right index
 //      inclusive if no errors, if errors will return garbage data
-uint getBits(uint num, int left_index, int right_index) {
+uint getBits(uint num, int left_index, int right_index,
+             bool check_for_neg){
     uint return_value; //Assert: will hold garbage data
     if (left_index < right_index) {
       //Assert: error catch & will return garbage data
@@ -59,17 +61,13 @@ uint getBits(uint num, int left_index, int right_index) {
       //Assert: the left index is greater than the right
       uint mask = getMaskBit(left_index, right_index);
       uint new_num = (mask & num) >> right_index;
-      accountForNeg(new_num, left_index);
-      //printf("Created Mask: %#08x \n" , mask);
-      //printf("Num in get bits: %#08x \n" , new_num);
-      //int new_num_size = left_index - right_index;
-      //printf("new_num_size: %d \n" , new_num_size);
-      //int remove_leading_one_mask = getMaskBit(new_num_size, 0);
-      //printf("remove_leading_one_mask: %#08x \n" , remove_leading_one_mask);
-      //return_value = remove_leading_one_mask & new_num;
-      //printf("Num: %#08x \n" , return_value);
-      return_value = new_num;
-
+      if(check_for_neg) {
+        //ASSERT: the optional parameters check_for_neg was given as true,
+        //        the function will account for neg numbers
+        return_value = accountForNeg(new_num, left_index);
+      } else {
+        return_value = new_num;
+      }
     }
 
     return (return_value);
@@ -79,10 +77,16 @@ uint getBits(uint num, int left_index, int right_index) {
 //     int left_index, the left most index
 //POST:returns the correct number with negitive accounted for
 uint accountForNeg(uint num, int left_index) {
-  uint new_num = 0;
+  int rv;
   uint mask = getMaskBit(left_index, left_index);
-  printf("Mask: %#08x \n" , mask);
-  return new_num;
+  uint test = (mask & num);
+  if (test == 0) {
+    rv = num;
+  } else {
+    mask = getMaskBit(WORD_SIZE - 1, left_index + 1);
+    rv = (mask | num);
+  }
+  return rv;
 }
 
 

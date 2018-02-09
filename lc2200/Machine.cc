@@ -109,7 +109,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     done = true;
   }
   else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
-    int num_steps = array_to_int( tokens.getNth(STEP_TOKEN_N).getString() );
+    int num_steps = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
     return_value = stepSim(num_steps, in_bool, out_bool, done);
   }
   else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
@@ -248,8 +248,9 @@ uint Machine::getRegZ(uint line) {
 uint Machine::getSignedOrOffset(uint line) {
   //printf("line: %08x \n", line);
   uint rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT,
-                   SIGNED_OR_OFFSET_LOWER_BIT);
-  printf("OFFSET: %08x, %d \n", rv, rv);
+                   SIGNED_OR_OFFSET_LOWER_BIT, true);
+  //ASSERT: the program must account for neg for the signed or offset so
+  //        true is given as an optional parma
   return rv;
 }
 
@@ -274,7 +275,7 @@ uint Machine::getPrevLine() {
 //POST: sets the register specifed in the current line to the input taken
 void Machine::giveInput(char * input) {
   uint line = getPrevLine();
-  uint num = array_to_int(input);
+  uint num = arrayToInt(input);
   in( getRegX(line), num );
 }
 
