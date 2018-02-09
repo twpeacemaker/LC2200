@@ -1,2 +1,2 @@
 ADD $zero $zero $zero
-ADDI $zer0 $zero 1
+ADDI $zero $zero 1
