@@ -47,11 +47,13 @@ char * Memory::getOutput(char * input) {
   getUpperLowerBound(input, lower_bound, upper_bound); // all are validated
   MyString string;                                     // string to be created
   char * temp;
-  for (int i = (lower_bound / BYTES_IN_WORD); i <= (upper_bound / BYTES_IN_WORD); i++) {
+  for (int i = (lower_bound / BYTES_IN_WORD);
+       i <= (upper_bound / BYTES_IN_WORD); i++) {
     temp = getMemCommandCol(i);
     string.addString(temp);
     delete [] temp;
-    if((i + 1) % NUMBER_OF_COLS_IN_MEM == 0 || i == (upper_bound / BYTES_IN_WORD)) {
+    if((i + 1) % NUMBER_OF_COLS_IN_MEM == 0 ||
+       i == (upper_bound / BYTES_IN_WORD)) {
       string.add('\n');
     }
   }
@@ -62,7 +64,8 @@ char * Memory::getOutput(char * input) {
 //POST:@return char* creates appropriate string to add to the cols
 char * Memory::getMemCommandCol(int index) {
   char * temp = new char[MAX_COL_MEM];
-  sprintf (temp, " %d: 0x%08X %d ", index * BYTES_IN_WORD, memory[index], memory[index]);
+  sprintf (temp, " %d: 0x%08X %d ", index * BYTES_IN_WORD, memory[index],
+           memory[index]);
   return temp;
 }
 
@@ -70,7 +73,8 @@ char * Memory::getMemCommandCol(int index) {
 //     @param int & lower_bound, is the lower requested by user
 //     @param int & upper_bound, is the upper requested by user
 //POST:
-void Memory::getUpperLowerBound(char * input, int & lower_bound, int & upper_bound) {
+void Memory::getUpperLowerBound(char * input, int & lower_bound,
+                                int & upper_bound) {
   MyString string = input;
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   tokens.deleteFront();

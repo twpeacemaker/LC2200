@@ -28,7 +28,7 @@ Terminal::Terminal(char * memory_size_char) {
 }
 
 // Pre:
-// Post: makes the Machine to be Default size
+// Post: runs until the program is ended
 void Terminal::start() {
   running = true;
   while (running == true) {
@@ -150,5 +150,5 @@ void Terminal::exit() {
 // Pre:
 // Post:
 Terminal::~Terminal() {
-
+  //noting to be deleted
 }

@@ -73,7 +73,8 @@ char * CPU::getOutput() {
 
   for (int i = 0; i < MAX_REGISTERS; i++) {
     char * col = new char [MAX_COL_CPU];
-    sprintf (col, " %s: 0x%08X (%d) ", REGISTER_NAMES[i], registers[i], registers[i]);
+    sprintf (col, " %s: 0x%08X (%d) ", REGISTER_NAMES[i], registers[i],
+             registers[i]);
     string.addString(col);
     if((i + 1) % NUMBER_OF_COLS_IN_CPU == 0) {
       string.add('\n');

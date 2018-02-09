@@ -13,7 +13,8 @@ uint getMaskBit(int left_index, int right_index) {
   uint return_value; //Assert: will hold garbage data
   if (left_index < right_index) {
     //Assert: error catch & will return garbage data
-    cerr << "ERROR: The left index must be larger than the right index." << endl;
+    cerr << "ERROR: The left index must be larger than the right index."
+    << endl;
   } else if(left_index > WORD_SIZE) {
     ///Assert: error catch & will return garbage data
     cerr << "ERROR: The left index if greater than the word size." << endl;
@@ -50,7 +51,8 @@ uint getBits(uint num, int left_index, int right_index,
     uint return_value; //Assert: will hold garbage data
     if (left_index < right_index) {
       //Assert: error catch & will return garbage data
-      cerr << "ERROR: The left index must be larger than the right index." << endl;
+      cerr << "ERROR: The left index must be larger than the right index."
+      << endl;
     } else if(left_index >= WORD_SIZE) {
       ///Assert: error catch & will return garbage data
       cerr << "ERROR: The left index if greater than the word size." << endl;

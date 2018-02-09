@@ -1,17 +1,24 @@
 #ifndef INCLUDED_Machine
 #define INCLUDED_Machine
 
-#include "Machine.h"
 #include "CPU.h"
 #include "Memory.h"
 #include "constants.h"
 #include "Exception.h"
-#include <stdio.h>
 #include "PCB.h"
+#include <stdio.h>
+#include <fstream>
+using namespace std;
+#include "useful_classes/LList.h"
+#include "useful_classes/MyString.h"
+#include "useful_functions/bit_manipulation.h"
+#include "useful_functions/char_arrays.h"
 
 class Machine {
 
-  // Class Invariant (CI):
+  // Class Invariant (CI): must point to a valid memory object and must have
+  // have valid cpu that facilitate the memory, pc, registers for the Machine
+  // the machine processes in a fetch, decode, execute cycle
 
   private:
 
@@ -76,13 +83,15 @@ class Machine {
     void addi(uint regX, uint regY, uint num);
 
     //PRE:  @param uint regX and regY, range [0-15] inclusive
-    //      @param uint num, holds the uint be be added to regY to solve location
+    //      @param uint num, holds the uint be be added to regY to solve
+    //      location
     //POST: loads the content register[regY]+ address and stores it to
     //      register[regX]
     void lw(uint regX, uint regY, uint num);
 
     //PRE:  @param uint regX and regY, range [0-15] inclusive
-    //      @param uint num, holds the uint be be added to regY to solve location
+    //      @param uint num, holds the uint be be added to regY to solve
+    //      location
     //POST: stored the content of register[regX] to register[regY]+ address
     void sw(uint regX, uint regY, uint num);
 
@@ -162,8 +171,8 @@ class Machine {
     // INPUT
     //======================================
 
-    //PRE:  @param char * input, should be valid to be entered to a register at the
-    //      current line
+    //PRE:  @param char * input, should be valid to be entered to a register at
+    //the current line
     //POST: sets the register specifed in the current line to the input taken
     void giveInput(char * input);
 

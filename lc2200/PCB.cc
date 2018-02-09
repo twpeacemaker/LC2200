@@ -4,7 +4,9 @@
 //PRE:
 //POST:
 PCB::PCB() {
-
+  program_length = 0;
+  steps = 0;
+  halted = false;
 }
 
 //Constructor
@@ -65,9 +67,7 @@ void PCB::setName(char * new_name) {name = new_name;}
 
 //PRE:
 //POST: sets the program to be halted
-void PCB::haltProgram() {
-  halted = true;
-}
+void PCB::haltProgram() {halted = true;}
 
 
 //PRE:  int num_steps, the number of steps the user wanted to run the program

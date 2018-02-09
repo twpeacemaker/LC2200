@@ -90,7 +90,7 @@ char * Machine::executeLine(bool & in_bool, bool & out_bool) {
 char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
                            bool & done) {
   char * return_value;
-  MyString string = input;                    //copies the char* uinto a MyString
+  MyString string = input;                   //copies the char* uinto MyString
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   MyString command = tokens.getFront();       //gets the command
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {

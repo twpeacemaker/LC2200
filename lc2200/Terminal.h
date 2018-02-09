@@ -13,7 +13,9 @@ using namespace std;
 
 class Terminal {
 
-  // Class Invariant (CI): 
+  // Class Invariant (CI): must start the progame to start the terminal.
+  // the terminal facilitate INPUT and OUTPUT to and from the Machine and
+  // ends the progame on the command exit
 
   private:
 
@@ -53,7 +55,7 @@ class Terminal {
     Terminal(char * memory_size_char);
 
     // Pre:
-    // Post: begins the termial and runs till exit is typed
+    // Post: runs until the program is ended
     void start();
 
     //Destructor

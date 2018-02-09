@@ -4,7 +4,10 @@
 
 class Memory {
 
-  // Class Invariant (CI):
+  // Class Invariant (CI): facilitates the management of memory for the
+  // machine this object must have a pointed to the assigned memory of the
+  // terminal and a size that aligns the the size of mem. the memory expects
+  // all addresses to multibles of 4 and returns the correct address of memory
 
   private:
 
