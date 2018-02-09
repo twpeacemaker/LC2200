@@ -9,15 +9,15 @@ SW $a1   0x0($a0)
 ADDI $a0   $a0     4
 ADDI $a2   $a2     1
 BEQ $zero $zero   back
-next: ADD   $v0   $at     $zero
-bac3: ADDI  $v0   $v0     -1
+next: ADD   $v0   $at $zero
+bac3: ADDI  $v0   $v0 -1
 ADD $a2 $zero $zero
 ADD $a0 $k0 $zero
 bac2: LW    $t0 0x0($a0)
 LW    $t1   0x4($a0)
 BGT   $t1   $t0 noth
 SW    $t1   0x0($a0)
-SW    $t0   0x0($a0)
+SW    $t0   0x4($a0)
 noth: ADDI  $a2 $a2  1
 ADDI  $a0   $a0 4
 BGT   $v0   $a2 back2

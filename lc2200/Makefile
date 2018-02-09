@@ -27,7 +27,7 @@ bit_manipulation.o: useful_functions/bit_manipulation.cc useful_functions/bit_ma
 char_arrays.o: useful_functions/char_arrays.cc useful_functions/char_arrays.h Exception.h constants.h
 	$(GCC) useful_functions/char_arrays.cc -c
 
-PCB.o: PCB.h PCB.cc constants.h"
+PCB.o: PCB.h PCB.cc constants.h
 	$(GCC) PCB.cc -c
 
 clean:

@@ -1,5 +1,5 @@
 Author: Thomas Peacemaker
-Created to test the simulator program
+Created to test the simulator program.
 
 To Start the program
 make
@@ -352,7 +352,7 @@ Terminal:
   Process completed.
   the program gave an output of 0 becuase 1 !> 1
 
-26. test test the LA opcode is correct
+26. test test the LA loads the correct address
 Terminal:
 > load test/prog2
 > step 1
@@ -520,7 +520,7 @@ Terminal:
   $k0: 0x00000000 (0)  $sp: 0x0000009C (156)  $fp: 0x00000000 (0)  $ra: 0x00000010 (16)
   does not error correctly
 
-35. test if user attempts to change the $zero register
+35. test if user attempts to change the $zero register and the sum us not 0
   > load test/prog8
   > step 1
   > step 1
@@ -531,4 +531,48 @@ Terminal:
   $a1: 0x00007FFF (32767)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xAE36F168 (-1372130968)
   $t2: 0x00007FFF (32767)  $s0: 0x00040273 (262771)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
   $k0: 0x00000000 (0)  $sp: 0x0000009C (156)  $fp: 0x00000000 (0)  $ra: 0x00000010 (16)
-  errors correctly but the $zero register is not changed 
+  errors correctly but the $zero register is not changed
+
+36. test if the addi command accounts for negative numbers
+Terminal:
+  > load test/prog7
+  > run
+  Input: 1
+  0
+  Process completed.
+  > cpu
+  PC: 24
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x00000024 (36)  $a0: 0x00000000 (0)
+  $a1: 0x00007FFF (32767)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0xAE36F168 (-1372130968)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000FFC (4092)  $fp: 0x00000000 (0)  $ra: 0x00000010 (16)
+  the program added a negative number correct
+
+37. test if the program reads negitive numbers correctly
+
+> load test/prog1
+> step 1
+Input: -2
+> step 1
+-2
+
+38. test if the program adds negative numbers correctly
+Terminal:
+  > load test/prog1
+  > step 1
+  Input: -2
+  > step 1
+  -2
+  > step 1
+  > cpu
+  PC: 12
+  $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x00000024 (36)  $a0: 0xFFFFFFFE (-2)
+  $a1: 0xFFFFFFFC (-4)  $a2: 0x749D0D3D (1956449597)  $t0: 0x00007FFF (32767)  $t1: 0x00000000 (0)
+  $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
+  $k0: 0x00000000 (0)  $sp: 0x00000FFC (4092)  $fp: 0x00000000 (0)  $ra: 0x00000010 (16)
+  >
+  $a1 holds the correct value of -4
+
+39. test if the program add the number to the SW offset correctly
+
+40. test if the program add the number to the LW offset correctly
