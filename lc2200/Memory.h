@@ -1,6 +1,10 @@
 #ifndef INCLUDED_MEMORY
 #define INCLUDED_MEMORY
+
 #include "constants.h"
+#include "useful_classes/MyString.h"
+#include "useful_functions/char_arrays.h"
+#include "Exception.h"
 
 class Memory {
 

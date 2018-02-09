@@ -1,11 +1,9 @@
-#include "constants.h"
 #include "Terminal.h"
+#include "constants.h"
 #include "Exception.h"
 #include "useful_classes/MyString.h"
 #include "Machine.h"
-
 #include "useful_functions/char_arrays.h"
-
 #include <fstream>
 #include <iostream>
 using namespace std;

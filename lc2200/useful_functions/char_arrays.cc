@@ -28,7 +28,8 @@ bool isDigit( char c ) {
 }
 
 // Pre : @param char character, takes a charater
-// Post: @returns an intager
+// Post: @returns an intager verion of the character 
+//throw(Exception((char *)"ERROR: INVALID INPUT"));
 int charToInteger(char c){
   int ascii_value = (int)(c);
   int baseline;

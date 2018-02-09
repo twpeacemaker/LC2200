@@ -1,6 +1,9 @@
 #ifndef INCLUDED_CHAR_ARRAYS
 #define INCLUDED_CHAR_ARRAYS
 
+#include "../constants.h"
+#include "../Exception.h"
+
 // Pre : @param char * firstArray
 //       @param char * secondArray
 // Post: returns true if the two arrays are =

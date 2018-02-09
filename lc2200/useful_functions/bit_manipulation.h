@@ -3,6 +3,7 @@
 
 #include "../constants.h"
 
+
 //PRE:  @param int left_index: the left most index of the sub-bit
 //      @param int right_index: the right most index of the sub-bit
 //POST: returns the mask with ones from the left index to the right index

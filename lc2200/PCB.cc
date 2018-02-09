@@ -1,5 +1,6 @@
 #include "PCB.h"
-
+#include "constants.h"
+#include <stdio.h>
 
 //PRE:
 //POST:

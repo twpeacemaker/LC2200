@@ -1,7 +1,7 @@
+#include "CPU.h"
 #include "constants.h"
 #include "Exception.h"
 #include <iostream>
-#include "CPU.h"
 #include "useful_classes/MyString.h"
 using namespace std;
 
