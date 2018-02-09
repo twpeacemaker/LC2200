@@ -17,6 +17,7 @@ int main(int argc, char * argv[])
         t.start();
       } else {
         //Assert: argc == 2
+        //passes the memory to terminal 
         Terminal t = Terminal(argv[1]);
         t.start();
       }

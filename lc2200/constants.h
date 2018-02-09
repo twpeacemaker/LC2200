@@ -1,9 +1,6 @@
 #ifndef INCLUDED_CONSTANTS
 #define INCLUDED_CONSTANTS
 
-
-
-
 static char REGISTER_NAMES[][6] =
 {
 	"$zero", "$at", "$v0", "$a0", "$a1", "$a2",
@@ -104,22 +101,6 @@ static char COMMANDS[][6] =
 
 #define STEP_TOKEN_N 1
 
-
-// #define LOAD_NUM 0
-// #define MEM_NUM  1
-// #define CPU_NUM  2
-// #define STEP_NUM 3
-// #define RUN_NUM  4
-// #define EXIT_NUM 5
-//
-// #define LOAD_TOKENS 2
-// #define MEM_TOKENS  3
-// #define CPU_TOKENS  1
-// #define STEP_TOKENS 2
-// #define RUN_TOKENS  1
-// #define EXIT_TOKENS 1
-// #define KILL_TOKENS 2
-
 //register
 #define MAX_REGISTERS 16
 
@@ -163,7 +144,5 @@ static int OPCODES_ARGUMENTS[] =
 	LA_ARGUMENT,   // 12
 	BGT_ARGUMENT   // 13
 };
-
-
 
 #endif

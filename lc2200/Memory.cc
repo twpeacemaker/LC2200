@@ -116,5 +116,6 @@ int Memory::getLastAddress() {
 Memory::~Memory() {
   if (memory != NULL) {
     delete [] memory;
+    memory = NULL;
   }
 }

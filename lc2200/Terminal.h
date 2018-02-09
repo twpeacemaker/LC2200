@@ -13,7 +13,7 @@ using namespace std;
 
 class Terminal {
 
-  // Class Invariant (CI):
+  // Class Invariant (CI): 
 
   private:
 
