@@ -423,6 +423,7 @@ Terminal:
 
 30. test if the program can insert onto the stack
 Terminal:
+  ./Simulator 40
   > load test/prog5
   > run
   Input: 5
@@ -458,4 +459,4 @@ Terminal:
    $t2: 0x00007FFF (32767)  $s0: 0x749E8C33 (1956547635)  $s1: 0x00007FFF (32767)  $s2: 0x00000000 (0)
    $k0: 0x00000000 (0)  $sp: 0x0000009C (156)  $fp: 0x00000000 (0)  $ra: 0x00000000 (0)
 
-32. test if the $zero register can be changed 
+32. test if the $zero register can be changed
