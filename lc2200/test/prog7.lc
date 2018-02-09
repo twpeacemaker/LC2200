@@ -2,7 +2,7 @@ IN $a0
 LA $v0 subtract
 back: BEQ $a0 $zero halt
 JALR $v0 $ra
-BEQ $a0 $zero back
+BGT $a0 $zero back
 halt: HALT
 subtract: ADDI $a0 $a0 -1
 OUT $a0
