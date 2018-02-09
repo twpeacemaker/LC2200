@@ -24,13 +24,12 @@ bool compareCharArray(char * firstArray, char * secondArray){
 //PRE:  char c any character
 //POST: @return bool true iff the characer is a number
 bool isDigit( char c ) {
-  return ( '0' <= c && c <= '9' && c != ' ');
+  return ( '0' <= c && c <= '9');
 }
 
 // Pre : @param char character, takes a charater
 // Post: @returns an intager
 int charToInteger(char c){
-
   int ascii_value = (int)(c);
   int baseline;
   if (!isDigit(c)){
