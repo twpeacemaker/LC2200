@@ -20,7 +20,6 @@
     Functions/Methods:  lowerCamelCase
 
 #Known Errors/Bugs:
-  jalr is not tested
   docs need to be updated
   check for memory out of bounds issues or out of stack issues
 

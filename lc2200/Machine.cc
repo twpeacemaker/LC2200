@@ -29,8 +29,8 @@ Machine::Machine(uint memory_size) {
 
 }
 
-//PRE:  @param bool & in_bool, if true the Machine needs input
-//      @param bool & out_bool, if true the Machine is requesting to output
+//PRE:  @param bool & in_bool, iif true the Machine needs input
+//      @param bool & out_bool, iif true the Machine is requesting to output
 //                              to the terminal
 //POST: @return iif out_bool is true is the return meaningful, the output
 //      reprents the output to send to the terminal
@@ -83,7 +83,7 @@ char * Machine::executeLine(bool & in_bool, bool & out_bool) {
 
 //PRE:  @param char * input, the number
 //      @param bool & in_bool, is true iff the Machine needs input
-//      @param bool & out_bool,is true iff the Machine needs to output
+//      @param bool & out_bool, is true iff the Machine needs to output
 //      @param bool $ done, is true iff the Machine has hit the halt statement
 //POST: @return if out_bool is true return value is meaningful and is requesting
 //              for the terminal to output the return value
@@ -126,9 +126,10 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   return return_value;
 }
 
-//PRE:  @param char * input gets thr program name from the input
+//PRE:  @param char * input gets the program name from the input
 //                    takes the input from the terminal
 //                    must be no longer than 2 words
+//                    must be a load command
 //POST: @returns a dynamicly created char* of the progam name + .lce
 char * Machine::getProgamName(char * input) {
   MyString string = input;                   //copies the char* into a MyString
@@ -140,7 +141,9 @@ char * Machine::getProgamName(char * input) {
 
 //PRE:  @param char * input, takes the input from the terminal
 //                           must be no longer than 2 words
+//                           F
 //POST: loads the program into the memory location starting at 0
+//(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
 void Machine::loadSim(char * input) {
   char * file_name = getProgamName(input); //gets the progam name with + .lce
   ifstream inFile(file_name); //openfile stream
@@ -177,6 +180,7 @@ void Machine::loadSim(char * input) {
 //     @param book out iif true the program needs output
 //     @param done iff the progam has reached the halt statemetn
 //POST:@return if out is true returns the output to the termainl
+//current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
 char * Machine::stepSim(int num_steps, bool & in, bool & out, bool & done) {
   char * output; // holds the memory location of output only meaningful iff
                  // out = True otherwise is garbage

@@ -6,7 +6,8 @@ using namespace std;
 // Author: Thomas Peacemaker
 // Pre : argc is the number of command line arguements passed
 //       argv is the command line arguements passed
-// Post:
+// Post: runs till terminal is stopped 
+//cerr << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;
 int main(int argc, char * argv[])
 {
 
@@ -17,7 +18,7 @@ int main(int argc, char * argv[])
         t.start();
       } else {
         //Assert: argc == 2
-        //passes the memory to terminal 
+        //passes the memory to terminal
         Terminal t = Terminal(argv[1]);
         t.start();
       }
@@ -26,7 +27,7 @@ int main(int argc, char * argv[])
     }
 
   } else{
-    cout << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;;
+    cerr << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;
   }
 
 

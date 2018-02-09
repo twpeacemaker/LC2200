@@ -41,6 +41,7 @@ uint CPU::getRegister(uint index) {
 //PRE:  @param int index, index of registers [0-15] inclusive
 //      @param int value, the value you want register[index] to be
 //POST: register[index] = value
+//throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
 void CPU::setRegister(uint index, uint value) {
   if (index == 0 && value != 0) {
     throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));

@@ -9,7 +9,7 @@ Terminal.o: Exception.h Terminal.h Terminal.cc useful_classes/MyString.h Machine
 MyString.o: useful_classes/MyString.cc useful_classes/MyString.h useful_classes/LList.h
 	$(GCC) useful_classes/MyString.cc -c
 
-main.o: main.cc terminal.o
+main.o: main.cc Terminal.h
 	$(GCC) main.cc -c
 
 Machine.o: CPU.h PCB.h Machine.h Memory.h Machine.cc Exception.h useful_functions/bit_manipulation.h useful_functions/char_arrays.h useful_classes/MyString.h useful_classes/LList.h

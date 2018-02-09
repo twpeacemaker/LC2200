@@ -83,6 +83,12 @@ void Terminal::runCommand(char * input) {
 //POST: validates that the commands are correct and that the command is not
 //      the exit command, if the exit command is given thent the program is
 //      exited
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO MEM"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CPU"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO EXIT"));
+//throw(Exception((char *)"INVALID COMMAND GIVEN"));
 void Terminal::validateInput(LList<MyString> tokens) {
   MyString command = tokens.getFront();       //gets the command
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
@@ -127,12 +133,18 @@ char * Terminal::getInput() {
     cin.getline(input, MAX_INPUT_SIZE);
     MyString string = input;
     LList<MyString> tokens = string.split(' ');
-    if(tokens.getSize() == 1){ //EDIT FOR INVALID INPUT
-      //ASSERT: the input is only one word
-      valid_input = true;
-    }else{
-      cout << "ERROR: INCORRECT INPUT SIZE" << endl;
+    try{
+      if(tokens.getSize() == 1){ //EDIT FOR INVALID INPUT
+        arrayToInt(tokens.getFront().getString());
+        //ASSERT: the input is only one word
+        valid_input = true;
+      }else{
+        cerr << "ERROR: INCORRECT INPUT SIZE" << endl;
+        valid_input = false;
+      }
+    } catch(Exception e){
       valid_input = false;
+      e.handle();
     }
   }
   return input;
