@@ -36,6 +36,7 @@ Machine::Machine(uint memory_size) {
 //POST: @return iif out_bool is true is the return meaningful, the output
 //      reprents the output to send to the terminal
 char * Machine::executeLine(bool & in_bool, bool & out_bool) {
+
   uint line = getCurrentLine(); //fetch: gets the current line
   cpu.incrementPC();           //once the line is fetched the PC is incremented
   uint opcode = getOpcode(line); //decode: determines opcode being called
@@ -271,6 +272,21 @@ uint Machine::getPrevLine() {
   return memory->getIndex(cpu.getPC() - BYTES_IN_WORD);
 }
 
+//PRE: @param uint address, the address of memory trying to be used
+//POST the Method throws an error iff the memory is out of bounds
+//     otherwise does nothing. if error is thrown the current_process is set
+//     to null and is terminated.
+//     throw(Exception((char *)"ERROR: STACK ATTEMPTING TO ACCESS MEMORY OUT OF
+//                              BOUNDS, PROCESS TERMINATED."));
+//     throw(Exception((char *)"ERROR: PROCESS ATTEMPTING TO ACCESS MEMORY OUT
+//                              OF BOUNDS, PROCESS TERMINATED."));
+void Machine::checkAddressOutOfBounds(uint address) {
+  if(address > memory->getLastAddress() || address < 0) {
+    throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS, PROCESS TERMINATED."));
+    current_process = NULL;
+  }
+}
+
 //======================================
 // INPUT
 //======================================
@@ -325,6 +341,10 @@ void Machine::addi(uint regX, uint regY, uint num) {
 //      register[regX]
 void Machine::lw(uint regX, uint regY, uint num) {
   uint address = num + cpu.getRegister(regY);
+
+  checkAddressOutOfBounds(address);
+  //ASSERT: Address is valid
+
   uint content = memory->getIndex(address); //adds the line to memory
   cpu.setRegister(regX, content);
 }
@@ -334,7 +354,12 @@ void Machine::lw(uint regX, uint regY, uint num) {
 //POST: stored the content of register[regX] to register[regY]+ address
 void Machine::sw(uint regX, uint regY, uint num) {
   uint address = num + cpu.getRegister(regY);
+  //EDIT: check if out of bounds
   uint content = cpu.getRegister(regX);
+
+  checkAddressOutOfBounds(address);
+  //ASSERT: Address is valid
+
   memory->setIndex(address, content);
 }
 
@@ -344,6 +369,10 @@ void Machine::sw(uint regX, uint regY, uint num) {
 void Machine::beq(uint regX, uint regY, uint offset) {
   if ( cpu.getRegister(regX) == cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
+    //ASSERT: can assume the address is in bounds
+
+    checkAddressOutOfBounds(offset + cpu.getPC());
+
     cpu.setPC( offset + cpu.getPC() );
   } //assert else do nothing
 }
@@ -354,6 +383,8 @@ void Machine::beq(uint regX, uint regY, uint offset) {
 void Machine::bgt(uint regX, uint regY, uint offset) {
   if ( cpu.getRegister(regX) > cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
+    //ASSERT: can assume the address is in bounds
+    checkAddressOutOfBounds(offset + cpu.getPC());
     cpu.setPC( offset + cpu.getPC() );
   }
 }
@@ -364,7 +395,16 @@ void Machine::bgt(uint regX, uint regY, uint offset) {
 
 //PRE:  @param uint regX and regY, range [0-15] inclusive
 //POST: set regX to be PC, set PC to be regY
+//throw(Exception((char *)"ERROR: JALR DOES NOT TAKE $sp, PROCESS TERMINATED"));
+//if above error is hit the process is terminated
 void Machine::jalr(uint regX, uint regY) {
+
+    //regX holds the value trying to jalr to, this must be tested to be
+
+    //ASSERT: regX is not the stack pointer
+    checkAddressOutOfBounds(cpu.getRegister(regX));
+    //ASSERT: Address is valid
+
     cpu.setRegister(regY, cpu.getPC() );
     cpu.setPC( cpu.getRegister(regX) ); //test jalr
 }
@@ -393,12 +433,19 @@ char * Machine::out(uint regX) {
 // L - Type Operations
 //======================================
 
-//PRE:  @param int regX, range [0-15] inclusive
-//      @param int offset, holds the signed_value or offset
+//PRE:  @param uint regX, range [0-15] inclusive
+//      @param int num, holds the signed_value or offset
 //POST: prints the content of regX to the terminal
-void Machine::la(uint regX, uint num) {
-  uint address = num + cpu.getPC(); //fix to go to the current addresses
-  cpu.setRegister(regX, address);
+void Machine::la(uint regX, int num) {
+  int temp = num + cpu.getPC(); //fix to go to the current addresses
+  if(temp < 0) {
+    throw(Exception((char *)"ERROR: LA given incorrect address"));
+  } else {
+    uint address = temp; //fix to go to the current addresses
+    checkAddressOutOfBounds(address);
+    //ASSERT: address in bounds
+    cpu.setRegister(regX, address);
+  }
 }
 
 //======================================

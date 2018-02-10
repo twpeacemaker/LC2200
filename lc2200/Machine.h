@@ -59,6 +59,14 @@ class Machine {
     //POST: @returns the previous progame line
     uint getPrevLine();
 
+    //PRE: @param uint address, the address of memory trying to be used
+    //POST the Method throws an error iff the memory is out of bounds
+    //     otherwise does nothing. if error is thrown the current_process is set
+    //     to null and is terminated.
+    //     throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF
+    //                              BOUNDS, PROCESS TERMINATED."));
+    void checkAddressOutOfBounds(uint address);
+
     //======================================
     // R - Type Operations
     //======================================
@@ -111,6 +119,9 @@ class Machine {
 
     //PRE:  @param uint regX and regY, range [0-15] inclusive
     //POST: set regX to be PC, set PC to be regY
+    //throw(Exception((char *)"ERROR: JALR DOES NOT TAKE $sp,
+    //                         PROCESS TERMINATED"));
+    //if above error is hit the process is terminated
     void jalr(uint regX, uint regY);
 
     //======================================
@@ -131,9 +142,10 @@ class Machine {
     //======================================
 
     //PRE:  @param uint regX, range [0-15] inclusive
-    //      @param uint offset, holds the signed_value or offset
+    //      @param int num, holds the signed_value or offset
     //POST: prints the content of regX to the terminal
-    void la(uint regX, uint offset);
+    void la(uint regX, int num);
+
 
     //======================================
     // O - Type Operations

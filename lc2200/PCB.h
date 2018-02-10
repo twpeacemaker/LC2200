@@ -42,6 +42,10 @@ class PCB {
     //POST: returns the name of the progam as a char*
     char * getName();
 
+    //PRE:
+    //POST: @return uint, last address of memory the process has access to.
+    uint getLastAddress();
+
     //======================================
     // Setters
     //======================================

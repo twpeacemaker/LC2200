@@ -669,3 +669,9 @@ Terminal:
   the progame sorted the using list bubble sort. LW load the words
   using 0x0 and 0x4 so the program loaded the words correctly and added the
   offset correctly
+
+41. access memory lower than 0
+
+42. access memory over length of memory size
+
+43. neg offset given to la

@@ -1,0 +1,5 @@
+VAR X 1
+ADDI $a0 $sp 4
+SW $a1 0x4($a0)
+HALT
+;should be out of bounds

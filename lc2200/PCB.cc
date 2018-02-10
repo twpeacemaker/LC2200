@@ -30,6 +30,12 @@ PCB::PCB(char * given_name, uint length) {
 uint PCB::getLength() {return program_length;}
 
 //PRE:
+//POST: @return uint, last address of memory the process has access to.
+uint PCB::getLastAddress() {
+  return (program_length - 1);
+}
+
+//PRE:
 //POST: @return, int steps
 uint PCB::getSteps() {return steps;}
 

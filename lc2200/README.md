@@ -20,8 +20,8 @@
     Functions/Methods:  lowerCamelCase
 
 #Known Errors/Bugs:
-  docs need to be updated
   check for memory out of bounds issues or out of stack issues
 
+  make test cases for la having neg offset 
 #Test Cases:
   Instructions located in the test/test-cases file
