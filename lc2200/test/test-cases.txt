@@ -695,5 +695,12 @@ Terminal:
   ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED.
   >
 
-
 43. neg offset given to la
+  > load test/prog12
+  > run
+  Input: 1
+  Input: 2
+  Input: 3
+  Input: 0
+  Process completed.
+  >

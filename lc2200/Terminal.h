@@ -22,8 +22,8 @@ class Terminal {
     Machine * machine; // pointer to the Machine
 
     //PRE:  @param char * input, int input string the user specifed
-    //POST: decodes the input, assures it has the proper number of parameters and
-    //      sends it to the appropriate function
+    //POST: decodes the input, assures it has the proper number of parameters
+    //      and sends it to the appropriate function
     void runCommand(char * input);
 
     //PRE:  @param LList<MyString> tokens, the separed tokens for the program
@@ -38,7 +38,8 @@ class Terminal {
     void validateInput(LList<MyString> tokens);
 
     // Pre:
-    // Post: @return a array of characters that was given from input if the input
+    // Post: @return a array of characters that was given from input if the
+    //       input
     //       is not an valid input it will re-ask the user until valid input is
     //       taken
     char * getInput();

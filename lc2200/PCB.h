@@ -74,7 +74,8 @@ class PCB {
     //POST: sets the program to be halted
     void haltProgram();
 
-    //PRE:  int num_steps, the number of steps the user wanted to run the program
+    //PRE:  int num_steps, the number of steps the user wanted to run the
+    //      program
     //POST: @return whether the program is able to run
     bool ableToRun(int num_steps);
 

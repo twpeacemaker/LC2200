@@ -276,13 +276,12 @@ uint Machine::getPrevLine() {
 //POST the Method throws an error iff the memory is out of bounds
 //     otherwise does nothing. if error is thrown the current_process is set
 //     to null and is terminated.
-//     throw(Exception((char *)"ERROR: STACK ATTEMPTING TO ACCESS MEMORY OUT OF
-//                              BOUNDS, PROCESS TERMINATED."));
-//     throw(Exception((char *)"ERROR: PROCESS ATTEMPTING TO ACCESS MEMORY OUT
-//                              OF BOUNDS, PROCESS TERMINATED."));
+//throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS, 
+//PROCESS TERMINATED."));
 void Machine::checkAddressOutOfBounds(uint address) {
   if(address > memory->getLastAddress() || address < 0) {
     throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS, PROCESS TERMINATED."));
+    //errors if i try to line wrap
     current_process = NULL;
   }
 }

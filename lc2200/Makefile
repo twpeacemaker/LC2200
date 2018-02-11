@@ -31,4 +31,4 @@ PCB.o: PCB.h PCB.cc constants.h
 	$(GCC) PCB.cc -c
 
 clean:
-	rm Machine *.o *~ Simulator
+	rm *.o *~ Simulator
