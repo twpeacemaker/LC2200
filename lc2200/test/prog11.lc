@@ -1,4 +1,4 @@
 ADDI $a0 $zero -4
-SW $a1 0x4($a0)
+SW $a1 0x0($a0)
 HALT
 ;should be out of bounds
