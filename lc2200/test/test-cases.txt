@@ -112,6 +112,20 @@ prog9: bubble-sort
 25 0x0000005C 0xD24FFFCC BGT   $v0   $a1 bac3
 26 0x00000060 0x70000000 HALT
 
+prog10:
+1                       VAR X 1
+2 0x00000000 0x23D00004 ADDI $a0 $sp 4
+3 0x00000004 0x44300004 SW $a1 0x4($a0)
+4 0x00000008 0x70000000 HALT
+5                       ;should be out of bounds
+
+prog11:
+1 0x00000000 0x230FFFFC ADDI $a0 $zero -4
+2 0x00000004 0x44300000 SW $a1 0x0($a0)
+3 0x00000008 0x70000000 HALT
+4                       ;should be out of bounds
+
+
 
 1. test if a user can load a program that is not accessible
 Terminal:
@@ -671,7 +685,15 @@ Terminal:
   offset correctly
 
 41. access memory lower than 0
+  > load test/prog10
+  > run
+  ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED.
 
 42. access memory over length of memory size
+  > load test/prog11
+  > run
+  ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED.
+  >
+
 
 43. neg offset given to la

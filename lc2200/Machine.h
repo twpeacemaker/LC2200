@@ -49,7 +49,7 @@ class Machine {
 
     //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
     //POST: @return uint Signed Value or Offset from the line is executed
-    int getSignedOrOffset(uint line);
+    uint getSignedOrOffset(uint line);
 
     //PRE:
     //POST: @returns the current progame line
@@ -88,7 +88,7 @@ class Machine {
     //PRE:  @param uint regX and regY, range [0-15] inclusive
     //      @param uint num, holds uint to be added
     //POST: register[regX] = register[regY] + num
-    void addi(uint regX, uint regY, int num);
+    void addi(uint regX, uint regY, uint num);
 
     //PRE:  @param uint regX and regY, range [0-15] inclusive
     //      @param uint num, holds the uint be be added to regY to solve
@@ -106,12 +106,12 @@ class Machine {
     //PRE:  @param uint regX and regY, range [0-15] inclusive
     //      @param uint offset, holds the signed_value or offset
     //POST: if regX == regY offset added to PC else nothing
-    void beq(uint regX, uint regY, int offset);
+    void beq(uint regX, uint regY, uint offset);
 
     //PRE:  @param uint regX and regY, range [0-15] inclusive
     //      @param uint offset, holds the signed_value or offset
     //POST: if regX > regY offset added to PC else nothing
-    void bgt(uint regX, uint regY, int offset);
+    void bgt(uint regX, uint regY, uint offset);
 
     //======================================
     // J - Type Operations
@@ -184,13 +184,10 @@ class Machine {
     //PRE:  @param char * input, the number
     //      @param bool & in_bool, is true iff the Machine needs input
     //      @param bool & out_bool, is true iff the Machine needs to output
-    //      @param bool $ done, is true iff the Machine has hit the halt
-    //      statement
-    //POST: @return if out_bool is true return value is meaningful and is
-    //      requesting
+    //      @param bool $ done, is true iff the Machine has hit the halt statement
+    //POST: @return if out_bool is true return value is meaningful and is requesting
     //              for the terminal to output the return value
-    char * runCommand(char * input, bool & in_bool, bool & out_bool,
-                      bool & done);
+    char * runCommand(char * input, bool & in_bool, bool & out_bool, bool & done);
 
     //======================================
     // INPUT

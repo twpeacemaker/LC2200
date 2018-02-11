@@ -251,9 +251,9 @@ uint Machine::getRegZ(uint line) {
 
 //PRE:  @param uint line, is the line to be executed, lenth = 4 bytes
 //POST: @return uint Signed Value or Offset from the line is executed
-int Machine::getSignedOrOffset(uint line) {
+uint Machine::getSignedOrOffset(uint line) {
   //printf("line: %08x \n", line);
-  int rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT,
+  uint rv = getBits(line, SIGNED_OR_OFFSET_UPPER_BIT,
                    SIGNED_OR_OFFSET_LOWER_BIT, true);
   //ASSERT: the program must account for neg for the signed or offset so
   //        true is given as an optional parma
@@ -282,7 +282,7 @@ uint Machine::getPrevLine() {
 //                              OF BOUNDS, PROCESS TERMINATED."));
 void Machine::checkAddressOutOfBounds(uint address) {
   if(address > memory->getLastAddress() || address < 0) {
-    throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED."));
+    throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS, PROCESS TERMINATED."));
     current_process = NULL;
   }
 }
@@ -328,7 +328,7 @@ void Machine::nand(uint regX, uint regY, uint regZ) {
 //PRE:  @param uint regX and regY, range [0-15] inclusive
 //      @param uint num, holds uint to be added
 //POST: register[regX] = register[regY] + num
-void Machine::addi(uint regX, uint regY, int num) {
+void Machine::addi(uint regX, uint regY, uint num) {
   //printf ("Number: %x \n", num);
   //printf("value: %08x, %d", num, num);
   uint sum = cpu.getRegister(regY) + num;
@@ -366,7 +366,7 @@ void Machine::sw(uint regX, uint regY, uint num) {
 //PRE:  @param uint regX and regY, range [0-15] inclusive
 //      @param uint offset, holds the signed_value or offset
 //POST: if regX == regY offset added to PC else nothing
-void Machine::beq(uint regX, uint regY, int offset) {
+void Machine::beq(uint regX, uint regY, uint offset) {
   if ( cpu.getRegister(regX) == cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
     //ASSERT: can assume the address is in bounds
@@ -380,7 +380,7 @@ void Machine::beq(uint regX, uint regY, int offset) {
 //PRE:  @param uint regX and regY, range [0-15] inclusive
 //      @param uint offset, holds the signed_value or offset
 //POST: if regX > regY offset added to PC else nothing
-void Machine::bgt(uint regX, uint regY, int offset) {
+void Machine::bgt(uint regX, uint regY, uint offset) {
   if ( cpu.getRegister(regX) > cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
     //ASSERT: can assume the address is in bounds

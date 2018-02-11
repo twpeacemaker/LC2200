@@ -1,0 +1,5 @@
+back:IN $a0
+BEQ $a0 $zero halt
+LA $a1 back
+JALR $a1 $ra
+HALT
