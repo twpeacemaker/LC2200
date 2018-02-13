@@ -1,0 +1,81 @@
+load:
+  best fit
+  first fit
+  make PCB /w stack space add to the running queue
+mem:
+  no change
+cpu
+  add the PID of the current process to cpu
+step:
+
+run:
+  changes listed in step
+freemem:
+  When memory is freed up, if there are two blocks of free memory next to each
+  other, they should be coalesced as one block.
+
+jobs
+
+kill:
+
+exit:
+  no change
+
+configuration file:
+  needs to be added
+
+The process control block (PCB):
+  PC = 0; is the current pc
+  registers[];
+  the starting address of the program in memory
+  the ending address of the program in memory
+
+IN/OUT:
+  have to add the PID of the program along with the message after halted
+
+1. Test first fit
+  jobs
+  load test/prog12
+  load test/prog13
+  load test/prog12
+  load test/prog12
+  load test/prog12
+  kill 2
+  kill 4
+  load test/prog12
+
+  the program should be inserted between 1 and 3
+
+2. Test best fit
+  jobs
+  load test/prog12
+  load test/prog13
+  load test/prog12
+  load test/prog12
+  load test/prog12
+  kill 2
+  kill 4
+  load test/prog12
+
+  the program should insert between 3 and 5
+
+3. test that stack can be separated from prog
+
+  load test/prog12
+  load test/prog13
+  load test/prog12
+  load test/prog12
+  load test/prog12
+  kill 2
+  load test/prog9
+
+  the program should be loaded between 1 and 3 but stack will be added to the
+  end of memory
+
+4. test jobs prints correctly
+  load test/prog12
+  load test/prog13
+
+  the program should correctly display the jobs in the correct formate
+
+5. 
