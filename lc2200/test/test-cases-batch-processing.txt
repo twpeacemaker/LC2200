@@ -1,3 +1,5 @@
+MY NOTES
+
 load:
   best fit
   first fit
@@ -32,17 +34,178 @@ The process control block (PCB):
 
 IN/OUT:
   have to add the PID of the program along with the message after halted
+MY NOTES END
+
+prog1:
+  1 0x00000000 0x93000000 IN   $a0
+  2 0x00000004 0xA3000000 OUT  $a0
+  3 0x00000008 0x04300003 ADD  $a1 $a0 $a0
+  4
+  5 0x0000000C 0x17300003 NAND $t1 $a0 $a0
+  6 0x00000010 0x24700001 ADDI $a1 $t1 1
+  7
+  8 0x00000014 0x70000000 HALT
+  9
+
+prog2:
+  1 0x00000000 0x93000000 IN $a0
+  2 0x00000004 0x94000000 IN $a1
+  3 0x00000008 0x5340000C BEQ $a0 $a1 equal
+  4 0x0000000C 0x26000000 ADDI $t0 $zero 0
+  5 0x00000010 0xA6000000 OUT $t0
+  6 0x00000014 0x70000000 HALT
+  7 0x00000018 0x26000001 equal: ADDI $t0 $zero 1
+  8 0x0000001C 0xA6000000 OUT $t0
+  9 0x00000020 0x70000000 HALT
+  10
+  11
+
+prog11:
+  1 0x00000000 0x95000000 IN $a2
+  2 0x00000004 0x03000005 ADD $a0 $zero $a2
+  3 0x00000008 0x44300000 SW $a1 0x0($a0)
+  4                       ;test out of bounds of prog mem
+  5 0x0000000C 0x95000000 IN $a2
+  6 0x00000010 0x0D000005 ADD $sp $zero $a2
+  7 0x00000014 0x44D00000 SW $a1 0x0($sp)
+  8                       ;test out of bounds of stack mem
+  9 0x00000018 0x70000000 HALT
+
+prog12:
+  1 0x00000000 0x93000000 back: IN $a0
+  2 0x00000004 0x53000008 BEQ $a0 $zero halt
+  3 0x00000008 0xC40FFFF4 LA $a1 back
+  4 0x0000000C 0x64F00000 JALR $a1 $ra
+  5 0x00000010 0x70000000 halt: HALT
 
 prog13:
-  1                       VAR 9
+  1                       VAR X 9
   2 0x00000000 0x70000000 HALT
+  zeros after
 
 prog14:
-  1                       VAR 11
+  1                       VAR X 11
   2 0x00000000 0x70000000 HALT
+  zeros after
 
 
-1. Test first fit
+
+1. test the config file
+  config
+  should reflect the values given in the .lc_config
+
+2. test jobs prints correctly
+  load test/prog12
+  load test/prog13
+  jobs
+
+  the program should correctly display the jobs in the correct formate
+
+
+3. test kill at the begining of the queue
+
+  load test/prog12
+  load test/prog12
+  load test/prog12
+  jobs
+  kill 1
+  jobs
+
+  the prog should be removed from beginning
+
+4. test kill start middle of the queue
+
+  load test/prog12
+  load test/prog12
+  load test/prog12
+  jobs
+  kill 2
+  jobs
+
+the prog should be removed from the middle of the list
+
+5. test kill start end of the queue
+
+  load test/prog12
+  load test/prog12
+  load test/prog12
+  jobs
+  kill 3
+  jobs
+
+the prog should be removed from the end
+
+6. test if freemem prints correctly
+  load test/prog12
+  freemem
+  load test/prog12
+  load test/prog12
+  freemem
+  kill 2
+  freemem
+  kill 1
+  freemem
+
+
+  the free mem should be broken up appropriate to how they are loaded and killed
+
+7. test if free mem correctly consolidates freemem that is adjacent to each
+  other
+  freemem
+  load test/prog12
+  load test/prog12
+  kill 1
+  freemem
+  kill 2
+
+  freemem should reflect all of memory free and correctly added the
+  adjacent freemem blocks
+
+8. test when prog is loaded and no other processes are added that it
+    makes that progress ready to run ie, the PC and registers are converted
+    to make that process able to run
+
+    load test/prog1
+    cpu
+    jobs
+    run
+
+9. test that when a program is ran that it is removed from the queue
+
+  load test/prog1
+  run
+  jobs
+
+  the program should not be in the running queue at this point
+
+10. (context switch) test if more then one prog is loaded, once the first
+    prog is ran, the first is removed from the front and is replaced with
+    the second
+
+    load test/prog1
+    load test/prog2
+    jobs
+    run
+    jobs
+
+    jobs should remove the first process in the second jobs statement
+    and move the next to the front
+
+11. (context switch) test if more then one prog is loaded, once the first
+    prog is ran, the the cpu and registers, specifically the ($sp) is changed
+    to be ready to run the new program
+
+    load test/prog1
+    load test/prog2
+    jobs
+    run
+    cpu
+
+    the pc should reflect the starting address of prog2 and be at the begin
+    of the running queue and stack pointer should reflect the new location
+
+
+12. Test first fit
   jobs
   load test/prog12
   load test/prog13
@@ -55,7 +218,7 @@ prog14:
 
   the program should be inserted between 1 and 3
 
-2. Test best fit
+13. Test best fit
   jobs
   load test/prog12
   load test/prog13
@@ -69,7 +232,7 @@ prog14:
 
   the program should insert between 3 and 5
 
-3. test that stack can be separated from prog
+14. test that stack can be separated from prog
 
   load test/prog12
   load test/prog13
@@ -83,124 +246,63 @@ prog14:
   the program should be loaded between 1 and 3 but stack will be added to the
   end of memory
 
-4. test jobs prints correctly
-  load test/prog12
-  load test/prog13
-  jobs
 
-  the program should correctly display the jobs in the correct formate
-
-5. test if freemem prints correctly
-  load test/prog12
-  freemem
-  load test/prog12
-  load test/prog12
-  freemem
-
-  the free mem should be broken up appropriate to how they are loaded and killed
-
-6. test if free mem correctly consolidates freemem that is adjacent to each
-  other
-  freemem
-  load test/prog12
-  load test/prog12
-  kill 1
-  freemem
-  kill 2
-
-  freemem should reflect all of memory free and correctly added the
-  adjacent freemem blocks
-
-7. test kill at the begining of the queue
-
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  jobs
-  kill 1
-  jobs
-
-  the prog should be removed from beginning
-
-8. test kill start middle of the queue
-
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  jobs
-  kill 2
-  jobs
-
-the prog should be removed from the middle of the list
-
-9. test kill start end of the queue
-
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  jobs
-  kill 3
-  jobs
-
-the prog should be removed from the end
-
-10. test the config file
-  config
-  should reflect the values given in the .lc_config
-
-11. test when prog is loaded and no other processes are added that it
-    makes that progress ready to run ie, the PC and registers are converted
-    to make that process able to run
-
-    load prog1
-    cpu
-    jobs
-    run
-
-12. test that when a program is ran that it is removed from the queue
-
-  load prog1
+15. test out of bounds of the stack(x > MAX_STACK)
+  load test/prog11
   run
-  jobs
+  Input(PCB 1): 4
 
-  the program should not be in the running queue at this point
+  throws error
 
-14. (context switch) test if more then one prog is loaded, once the first
-    prog is ran, the first is removed from the front and is replaced with
-    the second
+16. test out of bounds of the stack(x < MIN_STACK)
 
-    load prog1
-    load prog2
-    jobs
-    run
-    jobs
+  load test/prog11
+  run
+  Input(PCB 1) (-(4) - current config size)
 
-    jobs should remove the first process in the second jobs statement
-    and move the next to the front
 
-15. (context switch) test if more then one prog is loaded, once the first
-    prog is ran, the the cpu and registers, specifically the ($sp) is changed
-    to be ready to run the new program
+  throws error
 
-    load prog1
-    load prog2
-    jobs
-    run
-    cpu
+17. test out of bounds of the allocated space for prog(x > MAX_PROG_LENGHT)
 
-    the pc should reflect the starting address of prog2 and be at the begin
-    of the running queue and stack pointer should reflect the new location
+  load test/prog11
+  run
+  Input: 0
+  Input: 400
 
-16. test out of bounds of the stack(x > MAX_STACK)
 
-17. test out of bounds of the stack(x < MIN_STACK)
+  throws error of over bound
 
-18. test out of bounds of the allocated space for prog(x > MAX_PROG_LENGHT)
+18. test out of bounds of the allocated space for prog(x > MIN_PROG_LENGHT)
 
-19. test out of bounds of the allocated space for prog(x > MIN_PROG_LENGHT)
+  load test/prog11
+  run
+  Input(PCB 1): 0
+  Input(PCB 1): -4
 
-20. test program that does not does not have space to be loaded
+
+  throws error of under bound
+
+19. test program that does not does not have space to be loaded
     NOTE: at this point it is tested that stack space and prog space can
     be separated
 
-21
+  set the config to > the length of prog
+
+  load test/prog11
+  throws error
+
+
+20. test if the program can insert onto the stack
+  load test/prog5
+  run
+  Input(PCB 1): 5
+  Input(PCB 1): 1
+  Input(PCB 1): 2
+  Input(PCB 1): 3
+  Input(PCB 1): 4
+  Input(PCB 1): 5
+  PCB 1: Process completed.
+  mem
+
+  check if the numbers show correctly on the stack
