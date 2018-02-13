@@ -1,4 +1,9 @@
-ADDI $a0 $zero -4
+IN $a2
+ADD $a0 $zero $a2
 SW $a1 0x0($a0)
+;test out of bounds of prog mem
+IN $a2
+ADD $sp $zero $a2
+SW $a1 0x0($sp)
+;test out of bounds of stack mem
 HALT
-;should be out of bounds
