@@ -1,8 +1,6 @@
 #include "Terminal.h"
 #include "Exception.h"
 
-#include "useful_classes/MyString.h"
-
 #include <iostream>
 using namespace std;
 // Author: Thomas Peacemaker
@@ -15,12 +13,12 @@ int main(int argc, char * argv[])
   if(argc <= 2){
     try{
       if(argc == 1) {
-        Terminal t = Terminal();
+        Terminal t;
         t.start();
       } else {
         //Assert: argc == 2
         //passes the memory to terminal
-        Terminal t = Terminal(argv[1]);
+        Terminal t(argv[1]);
         t.start();
       }
     } catch(Exception e){
@@ -30,6 +28,5 @@ int main(int argc, char * argv[])
   } else{
     cerr << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;
   }
-
 
 }

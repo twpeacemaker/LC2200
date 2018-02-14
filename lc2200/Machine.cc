@@ -456,3 +456,11 @@ void Machine::la(uint regX, int num) {
 void Machine::halt() {
   current_process->haltProgram();
 }
+
+Machine::~Machine() {
+  //cout << "here in delete" << endl;
+  if(memory != NULL) {
+    delete memory;
+    memory = NULL;
+  }
+}

@@ -24,7 +24,7 @@ class Machine {
 
     CPU cpu;
     Memory * memory;       // holds the pointer to memory
-    PCB * current_process; // holds the information about the currently loaded
+    PCB * current_process;        // holds the information about the currently loaded
                            // program
 
     //======================================
@@ -226,6 +226,8 @@ class Machine {
     //current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM
     //                                                LOADED"));
     char * stepSim(int num_steps, bool & in, bool & out, bool & done);
+
+    ~Machine();
 
 
 };

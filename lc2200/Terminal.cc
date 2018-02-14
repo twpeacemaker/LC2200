@@ -13,7 +13,6 @@ using namespace std;
 // Post:
 Terminal::Terminal() {
   running = false;
-  machine = Machine();
 }
 
 // Constructor
@@ -169,5 +168,5 @@ void Terminal::exit() {
 // Pre:
 // Post:
 Terminal::~Terminal() {
-  
+
 }
