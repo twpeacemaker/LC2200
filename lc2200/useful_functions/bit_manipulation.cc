@@ -1,5 +1,6 @@
 #include "../constants.h"
 #include "bit_manipulation.h"
+#include "../Exception.h"
 
 #include <iostream>
 using namespace std;
@@ -8,19 +9,23 @@ using namespace std;
 //      @param int right_index: the right most index of the sub-bit
 //POST: returns the mask with ones from the left index to the right index
 //      if there is no errors, if the function throws an error the function
-//      return garbage data;
+//      return garbage data;\
+//throw(Exception((char *)"ERROR: The left index must be larger than the right
+//index."));
+//throw(Exception((char *)"ERROR: The left index if greater than the word
+//size."));
+//throw(Exception((char *)"ERROR: The right index is less than 0."));
 uint getMaskBit(int left_index, int right_index) {
   uint return_value; //Assert: will hold garbage data
   if (left_index < right_index) {
     //Assert: error catch & will return garbage data
-    cerr << "ERROR: The left index must be larger than the right index."
-    << endl;
+    throw(Exception((char *)"ERROR: The left index must be larger than the right index."));
   } else if(left_index > WORD_SIZE) {
     ///Assert: error catch & will return garbage data
-    cerr << "ERROR: The left index if greater than the word size." << endl;
+    throw(Exception((char *)"ERROR: The left index if greater than the word size."));
   } else if(right_index < 0) {
     //Assert: error catch & will return garbage data
-    cerr << "ERROR: The right index is less than 0." << endl;
+    throw(Exception((char *)"ERROR: The right index is less than 0."));
   } else {
     int size_of = (left_index - right_index) + 1;;
     //Assert: (1) must be added because the numbers are inclusive
@@ -46,19 +51,23 @@ uint getMaskBit(int left_index, int right_index) {
 //      @param bool check_for_neg optional, tells the program to check for neg
 //POST: will return the sub-bit of int num from left index to right index
 //      inclusive if no errors, if errors will return garbage data
+//throw(Exception((char *)"ERROR: The left index must be larger than the right
+//index."));
+//throw(Exception((char *)"ERROR: The left index if greater than the word
+//size."));
+//throw(Exception((char *)"ERROR: The right index is less than 0."));
 uint getBits(uint num, int left_index, int right_index,
              bool check_for_neg){
     uint return_value; //Assert: will hold garbage data
     if (left_index < right_index) {
       //Assert: error catch & will return garbage data
-      cerr << "ERROR: The left index must be larger than the right index."
-      << endl;
+      throw(Exception((char *)"ERROR: The left index must be larger than the right index."));
     } else if(left_index >= WORD_SIZE) {
       ///Assert: error catch & will return garbage data
-      cerr << "ERROR: The left index if greater than the word size." << endl;
+      throw(Exception((char *)"ERROR: The left index if greater than the word size."));
     } else if(right_index < 0) {
       //Assert: error catch & will return garbage data
-      cerr << "ERROR: The right index is less than 0." << endl;
+      throw(Exception((char *)"ERROR: The right index is less than 0."));
     } else {
       //Assert: the left index is greater than the right
       uint mask = getMaskBit(left_index, right_index);
@@ -95,11 +104,13 @@ uint accountForNeg(uint num, int left_index) {
 //PRE:  @param int byte_num, [1-4]
 //POST: returns the mask where ones are everywhere other than the byte_num
 //      specifed s
+//throw(Exception((char *)"ERROR: byte_num must be less than the length of a
+//byte." ));
 uint getByteMask(int byte_num) {
   uint return_value;
   if (BYTES_IN_WORD <= byte_num) {
     //Assert: error catch & will return garbage data
-    cerr << "ERROR: byte_num must be less than the length of a byte." << endl;
+    throw(Exception((char *)"ERROR: byte_num must be less than the length of a byte." ));
   } else {
     uint mask_template = 0xFFFFFFFF;
     uint mask_byte_num = 0xFF000000 >> ((byte_num) * BITS_IN_BYTES);
@@ -114,16 +125,20 @@ uint getByteMask(int byte_num) {
 //     @param int byte_num: [0-7]the byte number that to_insert will be
 //            inserted to
 //POST: return num[new_num] where num is replaced by the to_insert
+//throw(Exception((char *)"ERROR: to_insert must be less than the length of
+//a byte." ));
+//throw(Exception((char *)"ERROR: byte_num must be less than the length of
+//a byte." ));
 uint insertByte (uint num, uint to_insert, int byte_num) {
   uint return_value;
   if (to_insert > MAX_BYTE_SIZE) {
     cout << to_insert << " > " << MAX_BYTE_SIZE << endl;
     //printf("Created Mask: %#08x \n" , to_insert);
     //Assert: error catch & will return garbage data
-    cerr << "ERROR: to_insert must be less than the length of a byte." << endl;
+    throw(Exception((char *)"ERROR: to_insert must be less than the length of a byte." ));
   } else if (BYTES_IN_WORD < byte_num) {
     //Assert: error catch & will return garbage data
-    cerr << "ERROR: byte_num must be less than the length of a byte." << endl;
+    throw(Exception((char *)"ERROR: byte_num must be less than the length of a byte." ));
   } else {
       uint mask = getByteMask(byte_num);
       uint temp = num & mask;

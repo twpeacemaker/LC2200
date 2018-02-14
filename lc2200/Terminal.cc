@@ -13,16 +13,23 @@ using namespace std;
 // Post:
 Terminal::Terminal() {
   running = false;
-  machine = new Machine();
+  machine = Machine();
 }
 
 // Constructor
 // Pre:  @param char * memory_size, the memory size to send to the Machine
+//      memory_size > 0
 // Post: makes the Machine and sets the memory size
+//throw(Exception((char *)"INVALID MEMORY PARAMETER, N > 0"));
 Terminal::Terminal(char * memory_size_char) {
   int memory_size = arrayToInt(memory_size_char);
-  running = false;
-  machine = new Machine(memory_size);
+  if(memory_size > 0) {
+    running = false;
+    machine = Machine(memory_size);
+  } else {
+    throw(Exception((char *)"INVALID MEMORY PARAMETER, N > 0"));
+  }
+
 }
 
 // Pre:
@@ -58,12 +65,12 @@ void Terminal::runCommand(char * input) {
     while(!done) {
       in = false;
       out = false;
-      char * output = machine->runCommand(input, in, out, done);
+      char * output = machine.runCommand(input, in, out, done);
       if(in){
         //ASSERT: recived the signal from Machine asking for input
         char * input_term;
         input_term = getInput();          // gets that input needs to be delted
-        machine->giveInput(input_term); // sets that input to the Machine
+        machine.giveInput(input_term); // sets that input to the Machine
         delete [] input_term;
         input_term = NULL;
 
@@ -121,10 +128,10 @@ void Terminal::validateInput(LList<MyString> tokens) {
 }
 
 
-// Pre:
+// Pre:  takes input from the terminal, number should be a int
 // Post: @return a array of characters that was given from input if the input
-//       is not an valid input it will re-ask the user until valid input is
-//       taken
+//       is not an valid input(int) it will re-ask the user until valid
+//       int input is given
 char * Terminal::getInput() {
   char * input = new char [MAX_INPUT_SIZE]; //fix to be char []
   bool valid_input = false;
@@ -162,5 +169,5 @@ void Terminal::exit() {
 // Pre:
 // Post:
 Terminal::~Terminal() {
-  //noting to be deleted
+  
 }

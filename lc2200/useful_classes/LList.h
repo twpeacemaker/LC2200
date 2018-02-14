@@ -4,6 +4,8 @@
 
 #include <iostream>      // ostream used
 #include "LNode.h"
+#include "../Exception.h"
+
 using namespace std;
 
 template <class T>
@@ -135,6 +137,7 @@ class LList {
   // PRE: N is defined. This object is defined. n > N.
   // POST: This object is defined and n = (pre)n - 1.
   //       f = (pre)f(0),...,(pre)f(N-1),(pre)f(N+1),...,(pre)f((pre)n - 2).
+  //throw(Exception((char *)"@LIST: N > NUMBER OF NODES"));
   void deleteNth (int N){
     if(N < n) {
       if(N == 0) {
@@ -161,7 +164,7 @@ class LList {
       }
     } else {
       //ASSERT: the user attempted N < n, throws error
-      cerr << "@LIST: N > NUMBER OF NODES" << endl;
+      throw(Exception((char *)"@LIST: N > NUMBER OF NODES"));
     }
   }
 
@@ -193,6 +196,7 @@ class LList {
   //PRE: takes a T * num that will be inserted after the int nth given
   //      nth must be > 0  and less than n + 1
   //POST:inserts the node after the given nth node
+  //throw(Exception((char *) "@LLIST: COULD NOT BE INSERTED TO NTH" ));
   void insertAfterNth(int nth, T num) {
     if(nth == (n - 1)) {
       //ASSERT: the user wants the add to the end of the list
@@ -209,7 +213,7 @@ class LList {
       next_node->setPrev(tempNode);
       n++;
     } else {
-      cerr << "@LLIST: COULD NOT BE INSERTED TO NTH" << endl;
+      throw(Exception((char *) "@LLIST: COULD NOT BE INSERTED TO NTH" ));
     }
 
 
@@ -237,6 +241,7 @@ class LList {
   // PRE: This object is defined. n > 0.
   // POST: This object is defined and n = (pre)n - 1.
   //       f = (pre)f(1), (pre)f(2),..., (pre)f((pre)n-2).
+  //throw(Exception((char *) "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" ));
   void deleteFront (){
     LNode<T> * temp = front;// temp is an alias for the first node in this list.
     if (n == 1) {
@@ -257,7 +262,7 @@ class LList {
       // ASSERT: f = (pre)f(1),...,(pre)f((pre)n-2).
       delete (temp); // deallocate storage for the deleted node.
     } else {
-      cerr << "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" << endl;
+      throw(Exception((char *) "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" ));
     }
     // ASSERT: f = (pre)f(1),...,(pre)f(n-1).
 
@@ -265,6 +270,7 @@ class LList {
 
   // PRE: This object is defined. n > 0.
   // POST: This object is defined and n = n - 1(after).
+  //throw(Exception((char *) "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" ));
   void deleteBack(){
     LNode<T> * temp = back;
     if (n == 1) {
@@ -281,7 +287,7 @@ class LList {
       temp->setNext(NULL);
       delete (temp);
     } else  {
-      cerr << "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" << endl;
+      throw(Exception((char *) "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" ));
     }
 
   }

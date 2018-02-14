@@ -27,26 +27,21 @@ PCB::PCB(char * given_name, uint length) {
 
 //PRE:
 //POST: @return, uint program_length
-uint PCB::getLength() {return program_length;}
+uint PCB::getLength() const {return program_length;}
 
-//PRE:
-//POST: @return uint, last address of memory the process has access to.
-uint PCB::getLastAddress() {
-  return (program_length - 1);
-}
 
 //PRE:
 //POST: @return, int steps
-uint PCB::getSteps() {return steps;}
+uint PCB::getSteps() const {return steps;}
 
 
 //PRE:
 //POST: returns the name of the progam as a char*
-char * PCB::getName() {return name;}
+char * PCB::getName() const {return name;}
 
 //PRE:
 //POST: @return, whether the program is halted or not
-bool PCB::getHalt() {return halted;}
+bool PCB::getHalt() const {return halted;}
 
 //======================================
 // Setters

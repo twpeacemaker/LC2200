@@ -168,7 +168,7 @@ void Machine::loadSim(char * input) {
       uint byte = getBits((uint)ch, 7, 0);
       word = insertByte (word, byte, byte_num);
     }
-    memory->setIndex(current_line, word); //adds the line to memory
+    memory->setAddress(current_line, word); //adds the line to memory
     current_line = (current_line + BYTES_IN_WORD);
   }
   inFile.close(); // close the filestream
@@ -263,20 +263,20 @@ uint Machine::getSignedOrOffset(uint line) {
 //PRE:
 //POST: @returns the current progame line
 uint Machine::getCurrentLine() {
-  return memory->getIndex(cpu.getPC());
+  return memory->getAddress(cpu.getPC());
 }
 
 //PRE:
 //POST: @returns the previous progame line
 uint Machine::getPrevLine() {
-  return memory->getIndex(cpu.getPC() - BYTES_IN_WORD);
+  return memory->getAddress(cpu.getPC() - BYTES_IN_WORD);
 }
 
 //PRE: @param uint address, the address of memory trying to be used
 //POST the Method throws an error iff the memory is out of bounds
 //     otherwise does nothing. if error is thrown the current_process is set
 //     to null and is terminated.
-//throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS, 
+//throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS,
 //PROCESS TERMINATED."));
 void Machine::checkAddressOutOfBounds(uint address) {
   if(address > memory->getLastAddress() || address < 0) {
@@ -344,7 +344,7 @@ void Machine::lw(uint regX, uint regY, uint num) {
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
 
-  uint content = memory->getIndex(address); //adds the line to memory
+  uint content = memory->getAddress(address); //adds the line to memory
   cpu.setRegister(regX, content);
 }
 
@@ -359,7 +359,7 @@ void Machine::sw(uint regX, uint regY, uint num) {
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
 
-  memory->setIndex(address, content);
+  memory->setAddress(address, content);
 }
 
 //PRE:  @param uint regX and regY, range [0-15] inclusive

@@ -16,7 +16,7 @@ CPU::CPU() {
 
 //PRE:
 //POST: @return int PC, the value that PC contains
-uint CPU::getPC() {
+uint CPU::getPC() const{
   return PC;
 }
 
@@ -34,7 +34,7 @@ void CPU::incrementPC() {
 
 //PRE:  @param int index, index of register [0-15] inclusive
 //POST: @return register[index]
-uint CPU::getRegister(uint index) {
+uint CPU::getRegister(uint index) const {
   return registers[index];
 }
 
@@ -52,7 +52,7 @@ void CPU::setRegister(uint index, uint value) {
 
 //PRE:
 //POST: @return the value at the register[SP]
-uint CPU::getSP() {
+uint CPU::getSP() const {
   return registers[STACK_POINTER_INDEX];
 }
 

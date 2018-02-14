@@ -24,26 +24,33 @@ Memory::Memory(uint memory_size) {
     size   = memory_size;
 }
 
-//PRE:  @param int index, index of memory
-//POST: @return memory[index]
-int Memory::getIndex(int index) {
-  return memory[index / BYTES_IN_WORD];
+//PRE:  @param uint address, address of memory
+//POST: @return memory[address]
+uint Memory::getAddress(uint address) const {
+  return memory[address / BYTES_IN_WORD];
 }
 
-//PRE:  @param int index, index of memory
-//      @param int word,  the word of memory to be inserted
+//PRE:  @param uint index, address of memory
+//      @param uint word,  the word of memory to be inserted
 //POST: memory[index] = word
-void Memory::setIndex(int index, int word) {
-  memory[index / BYTES_IN_WORD] = word;
+void Memory::setAddress(uint address, uint word) {
+  memory[address / BYTES_IN_WORD] = word;
 }
 
-//PRE:  @param char * input, takes the input from the terminal
-//      @param char * output, takes the output to be build up
-//POST: @return the array to sent to the terminal to display
+//PRE:  @param char * input, takes the input from the terminal, input should
+//      be formated as mem <uint1> <uint2> where both uints are optional,
+//      uint1 > uint2, uint2 < memory size, and uint1 > 0. uint1 and uint2 must
+//      be a factor of 4. the uints represents inclusively the mem address
+//POST: @return the array to sent to the terminal to display, the output
+//      will be properly formated 4 rows of memory address at a time with the
+//      location of each address leading it. if uint1 and uint2 are not included
+//      all of mem is printed, if uint2 is not included output will be int1 to
+//      mem_size. if uint1 and uint2 are included output will represent memory
+//      address from uint1 to uint2 inclusively
 char * Memory::getOutput(char * input) {
   //removes the command from the list
-  int lower_bound = 0;
-  int upper_bound = (size - 1) * BYTES_IN_WORD;
+  uint lower_bound = 0;
+  uint upper_bound = (size - 1) * BYTES_IN_WORD;
   getUpperLowerBound(input, lower_bound, upper_bound); // all are validated
   MyString string;                                     // string to be created
   char * temp;
@@ -60,8 +67,9 @@ char * Memory::getOutput(char * input) {
   return string.getStringDeepCopy();
 }
 
-//PRE: @param int index, takes the index of memory
-//POST:@return char* creates appropriate string to add to the cols
+//PRE: @param int index, takes the index of memory, index > 0 < size
+//POST: @return char* creates a string that represents the proper string
+//      to be printed as one column to the terminal ie 0: 0x00000000 0
 char * Memory::getMemCommandCol(int index) {
   char * temp = new char[MAX_COL_MEM];
   sprintf (temp, " %d: 0x%08X %d ", index * BYTES_IN_WORD, memory[index],
@@ -70,12 +78,12 @@ char * Memory::getMemCommandCol(int index) {
 }
 
 //PRE: @param char * input, takes the input from the terminal
-//     @param int & lower_bound, is the lower requested by user
-//     @param int & upper_bound, is the upper requested by user
+//     @param uint & lower_bound, is the lower requested by user
+//     @param uint & upper_bound, is the upper requested by user
 //POST:changes the upper and lower bound to correspond with the input request
 //throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
-void Memory::getUpperLowerBound(char * input, int & lower_bound,
-                                int & upper_bound) {
+void Memory::getUpperLowerBound(char * input, uint & lower_bound,
+                                uint & upper_bound) {
   MyString string = input;
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   tokens.deleteFront();
@@ -103,13 +111,13 @@ void Memory::getUpperLowerBound(char * input, int & lower_bound,
 
 //PRE:
 //POST: @return, the size of current memory
-int Memory::getSize() {
+int Memory::getSize() const{
   return size;
 }
 
 //PRE:
 //POST: @return, what the stack pointer should be initlized to
-int Memory::getLastAddress() {
+int Memory::getLastAddress() const {
   return (size - 1) * BYTES_IN_WORD;
 }
 

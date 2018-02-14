@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "MyString.h"
 #include "LList.h"
+#include "../Exception.h"
 using namespace std;
 
 class MyString {
@@ -16,7 +17,7 @@ class MyString {
   int currentMax;   // the maximum number of characters that can be
 		    // currently accommodated in this MyString object.
 
-  int maxIntSize;   // the max size of added integers
+
   // CI: theString points to space allocated for at least one
   //       character.
   //     currentMax >= 0. theString points to space allocated for
@@ -27,9 +28,15 @@ class MyString {
   //       defined. theString[currentSize] is the end of string
   //       character.
 
+
   int currentSize;  // the number of characters currently in this
   // MyString object.
 
+  //PRE: takes a int size, size to be set to the string, does not include int
+  //     '\0' characters, must be positive
+  //POST: makes the string able to hold more charaters
+  //throw(Exception((char *)"MYSTRING: INDEX GIVEN < 0"));
+  void setNewMaxSize(int new_size);
 
  public:
 
@@ -94,6 +101,12 @@ class MyString {
   // Post: we will call the add function on each of the characters
   void addString(char * ch);
 
+  //PRE:  @param char * ch, the sting must be ended with at least one char
+  //      which is the '\0' charater
+  //POST: @returns the length of the string
+  int getCharArraySize(char * char_array);
+
+
   // Pre :
   // Post: we will return theString
   char * getString();
@@ -119,12 +132,6 @@ class MyString {
   // Post: we return the string back to defaults
   void resetString();
 
-  // Pre : the integer is less then or equal to maxIntSize
-  //        digits long
-  //       this object is defined
-  // Post: we will convert the integer into a char array
-  //       we will then add the char array to the mystring
-  void addInt(int ch);
 
   friend ostream & operator <<(ostream & str, const MyString & M);
 

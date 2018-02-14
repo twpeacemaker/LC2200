@@ -60,6 +60,21 @@ prog2:
   10
   11
 
+  1 0x00000000 0x91000000 IN  $at
+  2                       ;n
+  3 0x00000004 0x05000000 ADD $a2 $zero $zero
+  4                       ;= counter
+  5 0x00000008 0x51500014 back: BEQ $at $a2 next
+  6                       ;while(len > counter) {
+  7 0x0000000C 0x94000000 IN $a1
+  8 0x00000010 0x44D00000 SW $a1 0x0($sp)
+  9 0x00000014 0x2DDFFFFC ADDI $sp $sps -4
+ 10 0x00000018 0x25500001 ADDI $a2 $a2 1scs
+ 11 0x0000001C 0x500FFFE8 BEQ $zero $zero back
+ 12                       ;unconditional back
+ 13 0x00000020 0x70000000 next: HALT
+
+
 prog11:
   1 0x00000000 0x95000000 IN $a2
   2 0x00000004 0x03000005 ADD $a0 $zero $a2
@@ -204,6 +219,14 @@ the prog should be removed from the end
     the pc should reflect the starting address of prog2 and be at the begin
     of the running queue and stack pointer should reflect the new location
 
+21. (context switch) test if more then one prog is loaded, once the first
+    prog is ran, it adds that space back to freemem
+
+  load test/prog1
+  load test/prog2
+  jobs
+  run
+  cpu
 
 12. Test first fit
   jobs
@@ -232,29 +255,31 @@ the prog should be removed from the end
 
   the program should insert between 3 and 5
 
-14. test that stack can be separated from prog
+14. test that stack can be separated from prog change and runs correctly
 
   load test/prog12
-  load test/prog13
+  load test/prog8
   load test/prog12
   load test/prog12
   load test/prog12
   kill 2
-  load test/prog9
+  load test/prog5
   freemem
+  run
+  mem
 
   the program should be loaded between 1 and 3 but stack will be added to the
-  end of memory
+  end of memory, should run correctly and add to the stack
 
 
-15. test out of bounds of the stack(x > MAX_STACK)
+15. test out of bounds of the stack space(x > MAX_STACK)
   load test/prog11
   run
   Input(PCB 1): 4
 
   throws error
 
-16. test out of bounds of the stack(x < MIN_STACK)
+16. test out of bounds of the stack space(x < MIN_STACK)
 
   load test/prog11
   run
@@ -263,7 +288,8 @@ the prog should be removed from the end
 
   throws error
 
-17. test out of bounds of the allocated space for prog(x > MAX_PROG_LENGHT)
+17. test out of bounds of the allocated space for space for
+    prog(x > MAX_PROG_LENGHT)
 
   load test/prog11
   run
@@ -273,7 +299,7 @@ the prog should be removed from the end
 
   throws error of over bound
 
-18. test out of bounds of the allocated space for prog(x > MIN_PROG_LENGHT)
+18. test out of bounds of the allocated space for prog (x > MIN_PROG_LENGHT)
 
   load test/prog11
   run

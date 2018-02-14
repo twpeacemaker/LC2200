@@ -2,7 +2,7 @@ Very thorough test cases with good explanations.
 
 In your Terminal class, the Machine could be a static object, since
 every terminal _will_ need the a Machine.
-
+//done
 You have
 // Constructor
 // Pre:  @param char * memory_size, the memory size to send to the Machine
@@ -13,7 +13,7 @@ Terminal::Terminal(char * memory_size_char) {
   machine = new Machine(memory_size);
 }
 You should check if memory_size is positive.
-
+//done
 
 You have
 // Pre:
@@ -23,18 +23,20 @@ You have
 char * Terminal::getInput() {
 It seems that you are expecting the input to be a valid number. Your
 pre/post do not say that.
+//done
 
 You have
 Terminal::~Terminal() {
   //noting to be deleted
 }
 but, you do need to delete memory since it is dynamically allocated.
+//done - ask about
 
 In your MyString class you have
   int maxIntSize;   // the max size of added integers
 What is the purpose of this? Is it needed to define a MyString object?
   Your CI does not mention this member data object.
-
+//done
 
 You have
 // Pre : char * ch is the string of characters to be added
@@ -50,6 +52,7 @@ You can make it more efficient by calculating the required size for
 this object and ch, and then allocating space for that much. This will
 reduce the number of calls you make to new and delete in the process
 of array doubling.
+//done
 
 You have
 // Pre : the integer is less then or equal to maxIntSize
@@ -62,6 +65,7 @@ Since you are making a MyString object eventually, you may as well
 parse the integer for its characters and add them to your MyString
 object. You need the manIntSize just for this purpose, and this is a
 bit of a hack.
+//done - taken out
 
 You have
 // Pre : MyLines object is defined and statisfies the CI
@@ -70,6 +74,7 @@ You have
 char MyString::requestindex(int index){
 Be more precise with your pre/post conditions. What is "requested"? Is
 index within bounds of the string length?
+//done
 
 You have
     //PRE:  @param int index, index of memory
@@ -80,6 +85,7 @@ in the Memory class. Is this the index in the array? Is this something
     an address as a parameter, and thus an unsigned int, and should
     return an unsigned int. Also, this member function should be a
     const function.
+//done
 
 You have
     //PRE:  @param char * input, takes the input from the terminal
@@ -89,6 +95,7 @@ You have
 in the Memory class. What kind of input is the function taking from
     the terminal? What is the output? Be precise/correct and complete
     with your pre/post conditions.
+//done
 
 You have
     //PRE: @param int index, takes the index of memory
@@ -97,10 +104,12 @@ You have
 What does this mean? What are the cols? What is an appropriate string?
 
 getSize, getLastAddress should be const functions.
+//done
 
 Use exceptions for useful functions, e.g, getBits. As it stand, if
 there is an error, it will be printed out effectively by your machine,
 and not by the shell.
+//done
 
 Very good program structure.
 

@@ -19,7 +19,7 @@ class Terminal {
   private:
 
     bool running;          // whether the terminal is runnning
-    Machine * machine; // pointer to the Machine
+    Machine machine; // pointer to the Machine
 
     //PRE:  @param char * input, int input string the user specifed
     //POST: decodes the input, assures it has the proper number of parameters

@@ -30,7 +30,7 @@ class CPU {
 
      //PRE:
      //POST: @return int PC, the value that PC contains
-     uint getPC();
+     uint getPC() const;
 
      //PRE:  @param uint new_PC, new_PC >= 0
      //POST: PC = new_PC
@@ -42,7 +42,7 @@ class CPU {
 
      //PRE:  @param int index, index of register [0-15] inclusive
      //POST: @return register[index]
-     uint getRegister(uint index);
+     uint getRegister(uint index) const;
 
      //      @param int value, the value you want register[index] to be
      //POST: register[index] = value
@@ -51,7 +51,7 @@ class CPU {
 
      //PRE:
      //POST: @return the value at the register[SP]
-     uint getSP();
+     uint getSP() const;
 
      //PRE: @param int value, the value you want to be set to SP
      //POST: register[SP] = value

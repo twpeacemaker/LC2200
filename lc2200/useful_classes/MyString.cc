@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "MyString.h"
 #include "LList.h"
+#include "../Exception.h"
 
 using namespace std;
 
@@ -19,7 +20,6 @@ MyString::MyString () {
   theString[0] = '\0';
   // currently have no items
   currentSize = 0;
-  maxIntSize = 100;
 }
 
 // PRE:
@@ -33,7 +33,6 @@ MyString::MyString (char * name) {
   currentSize = 0;
   int index = 0;
   addString(name);
-  maxIntSize = 100;
 }
 
 // Pre : This object is defined
@@ -114,28 +113,11 @@ void MyString::add(char ch) {
 
   // Check for space for another character
   if (currentMax == currentSize){
-    // Creating space for more characters
-    char * tempString = theString;
-    // Double space (saves a lot of time in the future)
-    theString = new char[2*(currentMax + 1)];
-    // copying from temporary string to our actual string
-    for (int character_index = 0; character_index < currentSize;
-	 character_index++){
-      theString[character_index] = tempString[character_index];
-    }
-    // deleting temporary so we dont have memory leaks
-    delete [] tempString;
-    currentMax = 2 * (currentMax + 1);
-
+    setNewMaxSize(2*(currentMax + 1));
   }
-
   // ASSERT: There is space for a new character in theString
   // assigning ch to its correct place
- //cerr << "info: "<< currentSize << " "<< currentMax << " "<< ch << endl;
-
   theString[currentSize] = ch;
-  //cerr << "Adding after " << ch << endl;
-
   // showing we added to the size
   currentSize++;
   // adding end of string character to the end of the array
@@ -148,10 +130,56 @@ void MyString::add(char ch) {
 // Post: we will call the add function on each of the characters
 void MyString::addString(char * ch){
   int index = 0;
+  int size = getCharArraySize(ch);
+  if (currentMax <= (currentMax + size)){
+    //ASSERT: this will make enough space for new string making the prog
+    //        more efficent with less new calls
+    int new_size = currentMax + size;
+    setNewMaxSize(new_size);
+  }
   while (ch[index] != '\0'){
+    //add will not make a new call
     add(ch[index]);
     index++;
   }
+}
+
+//PRE: takes a int size, size to be set to the string, does not include int
+//     '\0' characters, must be positive
+//POST: makes the string able to hold more charaters
+//throw(Exception((char *)"MYSTRING: INDEX GIVEN < 0"));
+void MyString::setNewMaxSize(int new_size) {
+  // Creating space for more characters
+  if(new_size <= 0) {
+    throw(Exception((char *)"MYSTRING: INDEX GIVEN < 0"));
+  } else {
+    char * tempString = theString;
+    theString = new char[new_size + 1];
+    // copying from temporary string to our actual string
+    for (int character_index = 0; character_index < currentSize;
+       character_index++){
+       theString[character_index] = tempString[character_index];
+    }
+    // deleting temporary so we dont have memory leaks
+    delete [] tempString;
+    currentMax = (new_size + 1);
+  }
+
+}
+
+//PRE:  @param char * ch, the sting must be ended with at least one char
+//      which is the '\0' charater
+//POST: @returns the length of the string
+int MyString::getCharArraySize(char * char_array) {
+
+  int size = 0;
+  char ch = char_array[size];
+  while(ch != '\0') {
+    size++;
+    ch = char_array[size];
+  }
+  size++;
+  return size;
 }
 
 // Pre :
@@ -182,20 +210,7 @@ void MyString::addMyString(MyString ch){
   }
 }
 
-// Pre : the integer is less then or equal to maxIntSize
-//        digits long
-//       this object is defined
-// Post: we will convert the integer into a char array
-//       we will then add the char array to the mystring
-void MyString::addInt(int ch){
-  char add_string[maxIntSize];
-  sprintf(add_string, "%d", ch);
-  int index = 0;
-  while (add_string[index] != '\0'){
-    add(add_string[index]);
-    index++;
-  }
-}
+
 
 //PRE: takes a init my string object
 //POST: returns true if the two strings are the same, false if they are
@@ -216,11 +231,17 @@ bool MyString::isEqual(MyString s2) {
   return(rv);
 }
 
-// Pre : MyLines object is defined and statisfies the CI
-//       requested is an integer
-// Post: OS contains the requested index
+// Pre : @param index, index must be positive and be in bounds of the
+//              sting.
+// Post: @return returns the index at the index specifed, str[index]
+//throw(Exception((char *)"MYSTRING: INDEX OUT OF BOUNDS"));
 char MyString::requestindex(int index){
-  return (theString[index]);
+  if(index >= 0 && index <= currentSize) {
+    return (theString[index]);
+  } else {
+    throw(Exception((char *)"MYSTRING: INDEX OUT OF BOUNDS"));
+  }
+
 }
 
 //PRE: s must be initalized

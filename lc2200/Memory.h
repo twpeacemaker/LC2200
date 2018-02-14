@@ -18,6 +18,11 @@ class Memory {
     uint * memory;
     uint   size;
 
+    //PRE: @param int index, takes the index of memory, index > 0 < size
+    //POST: @return char* creates a string that represents the proper string
+    //      to be printed as one column to the terminal ie '0: 0x00000000 0'
+    char * getMemCommandCol(int index);
+
   public:
 
     // Default Constructor
@@ -30,39 +35,49 @@ class Memory {
     // Post: created an array of memory of size n
     Memory(uint memory_size);
 
-    //PRE:  @param int index, index of memory
-    //POST: @return memory[index]
-    int getIndex(int index);
+    //PRE:  @param int address, address of memory
+    //POST: @return memory[address]
+    uint getAddress(uint address) const;
 
-    //PRE:  @param int index, index of memory
+    //PRE:  @param int index, address of memory
     //      @param int word,  the word of memory to be inserted
     //POST: memory[index] = word
-    void setIndex(int index, int word);
+    void setAddress(uint address, uint word);
 
-    //PRE:  @param char * input, takes the input from the terminal
-    //      @param char * output, takes the output to be build up
-    //POST: @return the array to sent to the terminal to display
+    //PRE:  @param char * input, takes the input from the terminal, input should
+    //      be formated as mem <uint1> <uint2> where both uints are optional,
+    //      uint1 > uint2, uint2 < memory size, and uint1 > 0. uint1 and uint2
+    //      must
+    //      be a factor of 4. the uints represents inclusively the mem address
+    //POST: @return the array to sent to the terminal to display, the output
+    //      will be properly formated 4 rows of memory address at a time with
+    //      the
+    //      location of each address leading it. if uint1 and uint2 are not
+    //      included
+    //      all of mem is printed, if uint2 is not included output will be int1
+    //      to
+    //      mem_size. if uint1 and uint2 are included output will represent
+    //      memory
+    //      address from uint1 to uint2 inclusively
     char * getOutput(char * input);
 
     //PRE: @param char * input, takes the input from the terminal
-    //     @param int & lower_bound, is the lower requested by user
-    //     @param int & upper_bound, is the upper requested by user
+    //     @param uint & lower_bound, is the lower requested by user
+    //     @param uint & upper_bound, is the upper requested by user
     //POST:changes the upper and lower bound to correspond with the input
     //     request
     //throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
-    void getUpperLowerBound(char * input, int & lower_bound, int & upper_bound);
+    void getUpperLowerBound(char * input, uint & lower_bound,
+                            uint & upper_bound);
 
-    //PRE: @param int index, takes the index of memory
-    //POST:@return char* creates appropriate string to add to the cols
-    char * getMemCommandCol(int index);
 
     //PRE:
     //POST: @return, int the size of current memory
-    int getSize();
+    int getSize() const;
 
     //PRE:
     //POST: @return, what the stack pointer should be initlized to
-    int getLastAddress();
+    int getLastAddress() const;
 
     // Destructor
     // Pre :

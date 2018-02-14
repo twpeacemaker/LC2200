@@ -1,14 +1,21 @@
 #ifndef INCLUDED_BIT_M
 #define INCLUDED_BIT_M
 
+#include "../Exception.h"
 #include "../constants.h"
-
+#include <iostream>
+using namespace std;
 
 //PRE:  @param int left_index: the left most index of the sub-bit
 //      @param int right_index: the right most index of the sub-bit
 //POST: returns the mask with ones from the left index to the right index
 //      if there is no errors, if the function throws an error the function
 //      return garbage data;
+//throw(Exception((char *)"ERROR: The left index must be larger than the right
+//index."));
+//throw(Exception((char *)"ERROR: The left index if greater than the word
+//size."));
+//throw(Exception((char *)"ERROR: The right index is less than 0."));
 uint getMaskBit(int left_index, int right_index);
 
 //PRE:  @param int num: # which you want to get a sub-bit for
@@ -20,6 +27,11 @@ uint getMaskBit(int left_index, int right_index);
 //      @param bool check_for_neg (optional), tells the program to check for neg
 //POST: will return the sub-bit of int num from left index to right index
 //      inclusive if no errors, if errors will return garbage data
+//throw(Exception((char *)"ERROR: The left index must be larger than the right
+//index."));
+//throw(Exception((char *)"ERROR: The left index if greater than the word
+//size."));
+//throw(Exception((char *)"ERROR: The right index is less than 0."));
 uint getBits(uint num, int left_index, int right_index,
              bool check_for_neg = false);
 
@@ -27,6 +39,8 @@ uint getBits(uint num, int left_index, int right_index,
 //PRE:  @param int byte_num, [1-4]
 //POST: returns the mask where ones are everywhere other than the byte_num
 //      specifed s
+//throw(Exception((char *)"ERROR: byte_num must be less than the length of a
+//byte." ));
 uint getByteMask(int byte_num);
 
 //PRE: @param int num: the number to be inserted to
@@ -35,6 +49,10 @@ uint getByteMask(int byte_num);
 //     @param int byte_num: [0-7]the byte number that to_insert will be
 //            inserted to
 //POST: return num[new_num] where num is replaced by the to_insert
+//throw(Exception((char *)"ERROR: to_insert must be less than the length of
+//a byte." ));
+//throw(Exception((char *)"ERROR: byte_num must be less than the length of
+//a byte." ));
 uint insertByte (uint num, uint to_insert, int byte_num);
 
 //PRE: uint num, the number that is being tested to be neg

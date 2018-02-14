@@ -28,23 +28,20 @@ class PCB {
 
     //PRE:
     //POST: @return, uint program_length
-    uint getLength();
+    uint getLength() const;
 
     //PRE:
     //POST: @return, int steps
-    uint getSteps();
+    uint getSteps() const;
 
     //PRE:
     //POST: @return, whether the program is halted or not
-    bool getHalt();
+    bool getHalt() const;
 
     //PRE:
     //POST: returns the name of the progam as a char*
-    char * getName();
+    char * getName() const;
 
-    //PRE:
-    //POST: @return uint, last address of memory the process has access to.
-    uint getLastAddress();
 
     //======================================
     // Setters
