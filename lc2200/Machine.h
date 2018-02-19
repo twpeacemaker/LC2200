@@ -6,11 +6,13 @@
 #include "constants.h"
 #include "Exception.h"
 #include "PCB.h"
+#include "Freemem.h"
 #include <stdio.h>
 #include <fstream>
 using namespace std;
 #include "useful_classes/LList.h"
 #include "useful_classes/MyString.h"
+#include "useful_classes/Queue.h"
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
 
@@ -24,8 +26,16 @@ class Machine {
 
     CPU cpu;
     Memory * memory;       // holds the pointer to memory
-    PCB * current_process;        // holds the information about the currently loaded
+    PCB * current_process; // holds the information about the currently loaded
                            // program
+
+    uint memory_size;
+    uint stack_size;
+    uint mem_management;
+    Queue<PCB*> running_queue;
+    uint nextPCBId;
+    LList<Freemem*> freemem;
+
 
     //======================================
     // Word Getters
@@ -162,6 +172,89 @@ class Machine {
     //POST: @returns a dynamicly created char* of the progam name + .lce
     char * getProgamName(char * input);
 
+    //PRE: .lc_config must be in the same directory as the simulator
+    //POST: reads the .lc_config from the current directory and sets the
+    //      the setting in the machine to corresponding option in the config
+    void importConfigFile();
+
+    //PRE:  Taking a LList of MyString objects, the LList of the must be no more
+    //      than 2 and the second token must be a given option for the lc2200 and
+    //      the first must be a be a positive intager
+    //POST: sets the option in the second node to the setting of the lc2200
+    void setConfigOption(LList<MyString> tokens);
+
+    //PRE: @param ifstream & inFile takes the correctly formated file with the
+    //     length read from the file and the next thing to be read is the first
+    //     byte of memorys
+    //     @param uint start_address, the address to load the first word
+    //     @param int length the length of the file
+    //     assumes that the start till the length is allocated to the program
+    //     assumes the inFile is open and it will be closes after this function
+    //POST:reads the file into the address starting at start address and ending
+    //     at the address (start + length)
+    void importProgFile(ifstream & inFile, uint start_address, int length);
+
+  //======================================
+  // freemem handling methods
+  //======================================
+
+  //PRE: @param, uint & prog_start, holds the location of the start of prog
+  //      after return
+  //     @param, uint & prog_end, holds the location of the end of prog after
+  //             return
+  //     @param, uint length, the length of the prog wanting to be added
+  //     @param, uint & stack_start, holds the location of the start of stack
+  //             after return
+  //     @param, uint & stack_end, holds the location of the end of stack
+  //             afterreturn
+  //POST: uint & prog_start, uint & prog_end, uint & stack_start,
+  //      uint & stack_end are only meanful if error is not thrown
+  //throw(Exception((char *)"ERROR: OUT OF MEMORY"));
+  void getProgamBounds(uint & prog_start, uint & prog_end,
+                       uint length, uint & stack_start,
+                       uint & stack_end);
+
+ //PRE:  @param uint & start, holds the location of the start of prog after
+ //      return
+ //      @param uint & end,holds the location of the end of prog after return
+ //      @param uint size the length of the prog wanting to be added to memory
+ //      @param bool & error, tracks if an error occurs
+ //POST: uint start, uint end are meaning fill iif there is not an error thrown
+ void getMemLocations(uint & start, uint & end, uint size,
+                               bool & error);
+
+  //PRE: @param, uint & start, where the prog will start
+  //     @param, uint & end,   where the prog will end
+  //     @param, uint size,    the size of the program
+  //POST: start and end will be meaning full and will indicate where the prog
+  //      should go iff the program does not through an error. the method finds
+  //      the first memory location the size will fit in
+  void firstFit(uint & start, uint & end, uint size);
+
+  //PRE: @param, uint & start, where the prog will start
+  //     @param, uint & end,   where the prog will end
+  //     @param, uint size,    the size of the program
+  //POST: start and end will be meaning full and will indicate where the prog
+  //      should go iff the program does not through an error. the method finds
+  //      the best memory location the size will fit in
+  void bestFit(uint & start, uint & end, uint size);
+
+  //PRE: uint new_start, the new start of the freemem
+  //     int free_mem_index, the freemem object that is being dealloacted
+  //POST:if all the freemem is used it is delete, else it is made smallers
+  void unallocateFreemem(uint new_start, int free_mem_index);
+
+  //PRE:  @param uint free_start, the
+  //      @param uint free_end,
+  //POST: adds the new memory that has been freed to the machine
+  void allocateFreemem(uint start, uint end);
+
+
+  //PRE:  free mem is populated with size > 1
+  //POST: freemem has to objects that are directl adj to each other meaning,
+  //      mem 0 - 4 and 8 - 12 is added to gether to be to 0 - 12.
+  void joinFreemem();
+
 
   public:
 
@@ -226,6 +319,27 @@ class Machine {
     //current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM
     //                                                LOADED"));
     char * stepSim(int num_steps, bool & in, bool & out, bool & done);
+
+    //PRE: the Machine be running
+    //POST: @returns the contents of the freemem llist from 0 - n
+    char * freememSim();
+
+    //PRE: the Machine be running
+    //POST: @return char* the array that displays the jobs to the user
+    char * jobsSim();
+
+    //PRE:  @param char * input, takes the input to kill meaning two words
+    //      separated by a ' ', the first being the str kill and the second
+    //      being a positive intager that will reprent the PCB id that will be
+    //      killed, ie kill <int>
+    //      @param bool & out_bool, if there is not process found, will return not
+    //      found
+    //POST: kills the program and releases the memory back to freemem and removes
+    //      the job from the runnin queue
+    char * killSim(char * input, bool & out_bool);
+
+
+
 
     ~Machine();
 

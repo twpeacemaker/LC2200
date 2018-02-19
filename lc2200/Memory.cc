@@ -8,13 +8,7 @@
 #include <iostream>
 using namespace std;
 
-// Default Constructor
-// Pre :
-// Post: created an array of memory of size DEFAULT_MEM,
-Memory::Memory() {
-  memory = new uint[DEFAULT_MEM];
-  size   = DEFAULT_MEM;
-}
+
 
 // Constructor
 // Pre : @param uint memory_size, size of int, must be postitive and %4

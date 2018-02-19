@@ -15,18 +15,13 @@ int main(int argc, char * argv[])
       if(argc == 1) {
         Terminal t;
         t.start();
-      } else {
-        //Assert: argc == 2
-        //passes the memory to terminal
-        Terminal t(argv[1]);
-        t.start();
       }
     } catch(Exception e){
       e.handle();
     }
 
   } else{
-    cerr << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;
+    cerr << "ERROR: Invalid input. Ex: ./Simulator" << endl;
   }
 
 }

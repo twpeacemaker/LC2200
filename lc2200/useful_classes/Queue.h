@@ -50,8 +50,14 @@ public:
     LList<T>::deleteNth(index);
   };
 
-  ~Queue(){
+  // PRE: This object is defined.
+  // POST: RV = n
+  int getQueueSize() {
+    return LList<T>::getSize();
+  };
 
+  ~Queue(){
+    //all data is destucted from the LList in that class
   };
 
 

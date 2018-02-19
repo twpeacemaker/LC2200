@@ -13,10 +13,11 @@ typedef unsigned int uint;
 #define MAX_INPUT_SIZE 80
 #define MAX_PROG_OUTPUT_SIZE 30
 #define DONE_MESSAGE_LENGTH 30
+#define MAX_JOB_LINE 30
+#define MAX_KILL_LINE 30
 
 //default config
-#define DEFAULT_MEM 1024
-#define DEFAULT_STACK 64
+#define PARAMS_IN_CONFIG 2
 
 #define NUMBER_OF_COLS_IN_MEM 4
 #define COL_ONE_MEM 1
@@ -27,6 +28,7 @@ typedef unsigned int uint;
 #define MAX_COL_CPU 40
 #define NUMBER_OF_COLS_IN_CPU 4
 
+#define MAX_FREEMEM_OUTPUT 40
 
 //bit manipulation
 #define MAX_BYTE_SIZE 0x000000FF
@@ -75,14 +77,17 @@ enum opcodes
 	BGT
 };
 
-static char COMMANDS[][6] =
+static char COMMANDS[][8] =
 {
-"load",
-"mem",
-"cpu",
-"step",
-"run",
-"exit"
+	"load",
+	"mem",
+	"cpu",
+	"step",
+	"run",
+	"freemem",
+	"jobs",
+	"kill",
+	"exit"
 };
 
 #define LOAD_NUM 	0
@@ -90,13 +95,19 @@ static char COMMANDS[][6] =
 #define CPU_NUM 	2
 #define STEP_NUM 	3
 #define RUN_NUM 	4
-#define EXIT_NUM 	5
+#define FREEMEM_NUM 5
+#define JOBS_NUM 6
+#define KILL_NUM 7
+#define EXIT_NUM 8
 
 #define NUMBER_OF_LOAD_PARAMS 2
 #define NUMBER_OF_MEM_PARAMS 	3
 #define NUMBER_OF_CPU_PARAMS 	1
 #define NUMBER_OF_STEP_PARAMS 2
 #define NUMBER_OF_RUN_PARAMS 	1
+#define NUMBER_OF_FREEMEM_PARAMS 1
+#define NUMBER_OF_JOBS_PARAMS 1
+#define NUMBER_OF_KILL_PARAMS 2
 #define NUMBER_OF_EXIT_PARAMS 1
 
 #define STEP_TOKEN_N 1
@@ -144,5 +155,16 @@ static int OPCODES_ARGUMENTS[] =
 	LA_ARGUMENT,   // 12
 	BGT_ARGUMENT   // 13
 };
+
+static char CONFIG_OPTIONS[][15] =
+{
+	"memory",
+	"stack",
+	"mem-management"
+};
+
+#define MEMORY_OPTION_INDEX 0
+#define STACK_OPTION_INDEX 1
+#define MEM_MANAGEMENT_INDEX 2
 
 #endif

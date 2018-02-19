@@ -15,21 +15,6 @@ Terminal::Terminal() {
   running = false;
 }
 
-// Constructor
-// Pre:  @param char * memory_size, the memory size to send to the Machine
-//      memory_size > 0
-// Post: makes the Machine and sets the memory size
-//throw(Exception((char *)"INVALID MEMORY PARAMETER, N > 0"));
-Terminal::Terminal(char * memory_size_char) {
-  int memory_size = arrayToInt(memory_size_char);
-  if(memory_size > 0) {
-    running = false;
-    machine = Machine(memory_size);
-  } else {
-    throw(Exception((char *)"INVALID MEMORY PARAMETER, N > 0"));
-  }
-
-}
 
 // Pre:
 // Post: runs until the program is ended
@@ -93,6 +78,9 @@ void Terminal::runCommand(char * input) {
 //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
 //throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO EXIT"));
 //throw(Exception((char *)"INVALID COMMAND GIVEN"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO FREEMEM"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO JOBS"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO KILL"));
 void Terminal::validateInput(LList<MyString> tokens) {
   MyString command = tokens.getFront();       //gets the command
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
@@ -114,6 +102,18 @@ void Terminal::validateInput(LList<MyString> tokens) {
   } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_RUN_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
+    }
+  } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
+    if(tokens.getSize() != NUMBER_OF_FREEMEM_PARAMS) {
+      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO FREEMEM"));
+    }
+  } else if( compareCharArray(command.getString(), COMMANDS[JOBS_NUM]) ) {
+    if(tokens.getSize() != NUMBER_OF_JOBS_PARAMS) {
+      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO JOBS"));
+    }
+  } else if( compareCharArray(command.getString(), COMMANDS[KILL_NUM]) ) {
+    if(tokens.getSize() != NUMBER_OF_KILL_PARAMS) {
+      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO KILL"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[EXIT_NUM]) ) {
     if(tokens.getSize() == NUMBER_OF_EXIT_PARAMS) {

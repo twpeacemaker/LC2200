@@ -5,22 +5,30 @@
 
 class PCB {
   private:
-    uint program_length;  //holds the length of the program
+
     char * name;        //holds the name of the progame
     uint steps;           //holds the number of steps conducted on pass
     bool halted;
 
-  public:
+    //holds the length of the program
+    uint program_length;
+    //progame address
+    uint program_start;
+    uint program_end;
+    //stack
+    uint stack_start;
+    uint stack_end;
+    uint registers[MAX_REGISTERS];
+    uint id;
 
-    //PRE:
-    //POST:
-    PCB();
+  public:
 
     //Constructor
     //PRE:  @param char * name, the name of the program
+    //      @param int id, the unique id that is given to the PCB
     //      @param uint given_length, the length of the progam
     //POST: creates the object
-    PCB(char * given_name, uint length);
+    PCB(char * given_name, int p_id, uint length);
 
     //======================================
     // Getters
@@ -41,6 +49,26 @@ class PCB {
     //PRE:
     //POST: returns the name of the progam as a char*
     char * getName() const;
+
+    //PRE:
+    //POST: @return uint id;
+    uint getID() const;
+
+    //PRE:
+    //POST: @return, program_start
+    uint getProgStartAddress();
+
+    //PRE:
+    //POST: @return, program_end
+    uint getProgEndAddress();
+
+    //PRE:
+    //POST: @return, stack_start
+    uint getStackStartAddress();
+
+    //PRE:
+    //POST: @return, stack_end
+    uint getStackEndAddress();
 
 
     //======================================
@@ -75,6 +103,17 @@ class PCB {
     //      program
     //POST: @return whether the program is able to run
     bool ableToRun(int num_steps);
+
+
+    //PRE: uint p_start, program start address
+    //     uint p_end, program end address
+    //     uint s_start, stack start address
+    //     uint s_end, stack end address
+    //POST: program_start = p_start
+    //      program_end = p_end
+    //      stack_start = s_start
+    //      stack_end = s_end
+    void initPCB(uint p_start, uint p_end, uint s_start, uint s_end);
 
 
     //PRE:
