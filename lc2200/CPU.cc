@@ -3,6 +3,7 @@
 #include "Exception.h"
 #include <iostream>
 #include "useful_classes/MyString.h"
+#include "PCB.h"
 using namespace std;
 
 
@@ -13,6 +14,7 @@ CPU::CPU() {
   registers[0] = 0;
   PC = 0;
 }
+
 
 //PRE:
 //POST: @return int PC, the value that PC contains
@@ -84,6 +86,7 @@ char * CPU::getOutput() {
   }
   return string.getStringDeepCopy(); // edit it be a deep
 }
+
 
 CPU::~CPU() {
 

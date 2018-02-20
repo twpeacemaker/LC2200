@@ -25,7 +25,7 @@ class LList {
   int n;              //is defined as the number of items in the LList
 
   // PRE: N is defined. This object is defined and n > N.
-  // POST: RV = the integer stored in the f(N).
+  // POST: RV = the T stored in the f(N).
   LNode<T> * getNthNode(int N) const{
     int count = 0;
     LNode<T> * temp = front;  // temp is an alias for front.
@@ -108,7 +108,7 @@ class LList {
   }
 
   // PRE: This object is defined and n > 0.
-  // POST: RV = the integer stored in f(0).
+  // POST: RV = the T stored in f(0).
   T getFront () const {
     return (front->getData());
   }
@@ -120,7 +120,7 @@ class LList {
   }
 
   // PRE: N is defined. This object is defined and n > N.
-  // POST: RV = the integer stored in the f(N).
+  // POST: RV = the T stored in the f(N).
   T getNth (int N) const{
     int count = 0;
     LNode<T> * temp = front;  // temp is an alias for front.
@@ -174,7 +174,7 @@ class LList {
 
   // PRE: num = v is defined. This object is defined.
   // POST: This object is defined with n = (pre)n + 1. An LNode
-  //       object t contains the integer data v.
+  //       object t contains the T data v.
   //       f = t, (pre)f(0),(pre)f(1),...,(pre)f((pre)n).
   //       NOTE: (pre) is an informal mechanism of referring to the
   //             state of the variable in the PRE state of the function.

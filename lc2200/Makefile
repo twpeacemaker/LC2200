@@ -15,7 +15,7 @@ main.o: main.cc Terminal.h useful_classes/Queue.h
 Machine.o: Machine.h Machine.cc CPU.h Memory.h Freemem.h constants.h Exception.h PCB.h useful_classes/LList.h useful_classes/MyString.h useful_classes/Queue.h useful_functions/bit_manipulation.h useful_functions/char_arrays.h
 	$(GCC) Machine.cc -c
 
-CPU.o: constants.h CPU.h CPU.cc useful_classes/MyString.h Exception.h
+CPU.o: constants.h CPU.h CPU.cc Exception.h PCB.h useful_classes/MyString.h 
 	$(GCC) CPU.cc -c
 
 Memory.o: constants.h Memory.cc Memory.h useful_classes/MyString.h useful_functions/char_arrays.h Exception.h
@@ -30,7 +30,7 @@ bit_manipulation.o: useful_functions/bit_manipulation.cc useful_functions/bit_ma
 char_arrays.o: useful_functions/char_arrays.cc useful_functions/char_arrays.h Exception.h constants.h
 	$(GCC) useful_functions/char_arrays.cc -c
 
-PCB.o: PCB.h PCB.cc constants.h
+PCB.o: PCB.h PCB.cc constants.h CPU.h
 	$(GCC) PCB.cc -c
 
 clean:

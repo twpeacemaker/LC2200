@@ -1,6 +1,7 @@
 #ifndef INCLUDED_PCB
 #define INCLUDED_PCB
 #include "constants.h"
+#include "CPU.h"
 #include <stdio.h>
 
 class PCB {
@@ -20,6 +21,7 @@ class PCB {
     uint stack_end;
     uint registers[MAX_REGISTERS];
     uint id;
+    uint PC;
 
   public:
 
@@ -33,6 +35,7 @@ class PCB {
     //======================================
     // Getters
     //======================================
+
 
     //PRE:
     //POST: @return, uint program_length
@@ -70,10 +73,35 @@ class PCB {
     //POST: @return, stack_end
     uint getStackEndAddress();
 
+    //PRE:
+    //POST: @return the value at the register[SP]
+    uint getSP() const;
+
+    //PRE:
+    //POST: @return the value of PC
+    uint getPC() const;
+
+    //PRE:  @param int index, index of register [0-15] inclusive
+    //POST: @return register[index]
+    uint getRegister(uint index) const;
+
 
     //======================================
     // Setters
     //======================================
+
+    //PRE: @param int value, the value you want register[index] to be
+    //POST: register[index] = value
+    //throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
+    void setRegister(uint index, uint value);
+
+    //PRE: @param int value, the value you want to be set to PC
+    //POST: PC = value;
+    void setPC(uint value);
+
+    //PRE: @param int value, the value you want to be set to SP
+    //POST: register[SP] = value
+    void setSP(uint value);
 
     //PRE:  int n, the length of the program
     //POST: sets lenth = n;
@@ -105,15 +133,22 @@ class PCB {
     bool ableToRun(int num_steps);
 
 
-    //PRE: uint p_start, program start address
-    //     uint p_end, program end address
-    //     uint s_start, stack start address
-    //     uint s_end, stack end address
+    //PRE: @param uint p_start, program start address
+    //     @param uint p_end, program end address
+    //     @param uint s_start, stack start address
+    //     @param uint s_end, stack end address
+    //     @param uint SP, where the register SP will be set to
     //POST: program_start = p_start
     //      program_end = p_end
     //      stack_start = s_start
     //      stack_end = s_end
-    void initPCB(uint p_start, uint p_end, uint s_start, uint s_end);
+    //      registers[STACK_POINTER_INDEX] = stack_end;
+    void initPCB(uint p_start, uint p_end, uint s_start, uint s_end, uint SP);
+
+    //PRE:  @param uint PC, the relitive pc, assumes in bounds of the program
+    //POST: @return, return_value gets the address from the machine and calculates
+    //               the effective address of memory
+    uint filterPC(uint PC);
 
 
     //PRE:

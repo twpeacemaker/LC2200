@@ -5,6 +5,7 @@
 #include "Exception.h"
 #include <iostream>
 #include "useful_classes/MyString.h"
+#include "PCB.h"
 using namespace std;
 
 #include <iostream>
@@ -28,6 +29,7 @@ class CPU {
      //POST:
      CPU();
 
+
      //PRE:
      //POST: @return int PC, the value that PC contains
      uint getPC() const;
@@ -44,7 +46,7 @@ class CPU {
      //POST: @return register[index]
      uint getRegister(uint index) const;
 
-     //      @param int value, the value you want register[index] to be
+     //PRE: @param int value, the value you want register[index] to be
      //POST: register[index] = value
      //throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
      void setRegister(uint index, uint value);

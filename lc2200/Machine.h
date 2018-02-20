@@ -77,6 +77,12 @@ class Machine {
     //                              BOUNDS, PROCESS TERMINATED."));
     void checkAddressOutOfBounds(uint address);
 
+    //PRE: takes the id of the process being removed
+    //POST: removes that process from the running queue and frees the memory that
+    //      it was allocating
+    //      @return whether the process was found or not
+    bool terminateProcess(uint pid);
+
     //======================================
     // R - Type Operations
     //======================================
@@ -194,6 +200,28 @@ class Machine {
     //     at the address (start + length)
     void importProgFile(ifstream & inFile, uint start_address, int length);
 
+    //======================================
+    // contex switching
+    //======================================
+
+    //PRE:  @param PCB * process, must be init
+    //POST: cpu.registers, cpu.SP, cpu.PC now reflect their corresponding values
+    //      in the PCB process given to the method
+    void importRegistersPCBToCPU(PCB * process);
+
+    //PRE:  @param PCB * process, must be init
+    //POST: PCB.registers, PCB.SP, PCB.PC now reflect their corresponding values
+    //      in the cpu
+    void importRegistersCPUToPCB(PCB * process);
+
+    //======================================
+    // current process
+    //======================================
+
+    //PRE:
+    //POST: if running_queue > 0 retyrns the process else returns NULL
+    PCB * getCurrentProcess();
+
   //======================================
   // freemem handling methods
   //======================================
@@ -242,12 +270,12 @@ class Machine {
   //PRE: uint new_start, the new start of the freemem
   //     int free_mem_index, the freemem object that is being dealloacted
   //POST:if all the freemem is used it is delete, else it is made smallers
-  void unallocateFreemem(uint new_start, int free_mem_index);
+  void allocateMem(uint new_start, int free_mem_index);
 
   //PRE:  @param uint free_start, the
   //      @param uint free_end,
   //POST: adds the new memory that has been freed to the machine
-  void allocateFreemem(uint start, uint end);
+  void deallocateMem(uint start, uint end);
 
 
   //PRE:  free mem is populated with size > 1
@@ -255,6 +283,11 @@ class Machine {
   //      mem 0 - 4 and 8 - 12 is added to gether to be to 0 - 12.
   void joinFreemem();
 
+  //PRE: Assumes that the process at the begining of the queue has not
+  //     been prepared on the cpu to run
+  //POST:copys the registers and PC of the process and the start of the queue
+  //     to the cpu
+  void readyCurrentProcessOnCPU();
 
   public:
 

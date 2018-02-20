@@ -106,15 +106,29 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
     int num_steps = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
     return_value = stepSim(num_steps, in_bool, out_bool, done);
+    if (current_process->getHalt() == true) {
+      PCB * current_process = getCurrentProcess();
+      running_queue.dequeue();
+      delete current_process;
+      readyCurrentProcessOnCPU(); //reads next only of running_queue > 1
+    }
   } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-    if(current_process->getHalt() == false) {
-      //ASSERT: the program has not hit a halt statement run another step of
-      //        the program
-      return_value = stepSim(1, in_bool, out_bool, done);
-      done = false;
+    PCB * current_process = getCurrentProcess();
+    if(current_process != NULL) {
+      if(current_process->getHalt() == false) {
+        //ASSERT: the program has not hit a halt statement run another step of
+        //        the program
+        return_value = stepSim(1, in_bool, out_bool, done);
+        done = false;
+      } else {
+        //ASSERT: the program has hit its halt statement and now is done
+        done = true;
+        running_queue.dequeue();
+        readyCurrentProcessOnCPU(); //reads next only of running_queue > 1
+        delete current_process;
+      }
     } else {
-      //ASSERT: the program has hit its halt statement and now is done
-      done = true;
+      throw(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     return_value = freememSim();
@@ -128,6 +142,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     return_value = killSim(input, out_bool);
     done = true;
   }
+
   return return_value;
 }
 
@@ -164,18 +179,18 @@ void Machine::loadSim(char * input) {
 
   PCB * proccess = new PCB(file_name, nextPCBId ,length);
   nextPCBId++;
-
-  proccess->initPCB(prog_start, prog_end, stack_start, stack_end);
+  uint SP = ((length + stack_size) * BYTES_IN_WORD) - BYTES_IN_WORD;
+  proccess->initPCB(prog_start, prog_end, stack_start, stack_end, SP);
   //load into memory
   running_queue.enqueue(proccess);
   if(running_queue.getSize() == 1) {
-     cpu.setPC(0);
-     cpu.setSP(stack_end);
-     //need to set
+    readyCurrentProcessOnCPU();
   }
-  //importProgFile(inFile, prog_start, length);
+  importProgFile(inFile, prog_start, length);
   inFile.close(); // close the filestream
 }
+
+
 
 //PRE: @param ifstream & inFile takes the correctly formated file with the
 //     length read from the file and the next thing to be read is the first
@@ -213,6 +228,7 @@ void Machine::importProgFile(ifstream & inFile, uint start_address, int length){
 char * Machine::stepSim(int num_steps, bool & in, bool & out, bool & done) {
   char * output; // holds the memory location of output only meaningful iff
                  // out = True otherwise is garbage
+  PCB * current_process = getCurrentProcess();
   if(current_process != NULL) {
     while(current_process->ableToRun(num_steps) && !in && !out && !done) {
         output = executeLine(in, out);
@@ -336,15 +352,65 @@ bool Machine::terminateProcess(uint pid) {
     if(process->getID() == pid) {
       found = true;
       running_queue.deleteNthQueued(i);
-      allocateFreemem(process->getStackStartAddress(),
+      deallocateMem(process->getStackStartAddress(),
                       process->getStackEndAddress());
-      allocateFreemem(process->getProgStartAddress(),
+      deallocateMem(process->getProgStartAddress(),
                       process->getProgEndAddress());
       //add the freemem back
       delete process; // removes the process from memory
     }
   }
   return found;
+}
+
+//======================================
+// contex switching
+//======================================
+
+//PRE:  @param PCB * process, must be init
+//POST: cpu.registers, cpu.SP, cpu.PC now reflect their corresponding values
+//      in the PCB process given to the method
+void Machine::importRegistersPCBToCPU(PCB * process) {
+  PCB * current_process = getCurrentProcess();
+  for(int i = 0; i < MAX_REGISTERS; i++) {
+    cpu.setRegister(i, current_process->getRegister(i));
+  }
+}
+
+//PRE:  @param PCB * process, must be init
+//POST: PCB.registers, PCB.SP, PCB.PC now reflect their corresponding values
+//      in the cpu
+void Machine::importRegistersCPUToPCB(PCB * process) {
+  PCB * current_process = getCurrentProcess();
+  for(int i = 0; i > MAX_REGISTERS; i++) {
+    current_process->setRegister(i, cpu.getRegister(i));
+  }
+}
+
+//PRE: Assumes that the process at the begining of the queue has not
+//     been prepared on the cpu to run
+//POST:copys the registers and PC of the process and the start of the queue
+//     to the cpu
+void Machine::readyCurrentProcessOnCPU() {
+  if(running_queue.getQueueSize() >= 1) {
+    PCB * current_process = getCurrentProcess();
+    cpu.setPC(current_process->getPC());
+    importRegistersPCBToCPU(current_process);
+  }
+}
+
+//======================================
+// current process
+//======================================
+
+//PRE:
+//POST: if running_queue > 0 returns the process else returns NULL
+PCB * Machine::getCurrentProcess() {
+  PCB * current_process = NULL;
+  if(running_queue.getQueueSize() != 0) {
+     current_process = running_queue.getNthQueued(0);
+  }
+  return current_process;
 }
 
 //PRE: .lc_config must be in the same directory as the simulator
@@ -433,7 +499,7 @@ void Machine::getProgamBounds(uint & prog_start, uint & prog_end, uint length,
     getMemLocations(stack_start, stack_end, stack_size, error);
     if(error) {
       //ASSERT: stack did not have room and have to reallocate prog space
-      allocateFreemem(prog_start, prog_end);
+      deallocateMem(prog_start, prog_end);
     }
   }
   if(error) {
@@ -482,7 +548,7 @@ void Machine::firstFit(uint & start, uint & end, uint size) {
         found = true;
         start = current_mem->getStart();
         end   = start + (size * BYTES_IN_WORD) - BYTES_IN_WORD;
-        unallocateFreemem(end + BYTES_IN_WORD, current_index);
+        allocateMem(end + BYTES_IN_WORD, current_index);
       }
       current_index++;
     }
@@ -528,14 +594,14 @@ void Machine::bestFit(uint & start, uint & end, uint size) {
     throw(Exception((char *)""));
   } else {
     //ASSERT: claim the memory found
-    unallocateFreemem(end + BYTES_IN_WORD, index_of_freemem);
+    allocateMem(end + BYTES_IN_WORD, index_of_freemem);
   }
 }
 
 //PRE: uint new_start, the new start of the freemem
 //     int freemem_index, the freemem object that is being dealloacted
 //POST:if all the freemem is used it is delete, else it is made smallers
-void Machine::unallocateFreemem(uint new_start, int freemem_index) {
+void Machine::allocateMem(uint new_start, int freemem_index) {
   Freemem * freemem_object = freemem.getNth(freemem_index);
 
   if(new_start == freemem_object->getEnd()) {
@@ -548,7 +614,7 @@ void Machine::unallocateFreemem(uint new_start, int freemem_index) {
 //PRE:  @param uint free_start, the
 //      @param uint free_end,
 //POST: adds the new memory that has been freed to the machine
-void Machine::allocateFreemem(uint start, uint end) {
+void Machine::deallocateMem(uint start, uint end) {
   Freemem * new_freemem = new Freemem(start, end);
   int best_index = 0; //keeps track of the loction that is a best fit
   bool found_location = false; //if false, addFront
@@ -631,13 +697,17 @@ uint Machine::getSignedOrOffset(uint line) {
 //PRE:
 //POST: @returns the current progame line
 uint Machine::getCurrentLine() {
-  return memory->getAddress(cpu.getPC());
+  PCB * current_process = getCurrentProcess();
+  uint address = current_process->filterPC(cpu.getPC());
+  return memory->getAddress(address);
 }
 
 //PRE:
 //POST: @returns the previous progame line
 uint Machine::getPrevLine() {
-  return memory->getAddress(cpu.getPC() - BYTES_IN_WORD);
+  PCB * current_process = getCurrentProcess();
+  uint address = current_process->filterPC(cpu.getPC() - BYTES_IN_WORD);
+  return memory->getAddress(address);
 }
 
 //PRE: @param uint address, the address of memory trying to be used
@@ -647,10 +717,12 @@ uint Machine::getPrevLine() {
 //throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS,
 //PROCESS TERMINATED."));
 void Machine::checkAddressOutOfBounds(uint address) {
-  if(address > memory->getLastAddress() || address < 0) {
-    throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY maOUT OF BOUNDS, PROCESS TERMINATED."));
+  PCB * current_process = getCurrentProcess();
+  uint upper_b = (current_process->getLength() * BYTES_IN_WORD) - BYTES_IN_WORD;
+  if(upper_b < address) {
+    throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED."));
     //errors if i try to line wrap
-    current_process = NULL;
+    //NOTE: FIX
   }
 }
 
@@ -711,7 +783,8 @@ void Machine::lw(uint regX, uint regY, uint num) {
 
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
-
+  PCB * current_process = getCurrentProcess();
+  address = current_process->filterPC(address);
   uint content = memory->getAddress(address); //adds the line to memory
   cpu.setRegister(regX, content);
 }
@@ -726,7 +799,8 @@ void Machine::sw(uint regX, uint regY, uint num) {
 
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
-
+  PCB * current_process = getCurrentProcess();
+  address = current_process->filterPC(address);
   memory->setAddress(address, content);
 }
 
@@ -765,13 +839,10 @@ void Machine::bgt(uint regX, uint regY, uint offset) {
 //throw(Exception((char *)"ERROR: JALR DOES NOT TAKE $sp, PROCESS TERMINATED"));
 //if above error is hit the process is terminated
 void Machine::jalr(uint regX, uint regY) {
-
     //regX holds the value trying to jalr to, this must be tested to be
-
     //ASSERT: regX is not the stack pointer
     checkAddressOutOfBounds(cpu.getRegister(regX));
     //ASSERT: Address is valid
-
     cpu.setRegister(regY, cpu.getPC() );
     cpu.setPC( cpu.getRegister(regX) ); //test jalr
 }
@@ -822,6 +893,7 @@ void Machine::la(uint regX, int num) {
 //PRE:  takes no params
 //POST: stops the program
 void Machine::halt() {
+  PCB * current_process = getCurrentProcess();
   current_process->haltProgram();
 }
 
