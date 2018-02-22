@@ -85,8 +85,7 @@ void Memory::getUpperLowerBound(char * input, uint & lower_bound,
   if (tokens.getSize() == 1) {
     //first token to the end of memory
     lower_bound = arrayToInt(tokens.getFront().getString());
-    if (lower_bound >= (size * BYTES_IN_WORD) || lower_bound % 4 != 0 ||
-        lower_bound < 0) {
+    if (lower_bound >= (size * BYTES_IN_WORD) || lower_bound % 4 != 0) {
       throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
     }
   } else if(tokens.getSize() > 1) {
@@ -96,7 +95,6 @@ void Memory::getUpperLowerBound(char * input, uint & lower_bound,
           upper_bound >= (size * BYTES_IN_WORD) ||
           lower_bound % 4 != 0 ||
           upper_bound % 4 != 0 ||
-          lower_bound < 0 ||
           lower_bound > upper_bound) {
         throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
       }

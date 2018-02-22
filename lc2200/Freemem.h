@@ -12,6 +12,9 @@ private:
      uint end;
 public:
 
+  // Class Invariant (CI): start will be greater than zero and less than end
+  // end will be more than start and less than size
+
   // Default Constructor
   // Pre :
   // Post:

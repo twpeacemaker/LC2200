@@ -5,20 +5,37 @@
 #include <stdio.h>
 
 class PCB {
+
+  // Class Invariant (CI): the name will be the name of the file that was loaded
+  // and will always be given a value, steps will track the number of steps
+  // in the current session of steps. halted will only be true if the
+  // program has reached the halt statement. the program lenth > 0 and will
+  // represent the amount of lines in the process. program_start, program_end,
+  // stack_start, and stack_end will all hold the physical address of mem
+  // that the prog starts and ends and where the stack starts and ends. prog
+  // start will be > 0 and < prog end. prog end will not be greater than
+  // the amount of memory. stack start > end and < 0. stack end will not be
+  // < amount of memory. registers[MAX_REGISTERS] will store the registers
+  // for the program $zero will always remain 0 and $sp will hold the relitive
+  // address not the physical, id will be unqiue and not used by any other
+  // proccess, PC will hold the relitive PC of when the program end its least
+  // pass as the current process
+
   private:
 
-    char * name;        //holds the name of the progame
-    uint steps;           //holds the number of steps conducted on pass
+    char * name;
+    uint steps;
     bool halted;
 
-    //holds the length of the program
+
     uint program_length;
-    //progame address
+
     uint program_start;
     uint program_end;
-    //stack
+
     uint stack_start;
     uint stack_end;
+
     uint registers[MAX_REGISTERS];
     uint id;
     uint PC;

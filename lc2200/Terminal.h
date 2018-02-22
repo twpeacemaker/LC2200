@@ -14,7 +14,7 @@ class Terminal {
 
   // Class Invariant (CI): must start the progame to start the terminal.
   // the terminal facilitate INPUT and OUTPUT to and from the Machine and
-  // ends the progame on the command exit
+  // ends the progame on the command exit. 
 
   private:
 

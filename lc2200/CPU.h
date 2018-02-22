@@ -16,6 +16,7 @@ class CPU {
   // Class Invariant (CI): the obejct has a set of registers which register[0]
   // always have to be equal to 0 and which pc % 4 = 0 stack pointer must
   // be set to the correct address of memory when the process is loaded
+  // value of PC will be > memory size
 
  private:
 

@@ -20,15 +20,20 @@ class Machine {
 
   // Class Invariant (CI): must point to a valid memory object and must have
   // have valid cpu that facilitate the memory, pc, registers for the Machine
-  // the machine processes in a fetch, decode, execute cycle
+  // the machine processes in a fetch, decode, execute cycle. will contain a
+  // running queue, and a freemem LList that will hold at least one
+  // object, this list will hold all the free memory that is usable to the
+  // machine. nextPCBId will be incremented every time assigned to PCB and no
+  // process will be given the same id, stack_size will always be > memory_size
+  // mem_management will be that value 0 or 1, 0 will follow the first fit
+  // memory management policy and 1 will denote best fit policy. .lc_config
+  // will be read and will populate the values of mem_management, memory_size,
+  // and stack_size.
 
   private:
 
     CPU cpu;
-    Memory * memory;       // holds the pointer to memory
-    PCB * current_process; // holds the information about the currently loaded
-                           // program
-
+    Memory * memory;
     uint memory_size;
     uint stack_size;
     uint mem_management;
@@ -218,8 +223,10 @@ class Machine {
     // current process
     //======================================
 
+
     //PRE:
-    //POST: if running_queue > 0 retyrns the process else returns NULL
+    //POST: returns the first in the running_queue process if running_queue > 0
+    //      else returns NULL
     PCB * getCurrentProcess();
 
   //======================================

@@ -93,19 +93,17 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   MyString command = tokens.getFront();       //gets the command
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
     loadSim(input);
-    out_bool = false;
-    done = true;
+    out_bool = false; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[MEM_NUM]) ) {
     return_value = memSim(input);
-    out_bool = true;
-    done = true;
+    out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[CPU_NUM]) ) {
     return_value = cpuSim();
-    out_bool = true;
-    done = true;
+    out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
     int num_steps = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
     return_value = stepSim(num_steps, in_bool, out_bool, done);
+    PCB * current_process = getCurrentProcess();
     if (current_process->getHalt() == true) {
       PCB * current_process = getCurrentProcess();
       terminateProcess(current_process->getID());
@@ -114,8 +112,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     PCB * current_process = getCurrentProcess();
     if(current_process != NULL) {
       if(current_process->getHalt() == false) {
-        //ASSERT: the program has not hit a halt statement run another step of
-        //        the program
+        //ASSERT: the program has not hit a halt statement run another step
         return_value = stepSim(1, in_bool, out_bool, done);
         done = false;
       } else {
@@ -124,21 +121,18 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
         terminateProcess(current_process->getID());
       }
     } else {
-      throw(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
+      throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     return_value = freememSim();
-    out_bool = true;
-    done = true;
+    out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[JOBS_NUM]) ) {
     return_value = jobsSim();
-    out_bool = true;
-    done = true;
+    out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[KILL_NUM]) ) {
     return_value = killSim(input, out_bool);
     done = true;
   }
-
   return return_value;
 }
 
@@ -220,7 +214,8 @@ void Machine::importProgFile(ifstream & inFile, uint start_address, int length){
 //PRE: @param int num_step, the number of lines to execute
 //     @param bool in, iif true the program needs input
 //     @param book out iif true the program needs output
-//     @param done iff the progam has reached the halt statemetn
+//     @param done iff the progam has reached the halt statemet or reaches its
+//                 num_steps
 //POST:@return if out is true returns the output to the termainl
 //current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
 char * Machine::stepSim(int num_steps, bool & in, bool & out, bool & done) {
@@ -349,16 +344,14 @@ bool Machine::terminateProcess(uint pid) {
     PCB * process = running_queue.getNthQueued(i);
     if(process->getID() == pid) {
       found = true;
-
       running_queue.deleteNthQueued(i);
-
+      delete process; //deletes process
       deallocateMem(process->getStackStartAddress(),
                       process->getStackEndAddress());
       deallocateMem(process->getProgStartAddress(),
                       process->getProgEndAddress());
       if(i == 0) {
         //current_process was removed next process needs to be readied
-
         readyCurrentProcessOnCPU();
 
       }
@@ -367,10 +360,6 @@ bool Machine::terminateProcess(uint pid) {
   }
   return found;
 }
-
-//======================================
-// contex switching
-//======================================
 
 //PRE:  @param PCB * process, must be init
 //POST: cpu.registers, cpu.SP, cpu.PC now reflect their corresponding values
@@ -409,7 +398,8 @@ void Machine::readyCurrentProcessOnCPU() {
 //======================================
 
 //PRE:
-//POST: if running_queue > 0 returns the process else returns NULL
+//POST: returns the first in the running_queue process if running_queue > 0
+//      else returns NULL
 PCB * Machine::getCurrentProcess() {
   PCB * current_process = NULL;
   if(running_queue.getQueueSize() != 0) {
@@ -754,7 +744,6 @@ void Machine::giveInput(char * input) {
 //      register[regY]
 void Machine::add(uint regX, uint regY, uint regZ) {
   uint sum = cpu.getRegister(regY) + cpu.getRegister(regZ);
-
   cpu.setRegister(regX, sum);
 }
 
@@ -802,7 +791,6 @@ void Machine::sw(uint regX, uint regY, uint num) {
   //EDIT: check if out of bounds
   checkAddressOutOfBounds(address);
   uint content = cpu.getRegister(regX);
-
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
   address = current_process->filterPC(address);
@@ -818,7 +806,7 @@ void Machine::beq(uint regX, uint regY, uint offset) {
     //ASSERT: can assume the address is in bounds
     checkAddressOutOfBounds(offset + cpu.getPC());
     cpu.setPC( offset + cpu.getPC() );
-  } //assert else do nothing
+  }
 }
 
 //PRE:  @param uint regX and regY, range [0-15] inclusive

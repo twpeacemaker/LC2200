@@ -57,7 +57,7 @@ public:
   };
 
   ~Queue(){
-    //all data is destucted from the LList in that class
+    //delete is handled in the LList clasee
   };
 
 

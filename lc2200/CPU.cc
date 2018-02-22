@@ -73,7 +73,6 @@ char * CPU::getOutput() {
   sprintf (pc_line, " PC: %d \n", PC);
   string.addString(pc_line);
   delete [] pc_line;
-
   for (int i = 0; i < MAX_REGISTERS; i++) {
     char * col = new char [MAX_COL_CPU];
     sprintf (col, " %s: 0x%08X (%d) ", REGISTER_NAMES[i], registers[i],

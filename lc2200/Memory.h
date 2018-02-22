@@ -8,10 +8,11 @@
 
 class Memory {
 
-  // Class Invariant (CI): facilitates the management of memory for the
-  // machine this object must have a pointed to the assigned memory of the
-  // terminal and a size that aligns the the size of mem. the memory expects
-  // all addresses to multibles of 4 and returns the correct address of memory
+  // Class Invariant (CI): facilitates the memory for the
+  // machine this object must have a pointer to the assigned memory of the
+  // machine and a size that aligns the the size of mem given in the config file
+  // the memory expects all addresses to multibles of 4 and this machine
+  // takes a address of memory, and returns the proper index on memory
 
   private:
 
