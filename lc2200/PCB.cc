@@ -177,9 +177,10 @@ uint PCB::filterPC(uint PC) {
   } else {
     //in the stack of the memory
     uint offset       = stack_end - stack_start;
-    uint added_val    = (PC - offset) - BYTES_IN_WORD;
+    uint added_val    = (PC - offset);
     return_value = added_val + stack_start;
   }
+
   return return_value;
 }
 

@@ -108,9 +108,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     return_value = stepSim(num_steps, in_bool, out_bool, done);
     if (current_process->getHalt() == true) {
       PCB * current_process = getCurrentProcess();
-      running_queue.dequeue();
-      delete current_process;
-      readyCurrentProcessOnCPU(); //reads next only of running_queue > 1
+      terminateProcess(current_process->getID());
     }
   } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
     PCB * current_process = getCurrentProcess();
@@ -123,9 +121,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
       } else {
         //ASSERT: the program has hit its halt statement and now is done
         done = true;
-        running_queue.dequeue();
-        readyCurrentProcessOnCPU(); //reads next only of running_queue > 1
-        delete current_process;
+        terminateProcess(current_process->getID());
       }
     } else {
       throw(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
@@ -145,6 +141,8 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
 
   return return_value;
 }
+
+
 
 //PRE:  @param char * input gets the program name from the input
 //                    takes the input from the terminal
@@ -179,7 +177,7 @@ void Machine::loadSim(char * input) {
 
   PCB * proccess = new PCB(file_name, nextPCBId ,length);
   nextPCBId++;
-  uint SP = ((length + stack_size) * BYTES_IN_WORD) - BYTES_IN_WORD;
+  uint SP = (length + stack_size) * BYTES_IN_WORD - BYTES_IN_WORD;
   proccess->initPCB(prog_start, prog_end, stack_start, stack_end, SP);
   //load into memory
   running_queue.enqueue(proccess);
@@ -329,7 +327,7 @@ char * Machine::killSim(char * input, bool & out_bool) {
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
   tokens.deleteFront();
   uint id = arrayToInt(tokens.getFront().getString());
-  bool found = terminateProcess(id); //removes the process, if false
+  bool found = terminateProcess(id); //removes the process, if fals
                                      //it was not found
   if (found == false) {
     //ASSERT: no process id by that uint
@@ -346,19 +344,26 @@ char * Machine::killSim(char * input, bool & out_bool) {
 //      it was allocating
 //      @return whether the process was found or not
 bool Machine::terminateProcess(uint pid) {
-  bool found = true;
+  bool found = false;
   for(int i = 0; i < running_queue.getSize(); i++) {
     PCB * process = running_queue.getNthQueued(i);
     if(process->getID() == pid) {
       found = true;
+
       running_queue.deleteNthQueued(i);
+
       deallocateMem(process->getStackStartAddress(),
                       process->getStackEndAddress());
       deallocateMem(process->getProgStartAddress(),
                       process->getProgEndAddress());
-      //add the freemem back
-      delete process; // removes the process from memory
+      if(i == 0) {
+        //current_process was removed next process needs to be readied
+
+        readyCurrentProcessOnCPU();
+
+      }
     }
+
   }
   return found;
 }
@@ -392,7 +397,7 @@ void Machine::importRegistersCPUToPCB(PCB * process) {
 //POST:copys the registers and PC of the process and the start of the queue
 //     to the cpu
 void Machine::readyCurrentProcessOnCPU() {
-  if(running_queue.getQueueSize() >= 1) {
+  if(running_queue.getQueueSize() != 0) {
     PCB * current_process = getCurrentProcess();
     cpu.setPC(current_process->getPC());
     importRegistersPCBToCPU(current_process);
@@ -639,15 +644,15 @@ void Machine::deallocateMem(uint start, uint end) {
 //      mem 0 - 4 and 8 - 12 is added to gether to be to 0 - 12.
 void Machine::joinFreemem() {
   int i = 0;
-  int start;
-  int end;
-  for(i = 0;(freemem.getSize() - 1) > i; i++) {
-    start = freemem.getNth(i + 1)->getStart();
-    end   = freemem.getNth(i)->getEnd();
-    if(end == start - BYTES_IN_WORD) {
-      //ASSERT: adj nodes
-      int new_end = freemem.getNth(i+1)->getEnd();
-      freemem.getNth(i)->setEnd(new_end);
+  uint current_end;
+  uint next_start;
+  while(i < (freemem.getSize() - 1)) {
+    next_start  = freemem.getNth(i+1)->getStart();
+    current_end = freemem.getNth(i)->getEnd();
+    if(current_end == (next_start - BYTES_IN_WORD)) {
+      //ASSERT: the two nodes adj
+      int next_end = freemem.getNth(i+1)->getEnd();
+      freemem.getNth(i)->setEnd(next_end);
       freemem.deleteNth(i + 1);
     } else {
       i++;
@@ -718,7 +723,8 @@ uint Machine::getPrevLine() {
 //PROCESS TERMINATED."));
 void Machine::checkAddressOutOfBounds(uint address) {
   PCB * current_process = getCurrentProcess();
-  uint upper_b = (current_process->getLength() * BYTES_IN_WORD) - BYTES_IN_WORD;
+  uint upper_b = ((current_process->getLength() + stack_size) * BYTES_IN_WORD)
+                    - BYTES_IN_WORD;
   if(upper_b < address) {
     throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED."));
     //errors if i try to line wrap
@@ -780,7 +786,6 @@ void Machine::addi(uint regX, uint regY, uint num) {
 //      register[regX]
 void Machine::lw(uint regX, uint regY, uint num) {
   uint address = num + cpu.getRegister(regY);
-
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
@@ -795,9 +800,9 @@ void Machine::lw(uint regX, uint regY, uint num) {
 void Machine::sw(uint regX, uint regY, uint num) {
   uint address = num + cpu.getRegister(regY);
   //EDIT: check if out of bounds
+  checkAddressOutOfBounds(address);
   uint content = cpu.getRegister(regX);
 
-  checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
   address = current_process->filterPC(address);
@@ -811,9 +816,7 @@ void Machine::beq(uint regX, uint regY, uint offset) {
   if ( cpu.getRegister(regX) == cpu.getRegister(regY) ) {
     //ASSERT: change pc if they are equal
     //ASSERT: can assume the address is in bounds
-
     checkAddressOutOfBounds(offset + cpu.getPC());
-
     cpu.setPC( offset + cpu.getPC() );
   } //assert else do nothing
 }

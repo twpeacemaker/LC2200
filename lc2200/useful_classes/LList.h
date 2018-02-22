@@ -160,7 +160,7 @@ class LList {
         	nextNode->setPrev(prevNode);
           temp->setNext(NULL);
           delete (temp);
-           n--;
+          n--;
       }
     } else {
       //ASSERT: the user attempted N < n, throws error
@@ -249,6 +249,7 @@ class LList {
       back = NULL;
       n--;
       // ASSERT: f = (pre)f(1),...,(pre)f((pre)n-2).
+      temp->setNext(NULL);
       delete (temp); // deallocate storage for the deleted node.
     } else if( n > 1) {
       front = front->getNext();
@@ -258,8 +259,8 @@ class LList {
 	       front->setPrevNull();
       }
       n--;
-      temp->setNext(NULL);
       // ASSERT: f = (pre)f(1),...,(pre)f((pre)n-2).
+      temp->setNext(NULL);
       delete (temp); // deallocate storage for the deleted node.
     } else {
       throw(Exception((char *) "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" ));
