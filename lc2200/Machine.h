@@ -296,6 +296,62 @@ class Machine {
   //     to the cpu
   void readyCurrentProcessOnCPU();
 
+  //PRE:  @param char * input, takes the input from the terminal
+  //                           must be no longer than 2 words
+  //                           F
+  //POST: loads the program into the memory location starting at 0
+  //(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
+  void loadSim(char * input);
+
+  //PRE:  @param char * input, takes the input to run
+  //POST: @return char*, the content of memory
+  //      if 1 token given, 0 - memory size
+  //      if 2 tokens token[1] - memory size
+  //      if 3 tokens token[1] - token[2]
+  char * memSim(char * input);
+
+  //PRE:  @param char * input, takes the input to run
+  //POST: @returns a char* that is properly formated
+  char * cpuSim();
+
+  //PRE: @param int num_step, the number of lines to execute
+  //     @param bool in, iif true the program needs input
+  //     @param book out iif true the program needs output
+  //     @param done iff the progam has reached the halt statemetn
+  //POST:@return if out is true returns the output to the termainl
+  //current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM
+  //                                                LOADED"));
+  char * stepSim(int num_steps, bool & in, bool & out, bool & done);
+
+  //PRE: the Machine be running
+  //POST: @returns the contents of the freemem llist from 0 - n
+  char * freememSim();
+
+  //PRE: the Machine be running
+  //POST: @return char* the array that displays the jobs to the user
+  char * jobsSim();
+
+  //PRE:  @param char * input, takes the input to kill meaning two words
+  //      separated by a ' ', the first being the str kill and the second
+  //      being a positive intager that will reprent the PCB id that will be
+  //      killed, ie kill <int>
+  //      @param bool & out_bool, if there is not process found, will return not
+  //      found
+  //POST: kills the program and releases the memory back to freemem and removes
+  //      the job from the runnin queue
+  char * killSim(char * input, bool & out_bool);
+
+  //PRE:  the machine be started
+  //POST: returns the contents of the .lc_config to the terminal
+  char * configSim();
+
+  //PRE:  @param bool & in_bool, iif true the Machine needs input
+  //      @param bool & out_bool, iif true the Machine is requesting to output
+  //                              to the terminal
+  //POST: @return iif out_bool is true is the return meaningful, the output
+  //      reprents the output to send to the terminal
+  char * executeLine(bool & in_bool, bool & out_bool);
+
   public:
 
     // Default Constructor
@@ -303,16 +359,11 @@ class Machine {
     // Post: initlizes the Machine class
     Machine();
 
-    // Pre : @param uint memory_size inits the size of memory
-    // Post: initlizes the Machine class
-    Machine(uint memory_size);
 
-    //PRE:  @param bool & in_bool, iif true the Machine needs input
-    //      @param bool & out_bool, iif true the Machine is requesting to output
-    //                              to the terminal
-    //POST: @return iif out_bool is true is the return meaningful, the output
-    //      reprents the output to send to the terminal
-    char * executeLine(bool & in_bool, bool & out_bool);
+    //PRE:  the running_queue must have a process enqueue
+    //POST: @return ID of the first process in the running queue
+    uint getCurrentProcessID();
+
 
     //PRE:  @param char * input, the number
     //      @param bool & in_bool, is true iff the Machine needs input
@@ -333,50 +384,7 @@ class Machine {
     //      if 3 tokens token[1] - token[2]
     void giveInput(char * input);
 
-    //PRE:  @param char * input, takes the input from the terminal
-    //                           must be no longer than 2 words
-    //                           F
-    //POST: loads the program into the memory location starting at 0
-    //(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
-    void loadSim(char * input);
 
-    //PRE:  @param char * input, takes the input to run
-    //POST: @return char*, the content of memory
-    //      if 1 token given, 0 - memory size
-    //      if 2 tokens token[1] - memory size
-    //      if 3 tokens token[1] - token[2]
-    char * memSim(char * input);
-
-    //PRE:  @param char * input, takes the input to run
-    //POST: @returns a char* that is properly formated
-    char * cpuSim();
-
-    //PRE: @param int num_step, the number of lines to execute
-    //     @param bool in, iif true the program needs input
-    //     @param book out iif true the program needs output
-    //     @param done iff the progam has reached the halt statemetn
-    //POST:@return if out is true returns the output to the termainl
-    //current_process = NULL throw(Exception((char *)"ERROR: NO PROGRAM
-    //                                                LOADED"));
-    char * stepSim(int num_steps, bool & in, bool & out, bool & done);
-
-    //PRE: the Machine be running
-    //POST: @returns the contents of the freemem llist from 0 - n
-    char * freememSim();
-
-    //PRE: the Machine be running
-    //POST: @return char* the array that displays the jobs to the user
-    char * jobsSim();
-
-    //PRE:  @param char * input, takes the input to kill meaning two words
-    //      separated by a ' ', the first being the str kill and the second
-    //      being a positive intager that will reprent the PCB id that will be
-    //      killed, ie kill <int>
-    //      @param bool & out_bool, if there is not process found, will return not
-    //      found
-    //POST: kills the program and releases the memory back to freemem and removes
-    //      the job from the runnin queue
-    char * killSim(char * input, bool & out_bool);
 
 
 

@@ -79,6 +79,12 @@ char * Machine::executeLine(bool & in_bool, bool & out_bool) {
   return output;
 }
 
+//PRE:  the running_queue must have a process enqueue
+//POST: @return ID of the first process in the running queue
+uint Machine::getCurrentProcessID() {
+  return getCurrentProcess()->getID();
+}
+
 //PRE:  @param char * input, the number
 //      @param bool & in_bool, is true iff the Machine needs input
 //      @param bool & out_bool, is true iff the Machine needs to output
@@ -132,6 +138,9 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   } else if( compareCharArray(command.getString(), COMMANDS[KILL_NUM]) ) {
     return_value = killSim(input, out_bool);
     done = true;
+  } else if( compareCharArray(command.getString(), COMMANDS[CONFIG_NUM]) ) {
+    return_value = configSim();
+    out_bool = true; done = true;
   }
   return return_value;
 }
@@ -332,6 +341,21 @@ char * Machine::killSim(char * input, bool & out_bool) {
     out_bool = true;
   }
   return output.getStringDeepCopy();
+}
+
+//PRE:  the machine be started
+//POST: returns the contents of the .lc_config to the terminal
+char * Machine::configSim() {
+  char * line = new char [MAX_CONFIG_LINE];
+  MyString str;
+  sprintf (line, "memory_size: %d\n", memory_size);
+  str.addString(line);
+  sprintf (line, "stack_size: %d\n", stack_size);
+  str.addString(line);
+  sprintf (line, "mem-management: %d\n", mem_management);
+  str.addString(line);
+  delete [] line;
+  return str.getStringDeepCopy();
 }
 
 //PRE: takes the id of the process being removed

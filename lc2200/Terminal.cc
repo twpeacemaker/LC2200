@@ -57,7 +57,6 @@ void Terminal::runCommand(char * input) {
         machine.giveInput(input_term); // sets that input to the Machine
         delete [] input_term;
         input_term = NULL;
-
       } else if (out){
         cout << output;
         delete [] output;
@@ -121,6 +120,10 @@ void Terminal::validateInput(LList<MyString> tokens) {
     } else {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO EXIT"));
     }
+  }else if( compareCharArray(command.getString(), COMMANDS[CONFIG_NUM]) ) {
+    if(tokens.getSize() != NUMBER_OF_CONFIG_PARAMS) {
+      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CONFIG_NUM"));
+    }
   } else {
     throw(Exception((char *)"INVALID COMMAND GIVEN"));
   }
@@ -135,7 +138,8 @@ char * Terminal::getInput() {
   char * input = new char [MAX_INPUT_SIZE]; //fix to be char []
   bool valid_input = false;
   while(!valid_input){
-    cout << "Input: ";
+    uint id = machine.getCurrentProcessID();
+    cout << "PCB(" << id << ") " << "Input: ";
     cin.getline(input, MAX_INPUT_SIZE);
     MyString string = input;
     LList<MyString> tokens = string.split(' ');

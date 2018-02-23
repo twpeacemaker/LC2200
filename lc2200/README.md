@@ -10,16 +10,13 @@
     ./Simulator
 
 #Convention:
-  Output:
-    cerr- will be reserved for error statements in the program
-    cout- will be reserved for standard output statements in the program
-
   Naming:
     Classes:            CamelCase
     Variables:          snake_case
     Functions/Methods:  lowerCamelCase
 
 #Known Errors/Bugs:
-
+  no config command.
+  
 #Test Cases:
   Instructions located in the test/test-cases file

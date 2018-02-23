@@ -87,7 +87,8 @@ static char COMMANDS[][8] =
 	"freemem",
 	"jobs",
 	"kill",
-	"exit"
+	"exit",
+	"config"
 };
 
 #define LOAD_NUM 	0
@@ -99,6 +100,7 @@ static char COMMANDS[][8] =
 #define JOBS_NUM 6
 #define KILL_NUM 7
 #define EXIT_NUM 8
+#define CONFIG_NUM 9
 
 #define NUMBER_OF_LOAD_PARAMS 2
 #define NUMBER_OF_MEM_PARAMS 	3
@@ -109,11 +111,13 @@ static char COMMANDS[][8] =
 #define NUMBER_OF_JOBS_PARAMS 1
 #define NUMBER_OF_KILL_PARAMS 2
 #define NUMBER_OF_EXIT_PARAMS 1
+#define NUMBER_OF_CONFIG_PARAMS 1
 
 #define STEP_TOKEN_N 1
 
 //register
 #define MAX_REGISTERS 16
+#define MAX_CONFIG_LINE 40
 
 //opcode config
 #define R_TYPE 4
