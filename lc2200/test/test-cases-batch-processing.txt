@@ -1,41 +1,3 @@
-MY NOTES
-
-load:
-  best fit
-  first fit
-  make PCB /w stack space add to the running queue
-mem:
-  no change
-cpu
-  add the PID of the current process to cpu
-step:
-
-run:
-  changes listed in step
-freemem:
-  When memory is freed up, if there are two blocks of free memory next to each
-  other, they should be coalesced as one block.
-
-jobs
-
-kill:
-
-exit:
-  no change
-
-configuration file:
-  needs to be added
-
-The process control block (PCB):
-  PC = 0; is the current pc
-  registers[];
-  the starting address of the program in memory
-  the ending address of the program in memory
-
-IN/OUT:
-  have to add the PID of the program along with the message after halted
-MY NOTES END
-
 prog1:
   1 0x00000000 0x93000000 IN   $a0
   2 0x00000004 0xA3000000 OUT  $a0
@@ -106,72 +68,140 @@ prog14:
 
 
 1. test the config file
-  config
-  should reflect the values given in the .lc_config
+  > config
+  memory_size: 1024
+  stack_size: 50
+  mem-management: 1
 
 2. test jobs prints correctly
-  load test/prog12
-  load test/prog13
-  jobs
+  > load test/prog1
+  > load test/prog2
+  > jobs
+  Name(1): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 220
+
+  Name(2): test/prog2.lce
+  Starting Address: 224
+  Ending Address: 248
+  Stack Start: 252
+  Stack End: 448
 
   the program should correctly display the jobs in the correct formate
 
 
 3. test kill at the begining of the queue
 
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  jobs
-  kill 1
-  jobs
+  > load test/prog1
+  > load test/prog2
+  > jobs
+  Name(1): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 220
+
+  Name(2): test/prog2.lce
+  Starting Address: 224
+  Ending Address: 248
+  Stack Start: 252
+  Stack End: 448
+  > kill 1
+  > jobs
+  Name(2): test/prog2.lce
+  Starting Address: 224
+  Ending Address: 248
+  Stack Start: 252
+  Stack End: 448
 
   the prog should be removed from beginning
 
 4. test kill start middle of the queue
 
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  jobs
-  kill 2
-  jobs
+  > load test/prog1
+  > load test/prog1
+  > load test/prog1
+  > kill 2
+  > jobs
+  Name(1): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 220
+
+  Name(3): test/prog1.lce
+  Starting Address: 448
+  Ending Address: 468
+  Stack Start: 472
+  Stack End: 668
 
 the prog should be removed from the middle of the list
 
 5. test kill start end of the queue
 
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  jobs
-  kill 3
-  jobs
+  > load test/prog1
+  > load test/prog1
+  > load test/prog1
+  > kill 3
+  > jobs
+  Name(1): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 220
+
+  Name(2): test/prog1.lce
+  Starting Address: 224
+  Ending Address: 244
+  Stack Start: 248
+  Stack End: 444
 
 the prog should be removed from the end
 
 6. test if freemem prints correctly
-  load test/prog12
-  freemem
-  load test/prog12
-  load test/prog12
-  freemem
-  kill 2
-  freemem
-  kill 1
-  freemem
-
+  > load test/prog1
+  > freemem
+  Start: 224 - End: 4096
+  > load test/prog1
+  > load test/prog1
+  > freemem
+  Start: 672 - End: 4096
+  > kill 2
+  > freemem
+  Start: 224 - End: 444
+  Start: 672 - End: 4096
+  > kill 1
+  > freemem
+  Start: 0 - End: 444
+  Start: 672 - End: 4096
+  > kill 3
+  > freemem
+  Start: 0 - End: 4096
 
   the free mem should be broken up appropriate to how they are loaded and killed
 
 7. test if free mem correctly consolidates freemem that is adjacent to each
   other
-  freemem
-  load test/prog12
-  load test/prog12
-  kill 1
-  freemem
-  kill 2
+  > load test/prog1
+  > freemem
+  Start: 224 - End: 4096
+  > load test/prog1
+  > load test/prog1
+  > freemem
+  Start: 672 - End: 4096
+  > kill 2
+  > freemem
+  Start: 224 - End: 444
+  Start: 672 - End: 4096
+  > kill 1
+  > freemem
+  Start: 0 - End: 444
+  Start: 672 - End: 4096
+  > kill 3
+  > freemem
+  Start: 0 - End: 4096
 
   freemem should reflect all of memory free and correctly added the
   adjacent freemem blocks
@@ -180,16 +210,55 @@ the prog should be removed from the end
     makes that progress ready to run ie, the PC and registers are converted
     to make that process able to run
 
-    load test/prog1
-    cpu
-    jobs
-    run
+    > load test/prog1
+    > cpu
+     PC: 0
+     $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x00000000 (0)  $a0: 0x00000000 (0)
+     $a1: 0xD0000000 (-805306368)  $a2: 0x00000000 (0)  $t0: 0xD0000000 (-805306368)  $t1: 0x64610005 (1684078597)
+     $t2: 0x00000000 (0)  $s0: 0x00000000 (0)  $s1: 0x00000000 (0)  $s2: 0x00000000 (0)
+     $k0: 0xD0000000 (-805306368)  $sp: 0x000000DC (220)  $fp: 0xD0000000 (-805306368)  $ra: 0x00000003 (3)
+    > jobs
+    Name(1): test/prog1.lce
+    Starting Address: 0
+    Ending Address: 20
+    Stack Start: 24
+    Stack End: 220
+    > load test/prog2
+    > run
+    PCB(1) Input: 1
+    1
+    PCB(1) completed.
+    > cpu
+     PC: 0
+     $zero: 0x00000000 (0)  $at: 0x00000006 (6)  $v0: 0x00000004 (4)  $a0: 0x00000000 (0)
+     $a1: 0x00000000 (0)  $a2: 0x00000000 (0)  $t0: 0x00000000 (0)  $t1: 0x00000000 (0)
+     $t2: 0xD0000000 (-805306368)  $s0: 0x00000000 (0)  $s1: 0xD0000000 (-805306368)  $s2: 0x64610005 (1684078597)
+     $k0: 0xD0000000 (-805306368)  $sp: 0x000000E0 (224)  $fp: 0xD0000000 (-805306368)  $ra: 0x00000000 (0)
+    > jobs
+    Name(2): test/prog2.lce
+    Starting Address: 224
+    Ending Address: 248
+    Stack Start: 252
+    Stack End: 448
+    > run
+    PCB(2) Input: 1
+    PCB(2) completed.
 
 9. test that when a program is ran that it is removed from the queue
 
-  load test/prog1
-  run
-  jobs
+  > load test/prog1
+  > jobs
+  Name(1): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 220
+  > run
+  PCB(1) Input: 1
+  1
+  PCB(1) completed.
+  > jobs
+  NO CURRENT JOBS.
 
   the program should not be in the running queue at this point
 
@@ -197,11 +266,29 @@ the prog should be removed from the end
     prog is ran, the first is removed from the front and is replaced with
     the second
 
-    load test/prog1
-    load test/prog2
-    jobs
-    run
-    jobs
+    > load test/prog1
+    > jobs
+    Name(1): test/prog1.lce
+    Starting Address: 0
+    Ending Address: 20
+    Stack Start: 24
+    Stack End: 220
+    > run
+    PCB(1) Input: 1
+    1
+    PCB(1) completed.
+    > jobs
+    NO CURRENT JOBS.
+    > load test/prog1
+    > load test/prog1
+    > run
+    PCB(2) Input: 2
+    2
+    PCB(2) completed.
+    > run
+    PCB(3) Input: 34
+    34
+    PCB(3) completed.
 
     jobs should remove the first process in the second jobs statement
     and move the next to the front
@@ -210,63 +297,154 @@ the prog should be removed from the end
     prog is ran, the the cpu and registers, specifically the ($sp) is changed
     to be ready to run the new program
 
-    load test/prog1
-    load test/prog2
-    jobs
-    run
-    cpu
+    > load test/prog1
+    > cpu
+     PC: 0
+     $zero: 0x00000000 (0)  $at: 0x00000000 (0)  $v0: 0x00000000 (0)  $a0: 0x00000000 (0)
+     $a1: 0xD0000000 (-805306368)  $a2: 0x00000000 (0)  $t0: 0xD0000000 (-805306368)  $t1: 0x64610005 (1684078597)
+     $t2: 0x00000000 (0)  $s0: 0x00000000 (0)  $s1: 0x00000000 (0)  $s2: 0x00000000 (0)
+     $k0: 0xD0000000 (-805306368)  $sp: 0x000000DC (220)  $fp: 0xD0000000 (-805306368)  $ra: 0x00000003 (3)
+    > jobs
+    Name(1): test/prog1.lce
+    Starting Address: 0
+    Ending Address: 20
+    Stack Start: 24
+    Stack End: 220
+    > load test/prog2
+    > run
+    PCB(1) Input: 1
+    1
+    PCB(1) completed.
+    > cpu
+     PC: 0
+     $zero: 0x00000000 (0)  $at: 0x00000006 (6)  $v0: 0x00000004 (4)  $a0: 0x00000000 (0)
+     $a1: 0x00000000 (0)  $a2: 0x00000000 (0)  $t0: 0x00000000 (0)  $t1: 0x00000000 (0)
+     $t2: 0xD0000000 (-805306368)  $s0: 0x00000000 (0)  $s1: 0xD0000000 (-805306368)  $s2: 0x64610005 (1684078597)
+     $k0: 0xD0000000 (-805306368)  $sp: 0x000000E0 (224)  $fp: 0xD0000000 (-805306368)  $ra: 0x00000000 (0)
+    > jobs
+    Name(2): test/prog2.lce
+    Starting Address: 224
+    Ending Address: 248
+    Stack Start: 252
+    Stack End: 448
+    > run
+    PCB(2) Input: 1
+    PCB(2) completed.
 
     the pc should reflect the starting address of prog2 and be at the begin
-    of the running queue and stack pointer should reflect the new location
+    of the running queue and stack pointer should reflect the new which is
+    correctly 224
 
 21. (context switch) test if more then one prog is loaded, once the first
     prog is ran, it adds that space back to freemem
 
-  load test/prog1
-  load test/prog2
-  jobs
-  run
-  cpu
+    > load test/prog1
+    > load test/prog1
+    > freemem
+    Start: 448 - End: 4096
+    > run
+    PCB(1) Input: 1
+    1
+    PCB(1) completed.
+    > freemem
+    Start: 0 - End: 220
+    Start: 448 - End: 4096
 
 12. Test first fit
-  jobs
-  load test/prog12
-  load test/prog13
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  kill 2
-  kill 4
-  load test/prog12
+  with mem-management 0
+  > load test/prog1
+  > load test/prog1
+  > jobs
+  Name(1): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 100
+
+  Name(2): test/prog1.lce
+  Starting Address: 104
+  Ending Address: 124
+  Stack Start: 128
+  Stack End: 204
+  > kill 1
+  > load test/prog1
+  > jobs
+  Name(2): test/prog1.lce
+  Starting Address: 104
+  Ending Address: 124
+  Stack Start: 128
+  Stack End: 204
+
+  Name(3): test/prog1.lce
+  Starting Address: 0
+  Ending Address: 20
+  Stack Start: 24
+  Stack End: 100
 
   the program should be inserted between 1 and 3
 
 13. Test best fit
-  jobs
-  load test/prog12
-  load test/prog13
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  kill 2
-  kill 4
-  load test/prog12
-  freemem
+  > load test/prog12
+  > load test/prog13
+  > load test/prog12
+  > load test/prog12
+  > load test/prog12
+  > kill 2
+  > kill 4
+  > freemem
+  Start: 100 - End: 216
+  Start: 320 - End: 416
+  Start: 520 - End: 4096
+  > load test/prog12
+  > jobs
+  Name(1): test/prog12.lce
+  Starting Address: 0
+  Ending Address: 16
+  Stack Start: 20
+  Stack End: 96
+
+  Name(3): test/prog12.lce
+  Starting Address: 220
+  Ending Address: 236
+  Stack Start: 240
+  Stack End: 316
+
+  Name(5): test/prog12.lce
+  Starting Address: 420
+  Ending Address: 436
+  Stack Start: 440
+  Stack End: 516
+
+  Name(6): test/prog12.lce
+  Starting Address: 320
+  Ending Address: 336
+  Stack Start: 340
+  Stack End: 416
 
   the program should insert between 3 and 5
 
 14. test that stack can be separated from prog change and runs correctly
 
-  load test/prog12
-  load test/prog8
-  load test/prog12
-  load test/prog12
-  load test/prog12
-  kill 2
-  load test/prog5
-  freemem
-  run
-  mem
+  > config
+  memory_size: 1024
+  stack_size: 10
+  mem-management: 1
+  > load test/prog1
+  > load test/prog1
+  > kill 1
+  > load test/prog9
+  > jobs
+  Name(2): test/prog1.lce
+  Starting Address: 64
+  Ending Address: 84
+  Stack Start: 88
+  Stack End: 124
+
+  Name(3): test/prog9.lce
+  Starting Address: 128
+  Ending Address: 624
+  Stack Start: 0
+  Stack End: 36
 
   the program should be loaded between 1 and 3 but stack will be added to the
   end of memory, should run correctly and add to the stack

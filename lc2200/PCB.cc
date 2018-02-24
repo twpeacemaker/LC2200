@@ -74,11 +74,7 @@ uint PCB::getRegister(uint index) const {
 //POST: register[index] = value
 //throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
 void PCB::setRegister(uint index, uint value) {
-  if (index == 0 && value != 0) {
-    throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
-  } else {
-    registers[index] = value;
-  }
+  registers[index] = value;
 }
 
 //PRE: @param int value, the value you want to be set to PC

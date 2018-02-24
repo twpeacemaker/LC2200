@@ -16,7 +16,7 @@
     Functions/Methods:  lowerCamelCase
 
 #Known Errors/Bugs:
-  no config command.
-  
+  fixes to drop the zero register change prog
+
 #Test Cases:
   Instructions located in the test/test-cases file

@@ -239,11 +239,12 @@ char * Machine::stepSim(int num_steps, bool & in, bool & out, bool & done) {
     if(num_steps == current_process->getSteps()) {
         done = true;
         current_process->resetSteps();
-    } if (current_process->getHalt()) {
+    }
+    if (current_process->getHalt()) {
       done = true;
       out = true;
       output = new char [DONE_MESSAGE_LENGTH];
-      sprintf (output, "Process completed. \n"); //PID will have to use this
+      sprintf (output, "PCB(%d) completed. \n", current_process->getID());
     }
   } else {
     throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
@@ -369,11 +370,11 @@ bool Machine::terminateProcess(uint pid) {
     if(process->getID() == pid) {
       found = true;
       running_queue.deleteNthQueued(i);
-      delete process; //deletes process
+      //delete process; //deletes process
       deallocateMem(process->getStackStartAddress(),
-                      process->getStackEndAddress());
+                    process->getStackEndAddress());
       deallocateMem(process->getProgStartAddress(),
-                      process->getProgEndAddress());
+                    process->getProgEndAddress());
       if(i == 0) {
         //current_process was removed next process needs to be readied
         readyCurrentProcessOnCPU();
@@ -560,9 +561,9 @@ void Machine::firstFit(uint & start, uint & end, uint size) {
   bool found = false;
   int current_index = 0;
   if(freemem.getSize() > 0) {
-    while( found == false || current_index < freemem.getSize())  {
+    while( !found || current_index < freemem.getSize())  {
       Freemem * current_mem = freemem.getNth(current_index);
-      if (current_mem->getSize() >= size) {
+      if (size <= current_mem->getSize() && !found) {
         //ASSERT: found location for memory
         found = true;
         start = current_mem->getStart();
@@ -740,9 +741,21 @@ void Machine::checkAddressOutOfBounds(uint address) {
   uint upper_b = ((current_process->getLength() + stack_size) * BYTES_IN_WORD)
                     - BYTES_IN_WORD;
   if(upper_b < address) {
+    PCB * current_process = getCurrentProcess();
+    terminateProcess(current_process->getID());
     throw(Exception((char *)"ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED."));
-    //errors if i try to line wrap
-    //NOTE: FIX
+  }
+}
+
+//PRE:  @param uint reg, the re
+//      @param int value
+//POST: does not return, checks if the $zero register is used and is not
+//      0 it throws and error
+void Machine::checkZeroRegisterChange(uint reg, int value) {
+  if (reg == 0 && value != 0) {
+    PCB * current_process = getCurrentProcess();
+    terminateProcess(current_process->getID());
+    throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
   }
 }
 
@@ -768,6 +781,7 @@ void Machine::giveInput(char * input) {
 //      register[regY]
 void Machine::add(uint regX, uint regY, uint regZ) {
   uint sum = cpu.getRegister(regY) + cpu.getRegister(regZ);
+  checkZeroRegisterChange(regX, sum);
   cpu.setRegister(regX, sum);
 }
 
@@ -776,6 +790,7 @@ void Machine::add(uint regX, uint regY, uint regZ) {
 //      register[regY]
 void Machine::nand(uint regX, uint regY, uint regZ) {
   uint not_and = ~( cpu.getRegister(regY) & cpu.getRegister(regZ) );
+  checkZeroRegisterChange(regX, not_and);
   cpu.setRegister(regX, not_and);
 }
 
@@ -790,6 +805,7 @@ void Machine::addi(uint regX, uint regY, uint num) {
   //printf ("Number: %x \n", num);
   //printf("value: %08x, %d", num, num);
   uint sum = cpu.getRegister(regY) + num;
+  checkZeroRegisterChange(regX, sum);
   cpu.setRegister(regX, sum);
 }
 
@@ -804,6 +820,7 @@ void Machine::lw(uint regX, uint regY, uint num) {
   PCB * current_process = getCurrentProcess();
   address = current_process->filterPC(address);
   uint content = memory->getAddress(address); //adds the line to memory
+  checkZeroRegisterChange(regX, content);
   cpu.setRegister(regX, content);
 }
 
@@ -854,12 +871,13 @@ void Machine::bgt(uint regX, uint regY, uint offset) {
 //throw(Exception((char *)"ERROR: JALR DOES NOT TAKE $sp, PROCESS TERMINATED"));
 //if above error is hit the process is terminated
 void Machine::jalr(uint regX, uint regY) {
-    //regX holds the value trying to jalr to, this must be tested to be
-    //ASSERT: regX is not the stack pointer
-    checkAddressOutOfBounds(cpu.getRegister(regX));
-    //ASSERT: Address is valid
-    cpu.setRegister(regY, cpu.getPC() );
-    cpu.setPC( cpu.getRegister(regX) ); //test jalr
+  //regX holds the value trying to jalr to, this must be tested to be
+  //ASSERT: regX is not the stack pointer
+  checkAddressOutOfBounds(cpu.getRegister(regX));
+  //ASSERT: Address is valid
+  checkZeroRegisterChange(regY, cpu.getPC());
+  cpu.setRegister(regY, cpu.getPC() );
+  cpu.setPC( cpu.getRegister(regX) ); //test jalr
 }
 
 //======================================
@@ -870,7 +888,8 @@ void Machine::jalr(uint regX, uint regY) {
 //PRE: @param uint num, the number to be entered to regX
 //POST: takes input from terminal, x and sets regX = x;
 void Machine::in(uint regX, uint num) {
-    cpu.setRegister(regX, num);
+  checkZeroRegisterChange(regX, num);
+  cpu.setRegister(regX, num);
 }
 
 //PRE:  @param uint regX, range [0-15] inclusive
@@ -897,6 +916,7 @@ void Machine::la(uint regX, int num) {
     uint address = temp; //fix to go to the current addresses
     checkAddressOutOfBounds(address);
     //ASSERT: address in bounds
+    checkZeroRegisterChange(regX, address);
     cpu.setRegister(regX, address);
   }
 }

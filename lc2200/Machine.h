@@ -82,6 +82,12 @@ class Machine {
     //                              BOUNDS, PROCESS TERMINATED."));
     void checkAddressOutOfBounds(uint address);
 
+    //PRE:  @param uint reg, the re
+    //      @param int value
+    //POST: does not return, checks if the $zero register is used and is not
+    //      0 it throws and error
+    void checkZeroRegisterChange(uint reg, int value);
+
     //PRE: takes the id of the process being removed
     //POST: removes that process from the running queue and frees the memory that
     //      it was allocating

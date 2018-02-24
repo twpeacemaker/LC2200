@@ -46,7 +46,7 @@ void Freemem::setEnd(uint temp_end) {
 //PRE:
 //POST: @returns, the size of the Freemem object
 uint Freemem::getSize() {
-     return( (end - start) / BYTES_IN_WORD);
+     return( ((end - start) + BYTES_IN_WORD) / BYTES_IN_WORD) ;
 }
 
 
