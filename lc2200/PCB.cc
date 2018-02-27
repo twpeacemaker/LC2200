@@ -75,6 +75,7 @@ uint PCB::getRegister(uint index) const {
 //throw(Exception((char *)"ERROR: ZERO REGISTER CAN NOT BE CHANGED."));
 void PCB::setRegister(uint index, uint value) {
   registers[index] = value;
+
 }
 
 //PRE: @param int value, the value you want to be set to PC
@@ -172,9 +173,14 @@ uint PCB::filterPC(uint PC) {
     return_value = program_start + PC;
   } else {
     //in the stack of the memory
-    uint offset       = stack_end - stack_start;
-    uint added_val    = (PC - offset);
-    return_value = added_val + stack_start;
+    // uint offset       = stack_end - stack_start;
+    // uint added_val    = (PC - offset);
+    // return_value = added_val + stack_start;
+
+    uint length = program_length * BYTES_IN_WORD;
+    uint offset = stack_end - stack_start;
+    uint place = length + offset - PC;
+    return_value = stack_end - place;
   }
 
   return return_value;

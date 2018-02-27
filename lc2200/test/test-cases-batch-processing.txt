@@ -423,7 +423,7 @@ the prog should be removed from the end
 
   the program should insert between 3 and 5
 
-14. test that stack can be separated from prog change and runs correctly
+14. test that stack can be separated from prog change
 
   > config
   memory_size: 1024
@@ -449,64 +449,51 @@ the prog should be removed from the end
   the program should be loaded between 1 and 3 but stack will be added to the
   end of memory, should run correctly and add to the stack
 
+  and stack can be inserted
+
+  > config
+  memory_size: 1024
+  stack_size: 3
+  mem-management: 0
+  > load test/prog6
+  > load test/prog6
+  > kill 1
+  > load test/prog5
+  > kill 2
+  > run
+  PCB(3) Input: 3
+  PCB(3) Input: 3
+  PCB(3) Input: 2
+  PCB(3) Input: 1
+  PCB(3) completed.
+  > mem 0 8
+   0: 0x00000001 1  4: 0x00000002 2  8: 0x00000003 3
+
 
 15. test out of bounds of the stack space(x > MAX_STACK)
-  load test/prog11
-  run
-  Input(PCB 1): 4
-
-  throws error
+  stack_size 3
+  > load test/prog11
+  > run
+  PCB(1) Input: 88
+  ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED.
 
 16. test out of bounds of the stack space(x < MIN_STACK)
-
-  load test/prog11
-  run
-  Input(PCB 1) (-(4) - current config size)
+  stack_size 3
+  > load test/prog10
+  > run
+  ERROR: ATTEMPTING TO ACCESS MEMORY OUT OF BOUNDS, PROCESS TERMINATED.
 
 
   throws error
 
-17. test out of bounds of the allocated space for space for
-    prog(x > MAX_PROG_LENGHT)
-
-  load test/prog11
-  run
-  Input: 0
-  Input: 400
-
-
-  throws error of over bound
-
-18. test out of bounds of the allocated space for prog (x > MIN_PROG_LENGHT)
-
-  load test/prog11
-  run
-  Input(PCB 1): 0
-  Input(PCB 1): -4
-
-
-  throws error of under bound
 
 19. test program that does not does not have space to be loaded
     NOTE: at this point it is tested that stack space and prog space can
     be separated
 
-  set the config to > the length of prog
-
-  load test/prog11
-  throws error
-
-
-20. test if the program can insert onto the stack
-  load test/prog5
-  run
-  Input(PCB 1): 5
-  Input(PCB 1): 1
-  Input(PCB 1): 2
-  Input(PCB 1): 3
-  Input(PCB 1): 4
-  Input(PCB 1): 5
-  PCB 1: Process completed.
-  mem
-
-  check if the numbers show correctly on the stack
+  > load test/prog9
+  ERROR: OUT OF MEMORY
+  > config
+  memory_size: 10
+  stack_size: 3
+  mem-management: 0

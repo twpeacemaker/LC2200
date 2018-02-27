@@ -1,0 +1,17 @@
+
+1.
+Agent Marianne Wier would like to book somee ntertainers, so create a new
+customer record by copying relevant fields from the Agents table. (Hint: Simply
+copy the relevant columns from the Agents table to the Customers table.) (1 row
+added)
+
+2.
+Add ‘NewAge’ to the list of musical styles. (1 row added)
+
+3.
+Delete members who are not part of an entertainment group. (no rows deleted)
+
+4.
+Angel Kennedy wants to register as a student. Her husband, John, is already
+enrolled. Create a new student record for Angel using the information from
+John’s record. (1 row added)

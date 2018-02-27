@@ -1,3 +1,3 @@
-memory 1024
-stack 10
-mem-management 1
+memory 10
+stack 3
+mem-management 0

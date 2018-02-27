@@ -558,10 +558,11 @@ void Machine::getMemLocations(uint & start, uint & end, uint size,
 //      should go iff the program does not through an error. the method finds
 //      the first memory location the size will fit in
 void Machine::firstFit(uint & start, uint & end, uint size) {
+
   bool found = false;
   int current_index = 0;
   if(freemem.getSize() > 0) {
-    while( !found || current_index < freemem.getSize())  {
+    for(int i = 0; freemem.getSize() > i; i++) {
       Freemem * current_mem = freemem.getNth(current_index);
       if (size <= current_mem->getSize() && !found) {
         //ASSERT: found location for memory
