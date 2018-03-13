@@ -198,6 +198,8 @@ class LList {
   //POST:inserts the node after the given nth node
   //throw(Exception((char *) "@LLIST: COULD NOT BE INSERTED TO NTH" ));
   void insertAfterNth(int nth, T num) {
+
+
     if(nth == (n - 1)) {
       //ASSERT: the user wants the add to the end of the list
       addBack(num);
@@ -255,8 +257,10 @@ class LList {
       front = front->getNext();
       if(n == 2) {
 	       back = front;
+         back->setNext(NULL);
+         back->setPrev(NULL);
       } else {
-	       front->setPrevNull();
+	       back->setPrevNull();
       }
       n--;
       // ASSERT: f = (pre)f(1),...,(pre)f((pre)n-2).
@@ -281,6 +285,8 @@ class LList {
       back = back->getPrev();
       if(n == 2) {
 	       front = back;
+         front->setNext(NULL);
+         front->setPrev(NULL);
       } else {
 	       back->setNextNull();
       }

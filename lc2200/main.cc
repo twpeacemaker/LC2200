@@ -10,18 +10,15 @@ using namespace std;
 //cerr << "ERROR: Invalid input. Ex: ./Simulator {memory_size}" << endl;
 int main(int argc, char * argv[])
 {
-  if(argc <= 2){
-    try{
-      if(argc == 1) {
-        Terminal t;
-        t.start();
-      }
+  if(argc == 1) {
+    try {
+      Terminal t;
+      t.start();
     } catch(Exception e){
       e.handle();
     }
-
   } else{
-    cerr << "ERROR: Invalid input. Ex: ./Simulator" << endl;
+    cerr << "ERROR: Invalid input. Does not take parameters" << endl;
   }
 
 }

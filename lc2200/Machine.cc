@@ -20,7 +20,9 @@ using namespace std;
 // Post: initlizes the Machine class
 Machine::Machine() {
   importConfigFile();
-  Freemem * init_freemem = new Freemem(0, memory_size * BYTES_IN_WORD);
+  int start = 0;
+  int end = (memory_size * BYTES_IN_WORD) - BYTES_IN_WORD;
+  Freemem * init_freemem = new Freemem(start, end);
   freemem.addFront(init_freemem);
   memory = new Memory( memory_size ); //if is specified
   nextPCBId = 1;
@@ -365,23 +367,25 @@ char * Machine::configSim() {
 //      @return whether the process was found or not
 bool Machine::terminateProcess(uint pid) {
   bool found = false;
-  for(int i = 0; i < running_queue.getSize(); i++) {
+  int size = running_queue.getSize();
+  int i = 0;
+  while(!found || size < i) {
     PCB * process = running_queue.getNthQueued(i);
     if(process->getID() == pid) {
-      found = true;
       running_queue.deleteNthQueued(i);
       //delete process; //deletes process
       deallocateMem(process->getStackStartAddress(),
                     process->getStackEndAddress());
       deallocateMem(process->getProgStartAddress(),
                     process->getProgEndAddress());
+      //i = size;
+      found = true;
       if(i == 0) {
         //current_process was removed next process needs to be readied
         readyCurrentProcessOnCPU();
-
       }
     }
-
+    i++;
   }
   return found;
 }
@@ -561,8 +565,9 @@ void Machine::firstFit(uint & start, uint & end, uint size) {
 
   bool found = false;
   int current_index = 0;
-  if(freemem.getSize() > 0) {
-    for(int i = 0; freemem.getSize() > i; i++) {
+  uint freemem_size = freemem.getSize();
+  if(freemem_size > 0) {
+    for(int i = 0; freemem_size > i; i++) {
       Freemem * current_mem = freemem.getNth(current_index);
       if (size <= current_mem->getSize() && !found) {
         //ASSERT: found location for memory
@@ -624,7 +629,6 @@ void Machine::bestFit(uint & start, uint & end, uint size) {
 //POST:if all the freemem is used it is delete, else it is made smallers
 void Machine::allocateMem(uint new_start, int freemem_index) {
   Freemem * freemem_object = freemem.getNth(freemem_index);
-
   if(new_start == freemem_object->getEnd()) {
     freemem.deleteNth(freemem_index);
   } else {
@@ -662,17 +666,20 @@ void Machine::joinFreemem() {
   int i = 0;
   uint current_end;
   uint next_start;
-  while(i < (freemem.getSize() - 1)) {
-    next_start  = freemem.getNth(i+1)->getStart();
+  int size = freemem.getSize();
+  while(i < (size - 1)) {
     current_end = freemem.getNth(i)->getEnd();
+    next_start  = freemem.getNth(i+1)->getStart();
     if(current_end == (next_start - BYTES_IN_WORD)) {
       //ASSERT: the two nodes adj
-      int next_end = freemem.getNth(i+1)->getEnd();
+      uint next_end = freemem.getNth(i+1)->getEnd();
       freemem.getNth(i)->setEnd(next_end);
       freemem.deleteNth(i + 1);
+      size--;
     } else {
       i++;
     }
+
   }
 }
 
