@@ -468,7 +468,6 @@ bool Machine::terminateProcess(uint pid) {
                     process->getStackEndAddress());
       deallocateMem(process->getProgStartAddress(),
                     process->getProgEndAddress());
-      //i = size;
       found = true;
       if(i == 0) {
         //current_process was removed next process needs to be readied

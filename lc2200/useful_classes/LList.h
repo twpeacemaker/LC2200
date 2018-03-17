@@ -156,16 +156,19 @@ class LList {
         	//ASSERT: not the fromnt or the back so length >= 3
         	LNode<T> * prevNode = temp->getPrev();
         	LNode<T> * nextNode = temp->getNext();
-        	prevNode->setNext(nextNode);
+        	prevNode->setNext(nextNode); //
         	nextNode->setPrev(prevNode);
           temp->setNext(NULL);
+          temp->setPrev(NULL);
           delete (temp);
           n--;
+
       }
     } else {
       //ASSERT: the user attempted N < n, throws error
       throw(Exception((char *)"@LIST: N > NUMBER OF NODES"));
     }
+
   }
 
   // ========================================
@@ -198,8 +201,6 @@ class LList {
   //POST:inserts the node after the given nth node
   //throw(Exception((char *) "@LLIST: COULD NOT BE INSERTED TO NTH" ));
   void insertAfterNth(int nth, T num) {
-
-
     if(nth == (n - 1)) {
       //ASSERT: the user wants the add to the end of the list
       addBack(num);
@@ -234,10 +235,13 @@ class LList {
       LNode<T> * tempNode = new LNode<T> (item);
       tempNode->setPrev(back);
       back->setNext(tempNode);
+      tempNode->setNextNull();
       back = tempNode;
       n++;
     }
   }
+
+
 
 
   // PRE: This object is defined. n > 0.

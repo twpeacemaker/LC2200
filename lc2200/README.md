@@ -16,7 +16,6 @@
     Functions/Methods:  lowerCamelCase
 
 #Known Errors/Bugs:
-  fixes to drop the zero register change prog
-
+  
 #Test Cases:
   Instructions located in the test/test-cases file
