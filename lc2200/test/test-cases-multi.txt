@@ -1,0 +1,258 @@
+1. correctly reads from the file
+  > config
+  memory_size: 1024
+  stack_size: 50
+  mem-management: 0
+  time-slice: 2
+
+2. To ensure that when one program is load loaded without any other programs
+   that that program runs successfully
+
+   time-slice 2
+
+   > load test/prog1
+   > step 9
+   PCB(1) Input: 1
+   PCB(1) 1
+   PCB(1) completed.
+
+3. test one program loaded will time-slice > 1
+
+    time-slice 2
+
+    > load test/prog1
+    > step 1
+    PCB(2) Input: 1
+    PCB(2) 1
+    > step 2
+    PCB(2) completed.
+
+4. test one program loaded will time-slice > 1 and more than 2 steps
+
+    time-slice 2
+
+    > load test/prog1
+    > step 1
+    PCB(2) Input: 1
+    PCB(2) 1
+    > step 2
+    PCB(2) completed.
+
+5. test more than one program are loaded the first completes its required
+   steps then context switches to the next and runs the required steps
+
+    time-slice 1
+
+    > load test/prog1
+    > load test/prog1
+    > step 1
+    PCB(1) Input: 1
+    PCB(2) Input: 2
+    > step 1
+    PCB(1) 1
+    PCB(2) 2
+    > step 8
+    PCB(1) completed.
+    PCB(2) completed.
+
+6. test more than one program that ones steps are completed queue that the
+   program at the beginning of the is context switches back to be successfully
+   run
+
+    time-slice 1
+
+    > load test/prog1
+    > load test/prog1
+    > step 1
+    PCB(1) Input: 1
+    PCB(2) Input: 2
+    > step 1
+    PCB(1) 1
+    PCB(2) 2
+    > step 8
+    PCB(1) completed.
+    PCB(2) completed.
+
+7. when more than one program is loaded that it can successfully time-slice
+   with steps that are greater than 1
+
+     time-slice 1
+
+     > load test/prog1
+     > load test/prog1
+     > step 2
+     PCB(1) Input: 1
+     PCB(2) Input: 2
+     PCB(1) 1
+     PCB(2) 2
+     > step 4
+     PCB(1) completed.
+     PCB(2) completed.
+
+8. when the first program is loaded is smaller length than the second program
+   when that program 1 is finished it is removed from the queue and the second
+   is made ready
+
+   time-slice 1
+
+    > load test/prog1
+    > load test/prog9
+    > step 6
+    PCB(1) Input: 1
+    PCB(1) 1
+    PCB(1) completed.
+    PCB(2) Input: 4
+    PCB(2) Input: 1
+    > jobs
+    Name(4): test/prog2.lce
+    Starting Address: 224
+    Ending Address: 248
+    Stack Start: 252
+    Stack End: 448
+    > step 100
+    PCB(2) Input: 2
+    PCB(2) Input: 3
+    PCB(2) Input: 4
+    PCB(2) completed.
+    > jobs
+    NO CURRENT JOBS.
+
+9. once a jobs is done running at the start of the queue and there is another
+   job on the queue that jobs is removed from the queue and the next jobs is
+   readied
+
+   time-slice 1
+
+    > load test/prog1
+    > load test/prog9
+    > step 6
+    PCB(1) Input: 1
+    PCB(1) 1
+    PCB(1) completed.
+    PCB(2) Input: 4
+    PCB(2) Input: 1
+    > jobs
+    Name(4): test/prog2.lce
+    Starting Address: 224
+    Ending Address: 248
+    Stack Start: 252
+    Stack End: 448
+    > step 100
+    PCB(2) Input: 2
+    PCB(2) Input: 3
+    PCB(2) Input: 4
+    PCB(2) completed.
+    > jobs
+    NO CURRENT JOBS.
+
+10. once a jobs is done running and there is another job on the queue
+   behind that process on the queue that process us removed correctly
+
+   time-slice 1
+
+    > load test/prog9
+    > load test/prog1
+    > step 6
+    PCB(2) Input: 4
+    PCB(2) Input: 1
+    PCB(1) Input: 1
+    PCB(1) 1
+    PCB(1) completed.
+    > jobs
+    Name(4): test/prog2.lce
+    Starting Address: 224
+    Ending Address: 248
+    Stack Start: 252
+    Stack End: 448
+    > step 100
+    PCB(2) Input: 2
+    PCB(2) Input: 3
+    PCB(2) Input: 4
+    PCB(2) completed.
+    > jobs
+    NO CURRENT JOBS.
+
+11. that context switching is correctly done with more than 2 > processed of
+   different length
+
+   time-slice 1
+
+    > load test/prog1
+    > load test/prog2
+    > load test/prog9
+    > step 6
+    PCB(1) Input: 1
+    PCB(1) 1
+    PCB(1) completed.
+    PCB(2) Input: 2
+    PCB(2) completed.
+    PCB(3) Input: 5
+    PCB(3) Input: 1
+    > step 1000
+    PCB(3) Input: 2
+    PCB(3) Input: 2
+    PCB(3) Input: 3
+    PCB(3) Input: 4
+    > jobs
+    NO CURRENT JOBS.
+
+12. that when multiple processes are loaded that processes correctly
+    adds and utilizes its own physical/relative stack pointer
+
+   time-slice 1
+
+    > load test/prog1
+    > load test/prog2
+    > load test/prog9
+    > jobs
+      look for the space allocated to PCB(3)
+    > step 6
+    PCB(1) Input: 1
+    PCB(2) 1
+    PCB(1) completed.
+    PCB(2) Input: 2
+    PCB(2) completed.
+    PCB(3) Input: 5
+    PCB(3) Input: 1
+    > step 1000
+    PCB(3) Input: 2
+    PCB(3) Input: 2
+    PCB(3) Input: 3
+    PCB(3) Input: 4
+    > jobs
+    NO CURRENT JOBS.
+    > mem PCB(3) stack start PCB(3) stack end
+
+    the stack allocated to PCB(3) should also reflect shorted values given
+
+13. when a process is killed in the middle of its steps it removes it correctly
+    and rest step properly. not front
+
+    time-slice 1
+
+    > load test/prog1
+    > load test/prog1
+    > step 1
+    PCB(1) Input: 1
+    PCB(2) Input: 2
+    > kill 2
+    > step 1
+    PCB(1): 1
+    > step 5
+    PCB(1) completed.
+
+14. when a process is killed in the middle of its steps it removes it correctly
+    and rest step properly. front
+
+    time-slice 1
+
+    > load test/prog1
+    > load test/prog1
+    > step 1
+    PCB(1) Input: 1
+    PCB(2) Input: 2
+    > kill 1
+    > step 1
+    PCB(2): 2
+    > step 5
+    PCB(2) completed.
