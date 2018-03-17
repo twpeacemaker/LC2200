@@ -48,7 +48,7 @@ void Terminal::runCommand(char * input) {
     bool out;
     bool post_i_o = false;
     bool current_process_done = false;
-    bool set_steps_made = true;
+    bool set_steps_made = false;
     while(!done) {
       in = false;
       out = false;

@@ -90,7 +90,7 @@ uint Machine::getCurrentProcessID() {
 //PRE:  @param char * input, the number
 //      @param bool & in_bool, is true iff the Machine needs input
 //      @param bool & out_bool, is true iff the Machine needs to output
-//      @param bool $ done, is true iff the Machine has hit the halt statement
+//      @param bool $ done, is true iff the Machine hasnt finnished its process
 //      @param bool & post_i_o, tracks if the last command was i/o
 //      @param bool & current_process_done, tracks if the process at the
 //             front at the front of the queue is done
@@ -115,15 +115,13 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     return_value = cpuSim();
     out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
-    PCB * current_process = getCurrentProcess();
     int num_slices = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
-    if (set_steps_made) {
-      //ASSERT:
-      num_slices_made = 0;
-      set_steps_made = false;
+    if (!set_steps_made) { //ASSERT: the slices have not been set
+      num_slices_made = 0; set_steps_made = true;
     }
     return_value = sliceSim(input, in_bool, out_bool, done, post_i_o,
                             current_process_done, set_steps_made, num_slices);
+    evaluteSliceState(done, num_slices);
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     return_value = freememSim();
     out_bool = true; done = true;
@@ -143,19 +141,20 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
 //PRE:  @param char * input, the number
 //      @param bool & in_bool, is true iff the Machine needs input
 //      @param bool & out_bool, is true iff the Machine needs to output
-//      @param bool $ done, is true iff the Machine has hit the halt statement
+//      @param bool $ done, is true iff the Machine hasnt finnished its process
 //      @param bool & post_i_o, tracks if the last command was i/o
 //      @param bool & current_process_done, tracks if the process at the
 //             front at the front of the queue is done
 //      @param bool & set_steps_made, if the steps made has been inited
 //      @param uint num_slices, the number of slices given to the terminal
-//POST: @return if out_bool is true return value is meaningful and is
-//              requesting for the terminal to output the return value, runs
-//              slice of the program, the slice is dependent on the config file
+//POST: @return if out_bool is true return value is meaningful and is requesting
+//              for the terminal to output the return value, runs a slice of the
+//              program, the slice is dependent on the config file also iterates
+//              slices_made once all programs have been slices through
 char * Machine::sliceSim(char * input, bool & in_bool, bool & out_bool,
                          bool & done, bool & post_i_o,
-                         bool & current_process_done,
-                         bool & set_steps_made, uint num_slices) {
+                         bool & current_process_done, bool & set_steps_made,
+                         uint num_slices) {
   PCB * current_process = getCurrentProcess();
   char * return_value;
   if(timesliceing == false && done == false) {
@@ -164,42 +163,65 @@ char * Machine::sliceSim(char * input, bool & in_bool, bool & out_bool,
    jobs_to_go = running_queue.getSize();
   }
   if(post_i_o && current_process_done) {
-   //ASSERT: in this iteration, the prog left to take i/o but is finnished
+   //ASSERT: the prog needed i/o, it has taken it and is now done
    setFrontToBackQueue(jobs_to_go);
    current_process_done = false;
   }
   bool job_stepped = false;
   if(jobs_to_go != 0) {
    return_value = stepSim(timeslice, in_bool, out_bool, done);
-   job_stepped = true; // track if a jobs has ran this iteration
+   job_stepped = true; // track if a job has ran this iteration
   }
   if(job_stepped) {
    //ASSERT: job has stepped this iteration and must be evaluated if it should
-   //        removed, moved to the back, or staying at the front of the queue
-   if (current_process->getHalt() == true) {
-     terminateProcess(current_process->getID());
-     jobs_to_go--;
-     current_process_done = false;
-   } else if( (in_bool || out_bool) && done) {
-     current_process_done = true;
-     //ASSERT: will be removed at the beginning of the next iteration
-   } else if( done ) {
-     setFrontToBackQueue(jobs_to_go);
-     current_process_done = false;
-   }
+   //        removed, moved to the back, or stay at the front of the queue
+   evaluteJobState(current_process_done, in_bool, out_bool, done);
   }
+  return return_value;
+}
+
+//PRE: @param bool & current_process_done, tracks if the process at the front at
+//     the front of the queue is done
+//     @param bool in_bool, is true iff the Machine needs input
+//     @param bool out_bool, is true iff the Machine needs to output
+//     @param bool done, is true iff the Machine hasnt finnished its process
+//POST:evalutes the state of the jobs and continues, rotates, or kills the jobs
+//     depending on the state of the jobs
+void Machine::evaluteJobState(bool & current_process_done,
+                              bool in_bool, bool out_bool, bool done) {
+  PCB * current_process = getCurrentProcess();
+  if (current_process->getHalt() == true) {
+    terminateProcess(current_process->getID());
+    jobs_to_go--;
+    current_process_done = false;
+  } else if( (in_bool || out_bool) && done) {
+    current_process_done = true;
+    //ASSERT: will be removed at the beginning of the next iteration
+  } else if( done ) {
+    setFrontToBackQueue(jobs_to_go);
+    current_process_done = false;
+  }
+}
+
+//PRE:  @param bool & done,
+//      @param uint num_slices
+//      should be called after running_queue is edited or a PCB has been ran
+//POST: after the running_queue or PCB has been ran evalutes the state
+//      of slices and sets the proper values to continue or stop
+void Machine::evaluteSliceState(bool & done, uint num_slices) {
   if (jobs_to_go > 0) {
    //ASSERT: continue the current slice
    done = false;
   } else if(num_slices - 1 > num_slices_made && jobs_to_go == 0) {
    //ASSERT: the current slice iteration is done, move to the next
-   done = false; timesliceing = false;
+   done = false;
+   timesliceing = false;
    num_slices_made++;
   } else {
    //ASSERT: All slicing is done
-   done = true; timesliceing = false;
+   done = true;
+   timesliceing = false;
   }
-  return return_value;
 }
 
 //PRE: @param uint & jobs_to_go, the number of jobs compleated in the slice

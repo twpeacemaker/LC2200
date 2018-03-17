@@ -239,6 +239,23 @@ class Machine {
     //      of the queue
     void setFrontToBackQueue(uint & jobs_to_go);
 
+    //PRE: @param bool & current_process_done, tracks if the process at the
+    //     front at the front of the queue is done
+    //     @param bool in_bool, is true iff the Machine needs input
+    //     @param bool out_bool, is true iff the Machine needs to output
+    //     @param bool done, is true iff the Machine hasnt finnished its process
+    //POST:evalutes the state of the jobs and continues, rotates, or kills the
+    //     jobs depending on the state of the jobs
+    void evaluteJobState(bool & current_process_done, bool in_bool,
+                         bool out_bool, bool done);
+
+    //PRE:  @param bool & done,
+    //      @param uint num_slices
+    //      should be called after running_queue is edited or a PCB has been ran
+    //POST: after the running_queue or PCB has been ran evalutes the state
+    //      of slices and sets the proper values to continue or stop
+    void evaluteSliceState(bool & done, uint num_slices);
+
     //======================================
     // current process
     //======================================
@@ -388,7 +405,8 @@ class Machine {
     //PRE:  @param char * input, the number
     //      @param bool & in_bool, is true iff the Machine needs input
     //      @param bool & out_bool, is true iff the Machine needs to output
-    //      @param bool $ done, is true iff the Machine has hit the halt statement
+    //      @param bool $ done, is true iff the Machine hasnt finnished its
+    //      process
     //      @param bool & post_i_o, tracks if the last command was i/o
     //      @param bool & current_process_done, tracks if the process at the
     //             front at the front of the queue is done
