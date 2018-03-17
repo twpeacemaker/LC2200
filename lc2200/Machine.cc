@@ -91,6 +91,10 @@ uint Machine::getCurrentProcessID() {
 //      @param bool & in_bool, is true iff the Machine needs input
 //      @param bool & out_bool, is true iff the Machine needs to output
 //      @param bool $ done, is true iff the Machine has hit the halt statement
+//      @param bool & post_i_o, tracks if the last command was i/o
+//      @param bool & current_process_done, tracks if the process at the
+//             front at the front of the queue is done
+//      @param bool & set_steps_made, if the steps made has been inited
 //POST: @return if out_bool is true return value is meaningful and is requesting
 //              for the terminal to output the return value
 char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
@@ -114,55 +118,12 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     PCB * current_process = getCurrentProcess();
     int num_slices = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
     if (set_steps_made) {
+      //ASSERT:
       num_slices_made = 0;
       set_steps_made = false;
     }
-    //=======================================
-    if(timesliceing == false && done == false) {
-      //beginning of a slice
-      timesliceing = true;
-      jobs_to_go = running_queue.getSize();
-    }
-    if(post_i_o && current_process_done) {
-      cout << "in post" << endl;
-      jobs_to_go--;
-      setFrontToBackQueue();
-      current_process_done = false;
-    }
-    bool job_stepped = false;
-    cout << "jobs to go " << jobs_to_go << endl;
-    if(jobs_to_go != 0) {
-      cout << "here 1 " << endl;
-      return_value = stepSim(timeslice, in_bool, out_bool, done);
-      job_stepped = true;
-    }
-    if(job_stepped) {
-      //ASSERT: job has stepped this iteration
-      if (current_process->getHalt() == true) {
-        terminateProcess(current_process->getID());
-        jobs_to_go--;
-        current_process_done = false;
-      } else if( (in_bool || out_bool) && done) {
-        current_process_done = true;
-      } else if( done ) {
-        jobs_to_go--;
-        setFrontToBackQueue();
-        current_process_done = false;
-      }
-    }
-    if (jobs_to_go > 0) {
-      done = false;
-    } else if(num_slices > num_slices_made && jobs_to_go == 0) {
-      cout << "here 2" << endl;
-      done = false;
-      timesliceing = false;
-      num_slices_made++;
-    }  else {
-      cout << "here 3" << endl;
-      done = true;
-      timesliceing = false;
-    }
-    //=======================================
+    return_value = sliceSim(input, in_bool, out_bool, done, post_i_o,
+                            current_process_done, set_steps_made, num_slices);
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     return_value = freememSim();
     out_bool = true; done = true;
@@ -179,15 +140,78 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   return return_value;
 }
 
-//PRE:
+//PRE:  @param char * input, the number
+//      @param bool & in_bool, is true iff the Machine needs input
+//      @param bool & out_bool, is true iff the Machine needs to output
+//      @param bool $ done, is true iff the Machine has hit the halt statement
+//      @param bool & post_i_o, tracks if the last command was i/o
+//      @param bool & current_process_done, tracks if the process at the
+//             front at the front of the queue is done
+//      @param bool & set_steps_made, if the steps made has been inited
+//      @param uint num_slices, the number of slices given to the terminal
+//POST: @return if out_bool is true return value is meaningful and is
+//              requesting for the terminal to output the return value, runs
+//              slice of the program, the slice is dependent on the config file
+char * Machine::sliceSim(char * input, bool & in_bool, bool & out_bool,
+                         bool & done, bool & post_i_o,
+                         bool & current_process_done,
+                         bool & set_steps_made, uint num_slices) {
+  PCB * current_process = getCurrentProcess();
+  char * return_value;
+  if(timesliceing == false && done == false) {
+   //ASSERT: slice is begining
+   timesliceing = true; //if true the slice is not true
+   jobs_to_go = running_queue.getSize();
+  }
+  if(post_i_o && current_process_done) {
+   //ASSERT: in this iteration, the prog left to take i/o but is finnished
+   setFrontToBackQueue(jobs_to_go);
+   current_process_done = false;
+  }
+  bool job_stepped = false;
+  if(jobs_to_go != 0) {
+   return_value = stepSim(timeslice, in_bool, out_bool, done);
+   job_stepped = true; // track if a jobs has ran this iteration
+  }
+  if(job_stepped) {
+   //ASSERT: job has stepped this iteration and must be evaluated if it should
+   //        removed, moved to the back, or staying at the front of the queue
+   if (current_process->getHalt() == true) {
+     terminateProcess(current_process->getID());
+     jobs_to_go--;
+     current_process_done = false;
+   } else if( (in_bool || out_bool) && done) {
+     current_process_done = true;
+     //ASSERT: will be removed at the beginning of the next iteration
+   } else if( done ) {
+     setFrontToBackQueue(jobs_to_go);
+     current_process_done = false;
+   }
+  }
+  if (jobs_to_go > 0) {
+   //ASSERT: continue the current slice
+   done = false;
+  } else if(num_slices - 1 > num_slices_made && jobs_to_go == 0) {
+   //ASSERT: the current slice iteration is done, move to the next
+   done = false; timesliceing = false;
+   num_slices_made++;
+  } else {
+   //ASSERT: All slicing is done
+   done = true; timesliceing = false;
+  }
+  return return_value;
+}
+
+//PRE: @param uint & jobs_to_go, the number of jobs compleated in the slice
 //POST: imports the registers of the cpu and pc, and sets the front to the back
 //      of the queue
-void Machine::setFrontToBackQueue() {
+void Machine::setFrontToBackQueue(uint & jobs_to_go) {
   PCB * current_process = getCurrentProcess();
   current_process->setPC(cpu.getPC());
   importRegistersCPUToPCB();
   running_queue.frontToBack();
   readyCurrentProcessOnCPU();
+  jobs_to_go--;
 }
 
 //PRE:  @param char * input gets the program name from the input

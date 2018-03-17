@@ -234,10 +234,10 @@ class Machine {
     //      in the cpu
     void importRegistersCPUToPCB();
 
-    //PRE:
+    //PRE: @param uint & jobs_to_go, the number of jobs compleated in the slice
     //POST: imports the registers of the cpu and pc, and sets the front to the back
     //      of the queue
-    void setFrontToBackQueue();
+    void setFrontToBackQueue(uint & jobs_to_go);
 
     //======================================
     // current process
