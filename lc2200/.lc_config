@@ -1,3 +1,4 @@
 memory 37
 stack 4
 mem-management 0
+timeslice 1

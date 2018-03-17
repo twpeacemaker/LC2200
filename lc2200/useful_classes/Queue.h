@@ -25,6 +25,14 @@ public:
     // called but not new data to init
   };
 
+  //PRE:
+  //POST: takes the front node and sets it to the back node
+  void frontToBack() {
+      T temp = LList<T>::getFront();
+      LList<T>::deleteFront();
+      LList<T>::addBack(temp);
+  }
+
   //
   //PRE:  takes a T item,
   //POST: adds the item to the end of the LList

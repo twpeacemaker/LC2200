@@ -83,7 +83,6 @@ static char COMMANDS[][8] =
 	"mem",
 	"cpu",
 	"step",
-	"run",
 	"freemem",
 	"jobs",
 	"kill",
@@ -95,12 +94,11 @@ static char COMMANDS[][8] =
 #define MEM_NUM 	1
 #define CPU_NUM 	2
 #define STEP_NUM 	3
-#define RUN_NUM 	4
-#define FREEMEM_NUM 5
-#define JOBS_NUM 6
-#define KILL_NUM 7
-#define EXIT_NUM 8
-#define CONFIG_NUM 9
+#define FREEMEM_NUM 4
+#define JOBS_NUM 5
+#define KILL_NUM 6
+#define EXIT_NUM 7
+#define CONFIG_NUM 8
 
 #define NUMBER_OF_LOAD_PARAMS 2
 #define NUMBER_OF_MEM_PARAMS 	3
@@ -164,11 +162,13 @@ static char CONFIG_OPTIONS[][15] =
 {
 	"memory",
 	"stack",
-	"mem-management"
+	"mem-management",
+	"timeslice"
 };
 
 #define MEMORY_OPTION_INDEX 0
 #define STACK_OPTION_INDEX 1
 #define MEM_MANAGEMENT_INDEX 2
+#define TIMESLICE_INDEX 3
 
 #endif

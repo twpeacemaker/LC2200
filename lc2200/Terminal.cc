@@ -46,10 +46,14 @@ void Terminal::runCommand(char * input) {
     bool done = false;
     bool in;
     bool out;
+    bool post_i_o = false;
+    bool current_process_done = false;
+    bool set_steps_made = true;
     while(!done) {
       in = false;
       out = false;
-      char * output = machine.runCommand(input, in, out, done);
+      char * output = machine.runCommand(input, in, out, done, post_i_o,
+                                        current_process_done, set_steps_made);
       if(in){
         //ASSERT: recived the signal from Machine asking for input
         char * input_term;
@@ -57,10 +61,14 @@ void Terminal::runCommand(char * input) {
         machine.giveInput(input_term); // sets that input to the Machine
         delete [] input_term;
         input_term = NULL;
+        post_i_o = true;
       } else if (out){
         cout << output;
         delete [] output;
         output = NULL;
+        post_i_o = true;
+      } else {
+        post_i_o = false;
       }
     }
   }
@@ -97,10 +105,6 @@ void Terminal::validateInput(LList<MyString> tokens) {
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_STEP_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO STEP"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_RUN_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_FREEMEM_PARAMS) {

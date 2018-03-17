@@ -186,6 +186,19 @@ uint PCB::filterPC(uint PC) {
   return return_value;
 }
 
+
+ostream & operator <<(ostream & str, const PCB * M){
+
+  if(M == NULL) {
+    str << "is null";
+  } else {
+    for(int i = 0; i < MAX_REGISTERS; i++) {
+      cout << "(" << i << ") "  << M->getRegister(i) << endl;
+    }
+  }
+  return (str);
+}
+
 //PRE:
 //POST: deletes the dynamic memory
 PCB::~PCB() {

@@ -14,7 +14,7 @@ class PCB {
   // stack_start, and stack_end will all hold the physical address of mem
   // that the prog starts and ends and where the stack starts and ends. prog
   // start will be > 0 and < prog end. prog end will not be greater than
-  // the amount of memory. stack start > end and < 0. stack end will not be
+  // the amount of memory. stack start < end and < 0. stack end will not be
   // < amount of memory. registers[MAX_REGISTERS] will store the registers
   // for the program $zero will always remain 0 and $sp will hold the relitive
   // address not the physical, id will be unqiue and not used by any other
@@ -166,6 +166,8 @@ class PCB {
     //POST: @return, return_value gets the address from the machine and calculates
     //               the effective address of memory
     uint filterPC(uint PC);
+
+    friend ostream & operator <<(ostream & str, const PCB * M);
 
 
     //PRE:

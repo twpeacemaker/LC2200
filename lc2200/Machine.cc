@@ -94,7 +94,9 @@ uint Machine::getCurrentProcessID() {
 //POST: @return if out_bool is true return value is meaningful and is requesting
 //              for the terminal to output the return value
 char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
-                           bool & done) {
+                           bool & done, bool & post_i_o,
+                           bool & current_process_done,
+                           bool & set_steps_made) {
   char * return_value;
   MyString string = input;                   //copies the char* uinto MyString
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
@@ -109,28 +111,58 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     return_value = cpuSim();
     out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
-    int num_steps = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
-    return_value = stepSim(num_steps, in_bool, out_bool, done);
     PCB * current_process = getCurrentProcess();
-    if (current_process->getHalt() == true) {
-      PCB * current_process = getCurrentProcess();
-      terminateProcess(current_process->getID());
+    int num_slices = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
+    if (set_steps_made) {
+      num_slices_made = 0;
+      set_steps_made = false;
     }
-  } else if( compareCharArray(command.getString(), COMMANDS[RUN_NUM]) ) {
-    PCB * current_process = getCurrentProcess();
-    if(current_process != NULL) {
-      if(current_process->getHalt() == false) {
-        //ASSERT: the program has not hit a halt statement run another step
-        return_value = stepSim(1, in_bool, out_bool, done);
-        done = false;
-      } else {
-        //ASSERT: the program has hit its halt statement and now is done
-        done = true;
+    //=======================================
+    if(timesliceing == false && done == false) {
+      //beginning of a slice
+      timesliceing = true;
+      jobs_to_go = running_queue.getSize();
+    }
+    if(post_i_o && current_process_done) {
+      cout << "in post" << endl;
+      jobs_to_go--;
+      setFrontToBackQueue();
+      current_process_done = false;
+    }
+    bool job_stepped = false;
+    cout << "jobs to go " << jobs_to_go << endl;
+    if(jobs_to_go != 0) {
+      cout << "here 1 " << endl;
+      return_value = stepSim(timeslice, in_bool, out_bool, done);
+      job_stepped = true;
+    }
+    if(job_stepped) {
+      //ASSERT: job has stepped this iteration
+      if (current_process->getHalt() == true) {
         terminateProcess(current_process->getID());
+        jobs_to_go--;
+        current_process_done = false;
+      } else if( (in_bool || out_bool) && done) {
+        current_process_done = true;
+      } else if( done ) {
+        jobs_to_go--;
+        setFrontToBackQueue();
+        current_process_done = false;
       }
-    } else {
-      throw(Exception((char *)"ERROR: NO PROGRAM LOADED"));
     }
+    if (jobs_to_go > 0) {
+      done = false;
+    } else if(num_slices > num_slices_made && jobs_to_go == 0) {
+      cout << "here 2" << endl;
+      done = false;
+      timesliceing = false;
+      num_slices_made++;
+    }  else {
+      cout << "here 3" << endl;
+      done = true;
+      timesliceing = false;
+    }
+    //=======================================
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     return_value = freememSim();
     out_bool = true; done = true;
@@ -147,7 +179,16 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   return return_value;
 }
 
-
+//PRE:
+//POST: imports the registers of the cpu and pc, and sets the front to the back
+//      of the queue
+void Machine::setFrontToBackQueue() {
+  PCB * current_process = getCurrentProcess();
+  current_process->setPC(cpu.getPC());
+  importRegistersCPUToPCB();
+  running_queue.frontToBack();
+  readyCurrentProcessOnCPU();
+}
 
 //PRE:  @param char * input gets the program name from the input
 //                    takes the input from the terminal
@@ -221,6 +262,7 @@ void Machine::importProgFile(ifstream & inFile, uint start_address, int length){
     current_line = (current_line + BYTES_IN_WORD);
   }
 }
+
 
 //PRE: @param int num_step, the number of lines to execute
 //     @param bool in, iif true the program needs input
@@ -357,6 +399,8 @@ char * Machine::configSim() {
   str.addString(line);
   sprintf (line, "mem-management: %d\n", mem_management);
   str.addString(line);
+  sprintf (line, "timeslice: %d\n", timeslice);
+  str.addString(line);
   delete [] line;
   return str.getStringDeepCopy();
 }
@@ -390,22 +434,22 @@ bool Machine::terminateProcess(uint pid) {
   return found;
 }
 
-//PRE:  @param PCB * process, must be init
+//PRE:
 //POST: cpu.registers, cpu.SP, cpu.PC now reflect their corresponding values
 //      in the PCB process given to the method
-void Machine::importRegistersPCBToCPU(PCB * process) {
+void Machine::importRegistersPCBToCPU() {
   PCB * current_process = getCurrentProcess();
   for(int i = 0; i < MAX_REGISTERS; i++) {
     cpu.setRegister(i, current_process->getRegister(i));
   }
 }
 
-//PRE:  @param PCB * process, must be init
+//PRE:
 //POST: PCB.registers, PCB.SP, PCB.PC now reflect their corresponding values
 //      in the cpu
-void Machine::importRegistersCPUToPCB(PCB * process) {
+void Machine::importRegistersCPUToPCB() {
   PCB * current_process = getCurrentProcess();
-  for(int i = 0; i > MAX_REGISTERS; i++) {
+  for(int i = 0; i < MAX_REGISTERS; i++) {
     current_process->setRegister(i, cpu.getRegister(i));
   }
 }
@@ -418,7 +462,7 @@ void Machine::readyCurrentProcessOnCPU() {
   if(running_queue.getQueueSize() != 0) {
     PCB * current_process = getCurrentProcess();
     cpu.setPC(current_process->getPC());
-    importRegistersPCBToCPU(current_process);
+    importRegistersPCBToCPU();
   }
 }
 
@@ -494,6 +538,14 @@ void Machine::setConfigOption(LList<MyString> tokens) {
         mem_management = temp;
       } else {
         throw(Exception((char *)"ERROR: INVALID CONFIG FILE: MEM_MANAGEMENT"));
+      }
+    }
+    if(token.isEqual(MyString(CONFIG_OPTIONS[TIMESLICE_INDEX]))) {
+      int temp = arrayToInt(tokens.getNth(1).getString());
+      if(temp > 0) {
+        timeslice = temp;
+      } else {
+        throw(Exception((char *)"ERROR: INVALID CONFIG FILE: TIMESLICE"));
       }
     }
   } else {
@@ -904,8 +956,10 @@ void Machine::in(uint regX, uint num) {
 //POST: pruints the content of regX to the terminal
 char * Machine::out(uint regX) {
   //this will have to be edited to char * and allocated memory to it
+  PCB * current_process = getCurrentProcess();
   char * output = new char [MAX_PROG_OUTPUT_SIZE];
-  sprintf (output, "%d \n", cpu.getRegister(regX));
+  sprintf (output, "PCB(%d) Output: %d \n", current_process->getID(),
+                                    cpu.getRegister(regX));
   return output;
 }
 

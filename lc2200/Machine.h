@@ -28,7 +28,8 @@ class Machine {
   // mem_management will be that value 0 or 1, 0 will follow the first fit
   // memory management policy and 1 will denote best fit policy. .lc_config
   // will be read and will populate the values of mem_management, memory_size,
-  // and stack_size.
+  // and stack_size. timeslice will be a positive intager that will be greater
+  // than zero
 
   private:
 
@@ -40,6 +41,14 @@ class Machine {
     Queue<PCB*> running_queue;
     uint nextPCBId;
     LList<Freemem*> freemem;
+
+    uint timeslice;
+
+    bool timesliceing;
+    uint num_slices_made;
+    uint jobs_to_go;
+
+
 
 
     //======================================
@@ -218,12 +227,17 @@ class Machine {
     //PRE:  @param PCB * process, must be init
     //POST: cpu.registers, cpu.SP, cpu.PC now reflect their corresponding values
     //      in the PCB process given to the method
-    void importRegistersPCBToCPU(PCB * process);
+    void importRegistersPCBToCPU();
 
     //PRE:  @param PCB * process, must be init
     //POST: PCB.registers, PCB.SP, PCB.PC now reflect their corresponding values
     //      in the cpu
-    void importRegistersCPUToPCB(PCB * process);
+    void importRegistersCPUToPCB();
+
+    //PRE:
+    //POST: imports the registers of the cpu and pc, and sets the front to the back
+    //      of the queue
+    void setFrontToBackQueue();
 
     //======================================
     // current process
@@ -375,9 +389,37 @@ class Machine {
     //      @param bool & in_bool, is true iff the Machine needs input
     //      @param bool & out_bool, is true iff the Machine needs to output
     //      @param bool $ done, is true iff the Machine has hit the halt statement
+    //      @param bool & post_i_o, tracks if the last command was i/o
+    //      @param bool & current_process_done, tracks if the process at the
+    //             front at the front of the queue is done
+    //      @param bool & set_steps_made, if the steps made has been inited
     //POST: @return if out_bool is true return value is meaningful and is requesting
     //              for the terminal to output the return value
-    char * runCommand(char * input, bool & in_bool, bool & out_bool, bool & done);
+    char * runCommand(char * input, bool & in_bool, bool & out_bool,
+                      bool & done, bool & post_i_o,
+                      bool & current_process_done,
+                      bool & set_steps_made);
+
+
+    //PRE:  @param char * input, the number
+    //      @param bool & in_bool, is true iff the Machine needs input
+    //      @param bool & out_bool, is true iff the Machine needs to output
+    //      @param bool $ done, is true iff the Machine has hit the halt
+    //             statement
+    //      @param bool & post_i_o, tracks if the last command was i/o
+    //      @param bool & current_process_done, tracks if the process at the
+    //             front at the front of the queue is done
+    //      @param bool & set_steps_made, if the steps made has been inited
+    //      @param uint num_slices, the number of slices given to the terminal
+    //POST: @return if out_bool is true return value is meaningful and is
+    //              requestingfor the terminal to output the return value,
+    //              runs slice of the program, the slice is dependent on the
+    //              config file
+    char * sliceSim(char * input, bool & in_bool, bool & out_bool,
+                    bool & done, bool & post_i_o,
+                    bool & current_process_done,
+                    bool & set_steps_made, uint num_slices);
+
 
     //======================================
     // INPUT
