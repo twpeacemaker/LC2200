@@ -1,4 +1,4 @@
-memory 1000
-stack 4
+memory 21
+stack 1
 mem-management 0
-timeslice 2
+timeslice 1

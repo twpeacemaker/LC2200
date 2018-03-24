@@ -44,9 +44,8 @@ class Machine {
 
     uint timeslice;
 
-    bool timesliceing;
+
     uint num_slices_made;
-    uint jobs_to_go;
 
 
 
@@ -235,9 +234,9 @@ class Machine {
     void importRegistersCPUToPCB();
 
     //PRE: @param uint & jobs_to_go, the number of jobs compleated in the slice
-    //POST: imports the registers of the cpu and pc, and sets the front to the back
-    //      of the queue
-    void setFrontToBackQueue(uint & jobs_to_go);
+    //POST: imports the registers of the cpu and pc, and sets the front to the
+    ///     back of the queue
+    void setFrontToBackQueue();
 
     //PRE: @param bool & current_process_done, tracks if the process at the
     //     front at the front of the queue is done
@@ -422,21 +421,21 @@ class Machine {
     //PRE:  @param char * input, the number
     //      @param bool & in_bool, is true iff the Machine needs input
     //      @param bool & out_bool, is true iff the Machine needs to output
-    //      @param bool $ done, is true iff the Machine has hit the halt
-    //             statement
+    //      @param bool $ done, is true iff the Machine hasnt finnished its
+    //       process
     //      @param bool & post_i_o, tracks if the last command was i/o
     //      @param bool & current_process_done, tracks if the process at the
     //             front at the front of the queue is done
-    //      @param bool & set_steps_made, if the steps made has been inited
     //      @param uint num_slices, the number of slices given to the terminal
     //POST: @return if out_bool is true return value is meaningful and is
-    //              requestingfor the terminal to output the return value,
-    //              runs slice of the program, the slice is dependent on the
-    //              config file
+    //              requesting for the terminal to output the return value,
+    //              runs a slice of the  program, the slice is dependent on
+    //              the config file also iterates slices_made once all programs
+    //              have been slices through
     char * sliceSim(char * input, bool & in_bool, bool & out_bool,
-                    bool & done, bool & post_i_o,
-                    bool & current_process_done,
-                    bool & set_steps_made, uint num_slices);
+                bool & done, bool & post_i_o,
+                bool & current_process_done,
+                uint num_slices);
 
 
     //======================================

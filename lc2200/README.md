@@ -16,11 +16,12 @@
     Functions/Methods:  lowerCamelCase
 
 #Known Errors/Bugs:
-  #BUG when running queue is > 3 and steps have been made. when user trys to
-  delete a item not in the front or the back it seg faults, patch is being
-  worked on currently. it has been found the error occurs then the
-  program attempts
-  line 159 prevNode->setNext(nextNode);
-  I may be asking questions monday if I can not find the cause
+  #BUG
+  > load test/prog1
+  > step 100
+  PCB(1) Input: 1
+  PCB(1) Output: 1
+  PCB(1) completed.
+  ERROR: NO PROGRAM LOADED
 #Test Cases:
   Instructions located in the test/test-cases file

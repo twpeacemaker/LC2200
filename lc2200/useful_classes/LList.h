@@ -154,6 +154,7 @@ class LList {
                // ASSERT: temp points to the node f(count).
           }
         	//ASSERT: not the fromnt or the back so length >= 3
+
         	LNode<T> * prevNode = temp->getPrev();
         	LNode<T> * nextNode = temp->getNext();
         	prevNode->setNext(nextNode); //
@@ -256,19 +257,15 @@ class LList {
       n--;
       // ASSERT: f = (pre)f(1),...,(pre)f((pre)n-2).
       temp->setNext(NULL);
-      delete (temp); // deallocate storage for the deleted node.
+      temp->setPrev(NULL);
+      delete (temp); // deallocate storage for the ;d node.
     } else if( n > 1) {
       front = front->getNext();
-      if(n == 2) {
-	       back = front;
-         back->setNext(NULL);
-         back->setPrev(NULL);
-      } else {
-	       back->setPrevNull();
-      }
+      front->setPrev(NULL);
       n--;
       // ASSERT: f = (pre)f(1),...,(pre)f((pre)n-2).
       temp->setNext(NULL);
+      temp->setPrev(NULL);
       delete (temp); // deallocate storage for the deleted node.
     } else {
       throw(Exception((char *) "@LLIST: DELETE ITEMS THAT ARE NOT IN THE LIST" ));

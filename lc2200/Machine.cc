@@ -100,7 +100,7 @@ uint Machine::getCurrentProcessID() {
 char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
                            bool & done, bool & post_i_o,
                            bool & current_process_done,
-                           bool & set_steps_made) {
+                           bool & set_slice_made) {
   char * return_value;
   MyString string = input;                   //copies the char* uinto MyString
   LList<MyString> tokens = string.split(' '); //splits the string at ' '
@@ -116,11 +116,12 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[STEP_NUM]) ) {
     int num_slices = arrayToInt( tokens.getNth(STEP_TOKEN_N).getString() );
-    if (!set_steps_made) { //ASSERT: the slices have not been set
-      num_slices_made = 0; set_steps_made = true;
+    if (!set_slice_made) { //ASSERT: the slices have not been set
+      num_slices_made = 0;
+      set_slice_made = true;
     }
     return_value = sliceSim(input, in_bool, out_bool, done, post_i_o,
-                            current_process_done, set_steps_made, num_slices);
+                            current_process_done, num_slices);
     evaluteSliceState(done, num_slices);
   } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
     return_value = freememSim();
@@ -145,7 +146,6 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
 //      @param bool & post_i_o, tracks if the last command was i/o
 //      @param bool & current_process_done, tracks if the process at the
 //             front at the front of the queue is done
-//      @param bool & set_steps_made, if the steps made has been inited
 //      @param uint num_slices, the number of slices given to the terminal
 //POST: @return if out_bool is true return value is meaningful and is requesting
 //              for the terminal to output the return value, runs a slice of the
@@ -153,22 +153,18 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
 //              slices_made once all programs have been slices through
 char * Machine::sliceSim(char * input, bool & in_bool, bool & out_bool,
                          bool & done, bool & post_i_o,
-                         bool & current_process_done, bool & set_steps_made,
+                         bool & current_process_done,
                          uint num_slices) {
   PCB * current_process = getCurrentProcess();
   char * return_value;
-  if(timesliceing == false && done == false) {
-   //ASSERT: slice is begining
-   timesliceing = true; //if true the slice is not true
-   jobs_to_go = running_queue.getSize();
-  }
   if(post_i_o && current_process_done) {
    //ASSERT: the prog needed i/o, it has taken it and is now done
-   setFrontToBackQueue(jobs_to_go);
+   setFrontToBackQueue();
+   post_i_o = false;
    current_process_done = false;
   }
   bool job_stepped = false;
-  if(jobs_to_go != 0) {
+  if(num_slices > num_slices_made) {
    return_value = stepSim(timeslice, in_bool, out_bool, done);
    job_stepped = true; // track if a job has ran this iteration
   }
@@ -192,13 +188,12 @@ void Machine::evaluteJobState(bool & current_process_done,
   PCB * current_process = getCurrentProcess();
   if (current_process->getHalt() == true) {
     terminateProcess(current_process->getID());
-    jobs_to_go--;
     current_process_done = false;
   } else if( (in_bool || out_bool) && done) {
     current_process_done = true;
     //ASSERT: will be removed at the beginning of the next iteration
   } else if( done ) {
-    setFrontToBackQueue(jobs_to_go);
+    setFrontToBackQueue();
     current_process_done = false;
   }
 }
@@ -209,31 +204,25 @@ void Machine::evaluteJobState(bool & current_process_done,
 //POST: after the running_queue or PCB has been ran evalutes the state
 //      of slices and sets the proper values to continue or stop
 void Machine::evaluteSliceState(bool & done, uint num_slices) {
-  if (jobs_to_go > 0) {
-   //ASSERT: continue the current slice
-   done = false;
-  } else if(num_slices - 1 > num_slices_made && jobs_to_go == 0) {
+  if(num_slices > num_slices_made && done) {
    //ASSERT: the current slice iteration is done, move to the next
    done = false;
-   timesliceing = false;
    num_slices_made++;
-  } else {
+ } else if (num_slices == num_slices_made) {
    //ASSERT: All slicing is done
    done = true;
-   timesliceing = false;
   }
 }
 
 //PRE: @param uint & jobs_to_go, the number of jobs compleated in the slice
 //POST: imports the registers of the cpu and pc, and sets the front to the back
 //      of the queue
-void Machine::setFrontToBackQueue(uint & jobs_to_go) {
+void Machine::setFrontToBackQueue() {
   PCB * current_process = getCurrentProcess();
   current_process->setPC(cpu.getPC());
   importRegistersCPUToPCB();
   running_queue.frontToBack();
   readyCurrentProcessOnCPU();
-  jobs_to_go--;
 }
 
 //PRE:  @param char * input gets the program name from the input
@@ -385,6 +374,8 @@ char * Machine::jobsSim() {
     char * line = new char [MAX_JOB_LINE];
     sprintf (line, "Name(%d): %s\n", process->getID(), process->getName());
     string.addString(line);
+    sprintf (line, "PC: %d\n", process->getPC());
+    string.addString(line);
     sprintf (line, "Starting Address: %d\n", process->getProgStartAddress());
     string.addString(line);
     sprintf (line, "Ending Address: %d\n", process->getProgEndAddress());
@@ -464,10 +455,10 @@ bool Machine::terminateProcess(uint pid) {
     if(process->getID() == pid) {
       running_queue.deleteNthQueued(i);
       //delete process; //deletes process
-      deallocateMem(process->getStackStartAddress(),
-                    process->getStackEndAddress());
       deallocateMem(process->getProgStartAddress(),
                     process->getProgEndAddress());
+      deallocateMem(process->getStackStartAddress(),
+                    process->getStackEndAddress());
       found = true;
       if(i == 0) {
         //current_process was removed next process needs to be readied
@@ -726,7 +717,7 @@ void Machine::bestFit(uint & start, uint & end, uint size) {
 //POST:if all the freemem is used it is delete, else it is made smallers
 void Machine::allocateMem(uint new_start, int freemem_index) {
   Freemem * freemem_object = freemem.getNth(freemem_index);
-  if(new_start == freemem_object->getEnd()) {
+  if(new_start > freemem_object->getEnd()) {
     freemem.deleteNth(freemem_index);
   } else {
     freemem_object->setStart(new_start);

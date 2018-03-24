@@ -1,0 +1,425 @@
+Test Cases:
+test prog1
+1 0x00000000 0x93000000 IN   $a0
+2 0x00000004 0xA3000000 OUT  $a0
+3 0x00000008 0x04300003 ADD  $a1 $a0 $a0
+4
+5 0x0000000C 0x17300003 NAND $t1 $a0 $a0
+6 0x00000010 0x24700001 ADDI $a1 $t1 1
+7
+8 0x00000014 0x70000000 HALT
+9
+
+test prog 5
+1 0x00000000 0x91000000 IN  $at
+2                       ;n
+3 0x00000004 0x05000000 ADD $a2 $zero $zero
+4                       ;= counter
+5 0x00000008 0x51500014 back: BEQ $at $a2 next
+6                       ;while(len > counter) {
+7 0x0000000C 0x94000000 IN $a1
+8 0x00000010 0x44D00000 SW $a1 0x0($sp)
+9 0x00000014 0x2DDFFFFC ADDI $sp $sps -4
+10 0x00000018 0x25500001 ADDI $a2 $a2 1scs
+11 0x0000001C 0x500FFFE8 BEQ $zero $zero back
+12                       ;unconditional back
+13 0x00000020 0x70000000 next: HALT
+
+
+test prog15
+back: IN  $a0
+      ; first enter one then enter 0
+      BEQ $a0 $zero three
+      BGT $a0 $zero one
+halt: HALT
+one:  add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      BGT $a0 $zero back
+      add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      beq $zero $zero halt
+
+
+1. Assure that the .lc_config file is being read correctly. Run the retains the
+   config command and assure the the values the the .lc_config file reflects
+   the values outputted to the terminal.
+
+   Assure the values in the .lc_config read as:
+   file start  after <=====================
+   memory 16
+   stack 40
+   pagesize 4
+   swapspace 3
+   timeslice 2
+   paging 1
+
+   file end before   <=====================
+
+   Terminal:
+   > config
+   memory 16
+   stack 50
+   pagesize 4
+   swapspace 3
+   timeslice 2
+   paging 1
+
+2. test when a program is load, that its first page of code is loaded to
+   memory, with page size = 4 the first 4 instructions should be loaded
+
+   > load test/prog1
+   > mem 0 16
+    0: 0x93000000 -1828716544  4: 0xA3000000 -1560281088  8: 0x04300003 70254595  12: 0x17300003 389021699
+    16: 0x00000000 0
+
+3. test the pages command works correctly without a parameter, ie print out the
+   entire page table
+
+   memory 60
+
+   > load test/prog1
+   > load test/prog2
+   > pages
+    Physical Page: 0
+    Start Address: 0
+    End Address: 12
+    Dirty: 0
+    PID: 1
+    Page Type: Program
+    Virtual Page: 0
+
+    Physical Page: 1
+    Start Address: 16
+    End Address: 28
+    Dirty: 0
+    PID: 1
+    Page Type: Stack
+    Virtual Page: 1
+
+    Physical Page: 3
+    Start Address: 32
+    End Address: 44
+    Dirty: 0
+    PID: 2
+    Page Type: Program
+    Virtual Page: 2
+
+    Physical Page: 4
+    Start Address: 48
+    End Address: 60
+    Dirty: 0
+    PID: 2
+    Page Type: Stack
+    Virtual Page: 3
+
+4. test the pages command works correctly with a parameter, ie print out the
+   page table for the integer given
+
+   memory 60
+
+   > load test/prog1
+   > load test/prog2
+   > pages 2
+
+    Physical Page: 3
+    Start Address: 32
+    End Address: 44
+    Dirty: 0
+    PID: 2
+    Page Type: Program
+    Virtual Page: 2
+
+    Physical Page: 4
+    Start Address: 48
+    End Address: 60
+    Dirty: 0
+    PID: 2
+    Page Type: Stack
+    Virtual Page: 3
+
+5. test when a program is loaded, that 2 pages are added to the page table. The
+   first being the first page the program and the first stack page
+
+   memory 60
+
+   > load test/prog1
+   > pages
+    Physical Page: 0
+    Start Address: 0
+    End Address: 12
+    Dirty: 0
+    PID: 1
+    Page Type: Program
+    Virtual Page: 0
+
+    Physical Page: 1
+    Start Address: 16
+    End Address: 28
+    Dirty: 0
+    PID: 1
+    Page Type: Stack
+    Virtual Page: 1
+
+6. test when a program killed, the pages that are associated with that process
+   are removed from the page table.
+
+   memory 60
+
+   > load test/prog1
+   > load test/prog2
+   > pages
+    Physical Page: 0
+    Start Address: 0
+    End Address: 12
+    Dirty: 0
+    PID: 1
+    Page Type: Program
+    Virtual Page: 0
+
+    Physical Page: 1
+    Start Address: 16
+    End Address: 28
+    Dirty: 0
+    PID: 1
+    Page Type: Stack
+    Virtual Page: 1
+
+    Physical Page: 3
+    Start Address: 32
+    End Address: 44
+    Dirty: 0
+    PID: 2
+    Page Type: Program
+    Virtual Page: 2
+
+    Physical Page: 4
+    Start Address: 48
+    End Address: 60
+    Dirty: 0
+    PID: 2
+    Page Type: Stack
+    Virtual Page: 3
+    > kill 1
+    > pages
+     Physical Page: 3
+     Start Address: 32
+     End Address: 44
+     Dirty: 0
+     PID: 2
+     Page Type: Program
+     Virtual Page: 2
+
+     Physical Page: 4
+     Start Address: 48
+     End Address: 60
+     Dirty: 0
+     PID: 2
+     Page Type: Stack
+     Virtual Page: 3
+
+7.  that a program properly utilizes the FIFO Method as you step each time check
+    the frame table the frame table along each step, the frame table should
+    reflect the page request and queue as described as below. the stack will
+    always be inserted before the program
+    time slice is one
+
+    memory 12
+    stack 50
+    pagesize 4
+    swapspace 0
+    timeslice 1
+    paging 0
+
+    > load test/prog15
+    > step 1 (12 times)
+    > PCB (1) finished
+    > PCB (1) time slices 12
+    > PCB (1) page faults 4
+
+    check the pages step by step
+      * *   * *  4 page faults
+    0 1 2 0 3 0  page sequence
+
+    S S 1 1 1 2  physical frame table
+    0 0 0 0 2 3
+      1 2 2 3 0
+
+    S 0 0 0 1 2  queue
+    0 1 1 1 2 3
+      0 2 2 3 0
+
+
+8.  that a program properly utilizes the LRU Method as you step each time check
+    the frame table the frame table along each step, the frame table should
+    reflect the page request and queue as described as below. the stack will
+    always be inserted before the program
+    memory as
+
+    memory 12
+    stack 50
+    pagesize 4
+    swapspace 0
+    timeslice 1
+    paging 1
+
+    > load test/prog15
+    > step 1 (12 times)
+    > PCB (1) finished
+    > PCB (1) time slices 12
+    > PCB (1) page faults 3
+
+    check the pages step by step
+      * *   *    3 page faults
+    1 1 2 0 3 0  page sequence
+
+    S S 1 1 3 3 physical frame table
+    0 0 0 0 0 0
+      1 2 2 3 2
+
+    S S 0 1 2 2  queue
+    0 0 1 2 0 3
+      1 2 0 3 0
+
+9.  when a process has halted, the pages associated with that process are
+releases
+   > load test/prog1
+   > step <to finnish>
+   pages
+     no pages to display in the page table
+
+10. test when a program runs out of memory
+  pagesize 2
+  swapspace 4
+  memory 8
+  stack 40
+  pagesize 4
+  > load test/prog5
+  > step 100
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  ERROR: SUFFICIENT MEMORY
+
+11. test if a program releases its pages after it runs out of memory
+  pagesize 2
+  swapspace 1
+  memory 8
+  stack 40
+  pagesize 4
+  > load test/prog5
+  > step 100
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  > Input: 10
+  ERROR: SUFFICIENT MEMORY
+  > Pages
+    some message to say the page table is empty
+
+12. test if a program utilizes swap space correctly
+
+  swapspace 4
+  memory 12
+  stack 40
+  pagesize 4
+  > load test/prog5
+  > step 100
+  > Input: 12
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Input: 1
+  > Pages
+    will reflect a page in swap space
+  Program done with information about the program
+
+  the program will always need one page to reference the current instruction
+  but will need 3 pages of stack space, once there are 2 pages of stack the
+  program will move one dirty page to swap and load another page
+
+13. test if a program run to finish, the pages are releases that are in the page table
+
+    with LRU selected
+
+    > load test/prog15
+    > step 12
+    > Input PCB (1): 1
+    > Input PCB (1): 0
+    PCB(1) completed.
+    PCB(1) time-slices: 12
+    PCB(1) page faults: 4
+
+14. test if aa program runs, it prints the correct number of page faults for FIFO
+
+    > load test/prog15
+    > step 12
+    > Input PCB (1): 1
+    > Input PCB (1): 0
+    > PCB (1) finished
+    > PCB (1) time slices 12
+    > PCB (1) page faults 5
+
+    check the pages step by step
+    * * *   * *  5 page faults
+    0 1 2 0 3 0  page sequence
+
+    0 0 0 0 1 2  physical frame table
+      1 1 1 2 3
+        2 2 3 0
+
+    0 0 0 0 1 2  queue
+      1 1 1 2 3
+        2 2 3 0
+
+14. test if a program after a program runs, it prints the correct number of
+    page faults for LRU
+
+    > load test/prog15
+    > step 12
+    > Input PCB (1): 1
+    > Input PCB (1): 0
+    > PCB (1) finished
+    > PCB (1) time slices 12
+    > PCB (1) page faults 4
+
+    check the pages step by step
+    * * *   *    4 page faults
+    0 1 2 0 3 0  page sequence
+
+    0 0 0 0 0 0  physical frame table
+      1 1 1 3 3
+        2 2 3 2
+
+    0 0 0 1 2 2  queue
+      1 1 2 0 3
+        2 0 3 0
+
+15. test if a program after a program runs, prints the correct number of time-slices
+
+    > load test/prog15
+    > step 13
+    > Input PCB (1): 1
+    > Input PCB (1): 0
+    > PCB (1) finished
+    > PCB (1) time slices 12
+    > PCB (1) page faults 5
+
+    the correct number of time-slices are correct because the number of
+    lines given the input is 12

@@ -1,0 +1,15 @@
+back: IN  $a0
+      ; first enter one then enter 0
+      BEQ $a0 $zero three
+      BGT $a0 $zero one
+halt: HALT
+one:  add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      BGT $a0 $zero back
+      add $zero $zero $zero
+      add $zero $zero $zero
+      add $zero $zero $zero
+      beq $zero $zero halt

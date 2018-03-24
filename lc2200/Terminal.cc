@@ -48,12 +48,12 @@ void Terminal::runCommand(char * input) {
     bool out;
     bool post_i_o = false;
     bool current_process_done = false;
-    bool set_steps_made = false;
+    bool set_slice_made = false;
     while(!done) {
       in = false;
       out = false;
       char * output = machine.runCommand(input, in, out, done, post_i_o,
-                                        current_process_done, set_steps_made);
+                                         current_process_done, set_slice_made);
       if(in){
         //ASSERT: recived the signal from Machine asking for input
         char * input_term;
