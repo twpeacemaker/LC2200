@@ -164,10 +164,12 @@ char * Machine::sliceSim(char * input, bool & in_bool, bool & out_bool,
    current_process_done = false;
   }
   bool job_stepped = false;
-  if(num_slices > num_slices_made) {
+  if(num_slices > num_slices_made && running_queue.getSize() > 0) {
    return_value = stepSim(timeslice, in_bool, out_bool, done);
    job_stepped = true; // track if a job has ran this iteration
-  }
+ } else {
+   done = true;
+ }
   if(job_stepped) {
    //ASSERT: job has stepped this iteration and must be evaluated if it should
    //        removed, moved to the back, or stay at the front of the queue
@@ -198,8 +200,8 @@ void Machine::evaluteJobState(bool & current_process_done,
   }
 }
 
-//PRE:  @param bool & done,
-//      @param uint num_slices
+//PRE: @param bool done, is true iff the Machine hasnt finnished its process
+//      @param uint num_slices, number of slices total the progs neods to slice
 //      should be called after running_queue is edited or a PCB has been ran
 //POST: after the running_queue or PCB has been ran evalutes the state
 //      of slices and sets the proper values to continue or stop
