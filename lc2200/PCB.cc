@@ -2,14 +2,18 @@
 #include "constants.h"
 #include <stdio.h>
 #include "CPU.h"
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 
 //Constructor
 //PRE:  @param char * name, the name of the program
 //      @param int id, the unique id that is given to the PCB
 //      @param uint given_length, the length of the progam
+//      @param fstream & stream, the file stream of the object
 //POST: creates the object
-PCB::PCB(char * given_name, int p_id, uint length) {
+PCB::PCB(char * given_name, int p_id, uint length, fstream & stream) {
   name = given_name;
   program_length = length;
   steps = 0;
@@ -17,6 +21,7 @@ PCB::PCB(char * given_name, int p_id, uint length) {
   id = p_id;
   PC = 0;
   registers[0] = 0;
+  file_stream = stream;
 }
 
 //======================================
@@ -27,6 +32,9 @@ PCB::PCB(char * given_name, int p_id, uint length) {
 //POST: @return, uint program_length
 uint PCB::getLength() const {return program_length;}
 
+//PRE:
+//POST: returns fstream & file_stream
+fstream & PCB::getStream() {return file_stream;}
 
 //PRE:
 //POST: @return, int steps
@@ -114,39 +122,10 @@ void PCB::setName(char * new_name) {name = new_name;}
 //POST: sets the program to be halted
 void PCB::haltProgram() {halted = true;}
 
-//PRE:
-//POST: @return, program_start
-uint PCB::getProgStartAddress() {return program_start;}
 
-//PRE:
-//POST: @return, program_end
-uint PCB::getProgEndAddress() {return program_end;}
-
-//PRE:
-//POST: @return, stack_start
-uint PCB::getStackStartAddress() {return stack_start;}
-
-//PRE:
-//POST: @return, stack_end
-uint PCB::getStackEndAddress() {return stack_end;}
-
-//PRE: @param uint p_start, program start address
-//     @param uint p_end, program end address
-//     @param uint s_start, stack start address
-//     @param uint s_end, stack end address
-//     @param uint SP, where the register SP will be set to
-//POST: program_start = p_start
-//      program_end = p_end
-//      stack_start = s_start
-//      stack_end = s_end
-//      registers[STACK_POINTER_INDEX] = stack_end;
-void PCB::initPCB(uint p_start, uint p_end, uint s_start, uint s_end, uint SP) {
-  //progame address
-  program_start = p_start;
-  program_end = p_end;
-  //stack
-  stack_start = s_start;
-  stack_end = s_end;
+//PRE: @param uint SP, where the register SP will be set to
+//POST: registers[STACK_POINTER_INDEX] = stack_end;
+void PCB::initPCB(uint SP) {
   PC = 0;
   registers[STACK_POINTER_INDEX] = SP;
 }
@@ -167,22 +146,16 @@ bool PCB::ableToRun(int num_steps) {
 //               the effective address of memory
 uint PCB::filterPC(uint PC) {
   uint return_value;
-  uint upper_bound = program_end - program_start;
-  if(PC <= upper_bound) {
-    //ASSERT: in the program
-    return_value = program_start + PC;
-  } else {
-    //in the stack of the memory
-    // uint offset       = stack_end - stack_start;
-    // uint added_val    = (PC - offset);
-    // return_value = added_val + stack_start;
-
-    uint length = program_length * BYTES_IN_WORD;
-    uint offset = stack_end - stack_start;
-    uint place = length + offset - PC;
-    return_value = stack_end - place;
-  }
-
+  // uint upper_bound = program_end - program_start;
+  // if(PC <= upper_bound) {
+  //   //ASSERT: in the program
+  //   return_value = program_start + PC;
+  // } else {
+  //   uint length = program_length * BYTES_IN_WORD;
+  //   uint offset = stack_end - stack_start;
+  //   uint place = length + offset - PC;
+  //   return_value = stack_end - place;
+  // }
   return return_value;
 }
 

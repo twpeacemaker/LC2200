@@ -1,4 +1,6 @@
-memory 1024
-stack 50
-mem-management 0
+memory 24
+stack 40
 timeslice 2
+pagesize 4
+swapspace 8
+paging 1

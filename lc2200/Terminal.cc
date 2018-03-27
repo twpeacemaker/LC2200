@@ -106,10 +106,6 @@ void Terminal::validateInput(LList<MyString> tokens) {
     if(tokens.getSize() != NUMBER_OF_STEP_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO STEP"));
     }
-  } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_FREEMEM_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO FREEMEM"));
-    }
   } else if( compareCharArray(command.getString(), COMMANDS[JOBS_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_JOBS_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO JOBS"));

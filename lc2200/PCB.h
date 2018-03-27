@@ -3,6 +3,9 @@
 #include "constants.h"
 #include "CPU.h"
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
+using namespace std;
 
 class PCB {
 
@@ -29,16 +32,10 @@ class PCB {
 
 
     uint program_length;
-
-    uint program_start;
-    uint program_end;
-
-    uint stack_start;
-    uint stack_end;
-
     uint registers[MAX_REGISTERS];
     uint id;
     uint PC;
+    fstream file_stream;
 
   public:
 
@@ -46,8 +43,9 @@ class PCB {
     //PRE:  @param char * name, the name of the program
     //      @param int id, the unique id that is given to the PCB
     //      @param uint given_length, the length of the progam
+    //      @param fstream & stream, the file stream of the object
     //POST: creates the object
-    PCB(char * given_name, int p_id, uint length);
+    PCB(char * given_name, int p_id, uint length, fstream & stream);
 
     //======================================
     // Getters
@@ -63,6 +61,10 @@ class PCB {
     uint getSteps() const;
 
     //PRE:
+    //POST: returns fstream & file_stream
+    fstream & getStream();
+
+    //PRE:
     //POST: @return, whether the program is halted or not
     bool getHalt() const;
 
@@ -73,22 +75,6 @@ class PCB {
     //PRE:
     //POST: @return uint id;
     uint getID() const;
-
-    //PRE:
-    //POST: @return, program_start
-    uint getProgStartAddress();
-
-    //PRE:
-    //POST: @return, program_end
-    uint getProgEndAddress();
-
-    //PRE:
-    //POST: @return, stack_start
-    uint getStackStartAddress();
-
-    //PRE:
-    //POST: @return, stack_end
-    uint getStackEndAddress();
 
     //PRE:
     //POST: @return the value at the register[SP]
@@ -149,18 +135,9 @@ class PCB {
     //POST: @return whether the program is able to run
     bool ableToRun(int num_steps);
 
-
-    //PRE: @param uint p_start, program start address
-    //     @param uint p_end, program end address
-    //     @param uint s_start, stack start address
-    //     @param uint s_end, stack end address
-    //     @param uint SP, where the register SP will be set to
-    //POST: program_start = p_start
-    //      program_end = p_end
-    //      stack_start = s_start
-    //      stack_end = s_end
-    //      registers[STACK_POINTER_INDEX] = stack_end;
-    void initPCB(uint p_start, uint p_end, uint s_start, uint s_end, uint SP);
+    //PRE: @param uint SP, where the register SP will be set to
+    //POST: registers[STACK_POINTER_INDEX] = stack_end;
+    void initPCB(uint SP);
 
     //PRE:  @param uint PC, the relitive pc, assumes in bounds of the program
     //POST: @return, return_value gets the address from the machine and calculates

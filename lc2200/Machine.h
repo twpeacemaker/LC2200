@@ -6,7 +6,6 @@
 #include "constants.h"
 #include "Exception.h"
 #include "PCB.h"
-#include "Freemem.h"
 #include <stdio.h>
 #include <fstream>
 using namespace std;
@@ -25,9 +24,7 @@ class Machine {
   // object, this list will hold all the free memory that is usable to the
   // machine. nextPCBId will be incremented every time assigned to PCB and no
   // process will be given the same id, stack_size will always be > memory_size
-  // mem_management will be that value 0 or 1, 0 will follow the first fit
-  // memory management policy and 1 will denote best fit policy. .lc_config
-  // will be read and will populate the values of mem_management, memory_size,
+  // will be read and will populate the values of memory_size,
   // and stack_size. timeslice will be a positive intager that will be greater
   // than zero
 
@@ -35,14 +32,16 @@ class Machine {
 
     CPU cpu;
     Memory * memory;
-    uint memory_size;
-    uint stack_size;
-    uint mem_management;
+
     Queue<PCB*> running_queue;
     uint nextPCBId;
-    LList<Freemem*> freemem;
 
+    uint memory_size;
+    uint stack_size;
     uint timeslice;
+    uint pagesize;
+    uint swapspace;
+    uint paging;
 
 
     uint num_slices_made;
@@ -208,16 +207,9 @@ class Machine {
     //POST: sets the option in the second node to the setting of the lc2200
     void setConfigOption(LList<MyString> tokens);
 
-    //PRE: @param ifstream & inFile takes the correctly formated file with the
-    //     length read from the file and the next thing to be read is the first
-    //     byte of memorys
-    //     @param uint start_address, the address to load the first word
-    //     @param int length the length of the file
-    //     assumes that the start till the length is allocated to the program
-    //     assumes the inFile is open and it will be closes after this function
-    //POST:reads the file into the address starting at start address and ending
-    //     at the address (start + length)
-    void importProgFile(ifstream & inFile, uint start_address, int length);
+    //PRE:
+    //POST:
+    void importPage(fstream & stream, uint virtual_page_number, uint physical_page_number);
 
     //======================================
     // contex switching
