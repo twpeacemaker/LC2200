@@ -1,6 +1,6 @@
-memory 24
-stack 40
-timeslice 2
-pagesize 4
-swapspace 8
+memory 12
+stack 6
+timeslice 1
+pagesize 3
+swapspace 9
 paging 1

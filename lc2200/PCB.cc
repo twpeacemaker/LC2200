@@ -6,6 +6,9 @@
 #include <fstream>
 using namespace std;
 
+#include "useful_classes/LList.h"
+
+
 
 //Constructor
 //PRE:  @param char * name, the name of the program
@@ -13,7 +16,7 @@ using namespace std;
 //      @param uint given_length, the length of the progam
 //      @param fstream & stream, the file stream of the object
 //POST: creates the object
-PCB::PCB(char * given_name, int p_id, uint length, fstream & stream) {
+PCB::PCB(char * given_name, int p_id, uint length, uint prog_stream_start) {
   name = given_name;
   program_length = length;
   steps = 0;
@@ -21,7 +24,14 @@ PCB::PCB(char * given_name, int p_id, uint length, fstream & stream) {
   id = p_id;
   PC = 0;
   registers[0] = 0;
-  file_stream = stream;
+  file_stream = new fstream (given_name, ios::in | ios::out);
+  program_stream_start = prog_stream_start;
+}
+
+//PRE:  @param PageInfo * page, the page to be added to the pagetable
+//POST: adds the page to the page table
+void PCB::addPage(PageInfo * page) {
+  page_table.addBack(page);
 }
 
 //======================================
@@ -29,12 +39,18 @@ PCB::PCB(char * given_name, int p_id, uint length, fstream & stream) {
 //======================================
 
 //PRE:
+//POST: @return, uint program_stream_start
+uint PCB::getStreamStart() const {
+  return program_stream_start;
+}
+
+//PRE:
 //POST: @return, uint program_length
 uint PCB::getLength() const {return program_length;}
 
 //PRE:
 //POST: returns fstream & file_stream
-fstream & PCB::getStream() {return file_stream;}
+fstream * PCB::getStream() {return file_stream;}
 
 //PRE:
 //POST: @return, int steps
@@ -142,20 +158,43 @@ bool PCB::ableToRun(int num_steps) {
 }
 
 //PRE:  @param uint PC, the relitive pc, assumes in bounds of the program
+//      @param uint page_size, the size of the page
+//      @param uint stack_size, the size of the stack
 //POST: @return, return_value gets the address from the machine and calculates
 //               the effective address of memory
-uint PCB::filterPC(uint PC) {
+uint PCB::filterPC(uint PC, uint page_size, uint stack_size) {
   uint return_value;
-  // uint upper_bound = program_end - program_start;
-  // if(PC <= upper_bound) {
-  //   //ASSERT: in the program
-  //   return_value = program_start + PC;
-  // } else {
-  //   uint length = program_length * BYTES_IN_WORD;
-  //   uint offset = stack_end - stack_start;
-  //   uint place = length + offset - PC;
-  //   return_value = stack_end - place;
-  // }
+  uint location = PC / BYTES_IN_WORD;
+  uint stack = false;
+  if(location >= program_length) {
+    stack = true;
+  }
+  uint virtual_page_number;
+  if(stack) {
+    location = (location - (program_length - 1)) - stack_size;
+  }
+  virtual_page_number = location / page_size;
+  PageInfo * page;
+  bool found = false;
+  int i = 0;
+  while(i < page_table.getSize() && !found) {
+    page = page_table.getNth(i);
+    if(page->getVirtualPage() == virtual_page_number && page->getStack() == stack) {
+      found = true;
+    }
+    i++;
+  }
+  if(!found) {
+
+  } else {
+    uint page_line = (location % page_size) * BYTES_IN_WORD;
+    return_value = ((page->getPhysicalPage() * page_size) * BYTES_IN_WORD);
+    if (stack) {
+      return_value = return_value + ((page_size - 1) * BYTES_IN_WORD);
+    } else {
+      return_value += page_line;
+    }
+  }
   return return_value;
 }
 

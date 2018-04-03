@@ -15,6 +15,8 @@ using namespace std;
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
 
+#include "PageTable.h"
+
 class Machine {
 
   // Class Invariant (CI): must point to a valid memory object and must have
@@ -34,6 +36,8 @@ class Machine {
     Memory * memory;
 
     Queue<PCB*> running_queue;
+    PageTable page_table;
+
     uint nextPCBId;
 
     uint memory_size;
@@ -207,9 +211,12 @@ class Machine {
     //POST: sets the option in the second node to the setting of the lc2200
     void setConfigOption(LList<MyString> tokens);
 
-    //PRE:
-    //POST:
-    void importPage(fstream & stream, uint virtual_page_number, uint physical_page_number);
+    //PRE:  @param PCB * proccess, the pointer to the process to get
+    //      @param uint virtual_page_number, the virtual_page_number you wish to
+    //      @param uint physical_page_number, the physical_page_number to load to
+    //POST: imports the page if the space is sufficent
+    void importPage(PCB * proccess, uint virtual_page_number,
+                             uint physical_page_number);
 
     //======================================
     // contex switching

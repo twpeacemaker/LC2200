@@ -1,9 +1,15 @@
-#ifndef INCLUDED_Page
-#define INCLUDED_Page
+#ifndef INCLUDED_PageInfo
+#define INCLUDED_PageInfo
 
 #include <iostream>
 #include "constants.h"
 using namespace std;
+
+// Class Invariant (CI): each page will be linked to a process by the PID,
+// virtual_page will represent the page in the file and physical_page
+// will represent the page in memory. dirty will represent if the page
+// has been modifie. stack will represent if the page belongs to stack
+
 
 
 class PageInfo {
@@ -15,7 +21,8 @@ private:
   uint physical_page;
 public:
 
-  // Class Invariant (CI):
+
+
 
   // Default Constructor
   // Pre :
@@ -61,17 +68,18 @@ public:
 
   //PRE: bool value
   //POST: dirty = value
-  bool setDirty(bool value);
+  void setDirty(bool value);
 
 
   //PRE: bool value
   //POST: stack = value
-  bool setStack(bool value);
+  void setStack(bool value);
 
   //PRE: uint value
   //POST: physical_page = value
-  uint setPhysicalPage(uint value);
+  void setPhysicalPage(uint value);
 
   ~PageInfo();
 };
+
 #endif

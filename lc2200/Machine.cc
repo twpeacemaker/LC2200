@@ -9,6 +9,9 @@
 #include "useful_classes/Queue.h"
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
+
+#include "PageTable.h"
+
 #include <stdio.h>
 #include <fstream>
 using namespace std;
@@ -21,6 +24,9 @@ Machine::Machine() {
   importConfigFile();
   memory = new Memory( memory_size );
   nextPCBId = 1;
+  page_table.setSize(memory_size / pagesize);
+  page_table.setFreePages(memory_size / pagesize);
+
 }
 
 //PRE:  @param bool & in_bool, iif true the Machine needs input
@@ -247,42 +253,53 @@ void Machine::loadSim(char * input) {
   // //ASSERT: the file is can me read from
   uint length;           // holds the length of progam
   stream >> length;      // gets the length of the program
-
-  PCB * proccess = new PCB(file_name, nextPCBId, length, stream);
-  //nextPCBId++;
-  //uint SP = (length + stack_size) * BYTES_IN_WORD - BYTES_IN_WORD;
-  //proccess->initPCB(prog_start, prog_end, stack_start, stack_end, SP);
+  char ch = stream.get();
+  uint begining = stream.tellg();
+  PCB * proccess = new PCB(file_name, nextPCBId, length, begining);
+  //*(proccess->getStream());
+  nextPCBId++;
+  uint SP = (length + stack_size) * BYTES_IN_WORD - BYTES_IN_WORD;
+  proccess->initPCB(SP);
   //load into memory
-  // running_queue.enqueue(proccess);
-  // if(running_queue.getSize() == 1) {
-  //   readyCurrentProcessOnCPU();
-  // }
-  importPage(stream, 0, 0);
+  running_queue.enqueue(proccess);
+  if(running_queue.getSize() == 1) {
+    readyCurrentProcessOnCPU();
+  }
+  if(page_table.getNumberOfFree() >= 2) {
+    //ASSERT: can import both the stack page and the memory page
+    page_table.insertPage(proccess, 0, true);
+    int physical_number = page_table.insertPage(proccess, 0, false);
+    importPage(proccess, 0, physical_number);
+  } else {
+    throw(Exception((char *)"ERROR: INSUFFICIENT MEMORY"));
+  }
+
 }
 
-
-
-//PRE:
-//POST:
-void Machine::importPage(fstream & stream, uint virtual_page_number, uint physical_page_number) {
-  stream.seekp(0, ios::beg);
-  uint current_line = 0;
-
-  char ch;                           // will hold each charater
-  stream.get(ch);                    //gets the new line character
-  cout << ch << endl;
-  // for(int word_count = 0; word_count < length; word_count++) {
-  //   uint word = 0;
-  //   //to build the word
-  //   for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) { //x00112233
-  //     //to add the char in the correct place
-  //     inFile.get(ch);
-  //     uint byte = getBits((uint)ch, 7, 0);
-  //     word = insertByte (word, byte, byte_num);
-  //   }
-  //   memory->setAddress(current_line, word); //adds the line to memory
-  //   current_line = (current_line + BYTES_IN_WORD);
-  // }
+//PRE:  @param PCB * proccess, the pointer to the process to get
+//      @param uint virtual_page_number, the virtual_page_number you wish to
+//      @param uint physical_page_number, the physical_page_number to load to
+//POST: imports the page if the space is sufficent
+void Machine::importPage(PCB * proccess, uint virtual_page_number,
+                         uint physical_page_number) {
+  int offset = pagesize * BYTES_IN_WORD * virtual_page_number;
+  int set_file = proccess->getStreamStart() + offset;
+  uint current_line = pagesize * physical_page_number * BYTES_IN_WORD;
+  (proccess->getStream())->seekp(set_file, ios::beg);
+  char ch;
+  for(int word_count = 0; word_count < pagesize; word_count++) {
+    uint word = 0;
+    //to build the word
+    for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) { //x00112233
+      //to add the char in the correct place
+      (proccess->getStream())->get(ch);
+      uint byte = getBits((uint)ch, 7, 0);
+      word = insertByte (word, byte, byte_num);
+    }
+    //printf ("%d: 0x%08X \n", current_line, word);
+    memory->setAddress(current_line, word); //adds the line to memory
+    current_line = (current_line + BYTES_IN_WORD);
+  }
 }
 
 
@@ -343,7 +360,6 @@ char * Machine::jobsSim() {
     sprintf (line, "Name(%d): %s\n", process->getID(), process->getName());
     string.addString(line);
     sprintf (line, "PC: %d\n", process->getPC());
-    string.addString(line);
     string.addString(line);
     if(running_queue.getSize() - 1 != i) {
       //add spacing between jobs to make more readable
@@ -604,7 +620,7 @@ uint Machine::getSignedOrOffset(uint line) {
 //POST: @returns the current progame line
 uint Machine::getCurrentLine() {
   PCB * current_process = getCurrentProcess();
-  uint address = current_process->filterPC(cpu.getPC());
+  uint address = current_process->filterPC(cpu.getPC(), pagesize, stack_size);
   return memory->getAddress(address);
 }
 
@@ -612,7 +628,8 @@ uint Machine::getCurrentLine() {
 //POST: @returns the previous progame line
 uint Machine::getPrevLine() {
   PCB * current_process = getCurrentProcess();
-  uint address = current_process->filterPC(cpu.getPC() - BYTES_IN_WORD);
+  uint address = current_process->filterPC(cpu.getPC() - BYTES_IN_WORD,
+                                           pagesize, stack_size);
   return memory->getAddress(address);
 }
 
@@ -704,7 +721,7 @@ void Machine::lw(uint regX, uint regY, uint num) {
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
-  address = current_process->filterPC(address);
+  address = current_process->filterPC(address, pagesize, stack_size);
   uint content = memory->getAddress(address); //adds the line to memory
   checkZeroRegisterChange(regX, content);
   cpu.setRegister(regX, content);
@@ -720,7 +737,7 @@ void Machine::sw(uint regX, uint regY, uint num) {
   uint content = cpu.getRegister(regX);
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
-  address = current_process->filterPC(address);
+  address = current_process->filterPC(address, pagesize, stack_size);
   memory->setAddress(address, content);
 }
 
