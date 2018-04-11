@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 memory 12
 stack 6
 timeslice 1
 pagesize 3
 swapspace 9
 paging 1
+=======
+memory 21
+stack 1
+mem-management 0
+timeslice 1
+>>>>>>> parent of 7e9f1a6... Tested Multi
