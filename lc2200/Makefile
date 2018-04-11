@@ -1,7 +1,7 @@
 GCC=g++
 
-Machine: Terminal.o main.o Machine.o CPU.o Memory.o MyString.o bit_manipulation.o char_arrays.o PCB.o Freemem.o
-	$(GCC) main.o Machine.o CPU.o Memory.o Terminal.o MyString.o bit_manipulation.o char_arrays.o PCB.o Freemem.o -o Simulator
+Machine: Terminal.o main.o Machine.o CPU.o Memory.o MyString.o bit_manipulation.o char_arrays.o PCB.o Freemem.o FileSystem.o
+	$(GCC) main.o Machine.o CPU.o Memory.o Terminal.o MyString.o bit_manipulation.o char_arrays.o PCB.o Freemem.o FileSystem.o -o Simulator
 
 Terminal.o: constants.h Exception.h Terminal.h Terminal.cc useful_classes/MyString.h Machine.h  useful_functions/char_arrays.h
 	$(GCC) Terminal.cc -c
@@ -15,7 +15,7 @@ main.o: main.cc Terminal.h useful_classes/Queue.h
 Machine.o: Machine.h Machine.cc CPU.h Memory.h Freemem.h constants.h Exception.h PCB.h useful_classes/LList.h useful_classes/MyString.h useful_classes/Queue.h useful_functions/bit_manipulation.h useful_functions/char_arrays.h
 	$(GCC) Machine.cc -c
 
-CPU.o: constants.h CPU.h CPU.cc Exception.h PCB.h useful_classes/MyString.h 
+CPU.o: constants.h CPU.h CPU.cc Exception.h PCB.h useful_classes/MyString.h
 	$(GCC) CPU.cc -c
 
 Memory.o: constants.h Memory.cc Memory.h useful_classes/MyString.h useful_functions/char_arrays.h Exception.h
@@ -32,6 +32,9 @@ char_arrays.o: useful_functions/char_arrays.cc useful_functions/char_arrays.h Ex
 
 PCB.o: PCB.h PCB.cc constants.h CPU.h
 	$(GCC) PCB.cc -c
+
+FileSystem.o: FileSystem.cc FileSystem.cc constants.h
+	$(GCC) FileSystem.cc -c
 
 clean:
 	rm *.o *~ Simulator

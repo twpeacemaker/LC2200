@@ -204,12 +204,14 @@ static char CONFIG_OPTIONS[][15] =
 	"memory",
 	"stack",
 	"mem-management",
-	"timeslice"
+	"timeslice",
+	"FileSysSize"
 };
 
-#define MEMORY_OPTION_INDEX 0
-#define STACK_OPTION_INDEX 1
-#define MEM_MANAGEMENT_INDEX 2
-#define TIMESLICE_INDEX 3
+#define MEMORY_OPTION_INDEX 		0
+#define STACK_OPTION_INDEX 			1
+#define MEM_MANAGEMENT_INDEX 		2
+#define TIMESLICE_INDEX 				3
+#define FILESYSSIZE_INDEX 			4
 
 #endif

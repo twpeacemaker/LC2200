@@ -29,20 +29,27 @@ class Machine {
   // memory management policy and 1 will denote best fit policy. .lc_config
   // will be read and will populate the values of mem_management, memory_size,
   // and stack_size. timeslice will be a positive intager that will be greater
-  // than zero
+  // than zero, filesyssize will be > 1.
 
   private:
 
     CPU cpu;
     Memory * memory;
+
     uint memory_size;
     uint stack_size;
     uint mem_management;
+    uint timeslice;
+    uint filesyssize;
+
+
     Queue<PCB*> running_queue;
+    FileSystem filesystem;
+    
     uint nextPCBId;
     LList<Freemem*> freemem;
 
-    uint timeslice;
+
 
 
     uint num_slices_made;

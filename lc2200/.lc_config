@@ -2,3 +2,4 @@ memory 1024
 stack 50
 mem-management 0
 timeslice 2
+FileSysSize 4

@@ -10,6 +10,8 @@
 #include "useful_classes/Queue.h"
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
+#include "FileSystem.h"
+
 #include <stdio.h>
 #include <fstream>
 using namespace std;
@@ -489,6 +491,8 @@ char * Machine::configSim() {
   str.addString(line);
   sprintf (line, "timeslice: %d\n", timeslice);
   str.addString(line);
+  sprintf (line, "filesyssize: %d\n", filesyssize);
+  str.addString(line);
   delete [] line;
   return str.getStringDeepCopy();
 }
@@ -633,6 +637,14 @@ void Machine::setConfigOption(LList<MyString> tokens) {
         timeslice = temp;
       } else {
         throw(Exception((char *)"ERROR: INVALID CONFIG FILE: TIMESLICE"));
+      }
+    }
+    if(token.isEqual(MyString(CONFIG_OPTIONS[FILESYSSIZE_INDEX]))) {
+      int temp = arrayToInt(tokens.getNth(1).getString());
+      if(temp > 0) {
+        filesyssize = temp;
+      } else {
+        throw(Exception((char *)"ERROR: INVALID CONFIG FILE: FILESYSSIZE"));
       }
     }
   } else {
