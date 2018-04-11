@@ -77,7 +77,7 @@ enum opcodes
 	BGT
 };
 
-static char COMMANDS[][8] =
+static char COMMANDS[][13] =
 {
 	"load",
 	"mem",
@@ -87,18 +87,44 @@ static char COMMANDS[][8] =
 	"jobs",
 	"kill",
 	"exit",
-	"config"
+	"config",
+	"format",
+	"pwd",
+	"ls",
+	"cd",
+	"mkdir",
+	"rmdir",
+	"displayInode",
+	"cp",
+	"cat",
+	"rm",
+	"du",
+	"defrag",
 };
 
-#define LOAD_NUM 	0
-#define MEM_NUM 	1
-#define CPU_NUM 	2
-#define STEP_NUM 	3
-#define FREEMEM_NUM 4
-#define JOBS_NUM 5
-#define KILL_NUM 6
-#define EXIT_NUM 7
-#define CONFIG_NUM 8
+#define LOAD_NUM 					0
+#define MEM_NUM 					1
+#define CPU_NUM 					2
+#define STEP_NUM 					3
+#define FREEMEM_NUM 			4
+#define JOBS_NUM 					5
+#define KILL_NUM 					6
+#define EXIT_NUM 					7
+#define CONFIG_NUM 				8
+//FILESYSTEM COMMANDS
+#define FORMAT_NUM 				9
+#define PWD_NUM 					10
+#define LS_NUM 						11
+#define CD_NUM 						12
+#define MKDIR_NUM 				13
+#define RMDIR_NUM 				14
+#define DISPLAYINODE_NUM 	15
+#define CP_NUM 						16
+#define CAT_NUM 					17
+#define RM_NUM 						18
+#define DU_NUM 						19
+#define DEFRAG_NUM 				20
+
 
 #define NUMBER_OF_LOAD_PARAMS 2
 #define NUMBER_OF_MEM_PARAMS 	3
@@ -110,6 +136,21 @@ static char COMMANDS[][8] =
 #define NUMBER_OF_KILL_PARAMS 2
 #define NUMBER_OF_EXIT_PARAMS 1
 #define NUMBER_OF_CONFIG_PARAMS 1
+// FILESYSTEM COMMANDS
+#define NUMBER_OF_FORMAT_PARAMS 1
+#define NUMBER_OF_PWD_PARAMS 1
+#define NUMBER_OF_LS_PARAMS 2
+#define NUMBER_OF_CD_PARAMS 2
+#define NUMBER_OF_MKDIR_PARAMS 2
+#define NUMBER_OF_RMDIR_PARAMS 2
+#define NUMBER_OF_DISPLAYINODE_PARAMS 1
+#define NUMBER_OF_CP_PARAMS 4
+#define NUMBER_OF_CAT_PARAMS 2
+#define NUMBER_OF_RM_PARAMS 3
+#define NUMBER_OF_DU_PARAMS 3
+#define NUMBER_OF_DEFRAG_PARAMS 3
+
+
 
 #define STEP_TOKEN_N 1
 
