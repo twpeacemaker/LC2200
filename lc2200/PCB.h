@@ -3,13 +3,6 @@
 #include "constants.h"
 #include "CPU.h"
 #include <stdio.h>
-#include <iostream>
-#include <fstream>
-using namespace std;
-
-#include "useful_classes/LList.h"
-#include "PageInfo.h"
-
 
 class PCB {
 
@@ -26,9 +19,7 @@ class PCB {
   // for the program $zero will always remain 0 and $sp will hold the relitive
   // address not the physical, id will be unqiue and not used by any other
   // proccess, PC will hold the relitive PC of when the program end its least
-  // pass as the current process. for each page info in page_table, it is
-  // also in the machines page table, and for each pageinfo in machine it is
-  // also in pagetable
+  // pass as the current process
 
   private:
 
@@ -38,14 +29,16 @@ class PCB {
 
 
     uint program_length;
+
+    uint program_start;
+    uint program_end;
+
+    uint stack_start;
+    uint stack_end;
+
     uint registers[MAX_REGISTERS];
     uint id;
     uint PC;
-
-    fstream * file_stream;
-    uint program_stream_start;
-
-    LList<PageInfo*> page_table;
 
   public:
 
@@ -53,24 +46,13 @@ class PCB {
     //PRE:  @param char * name, the name of the program
     //      @param int id, the unique id that is given to the PCB
     //      @param uint given_length, the length of the progam
-    //      @param fstream & stream, the file stream of the object
-    //      @param uint prog_stream_start, tracks where the prog starts
-    //
     //POST: creates the object
-    PCB(char * given_name, int p_id, uint length, uint prog_stream_start);
-
-    //PRE:  @param PageInfo * page, the page to be added to the pagetable
-    //POST: adds the page to the page table
-    void addPage(PageInfo * page);
+    PCB(char * given_name, int p_id, uint length);
 
     //======================================
     // Getters
     //======================================
 
-
-    //PRE:
-    //POST: @return, uint program_stream_start
-    uint getStreamStart() const;
 
     //PRE:
     //POST: @return, uint program_length
@@ -79,10 +61,6 @@ class PCB {
     //PRE:
     //POST: @return, int steps
     uint getSteps() const;
-
-    //PRE:
-    //POST: returns fstream & file_stream
-    fstream * getStream();
 
     //PRE:
     //POST: @return, whether the program is halted or not
@@ -95,6 +73,22 @@ class PCB {
     //PRE:
     //POST: @return uint id;
     uint getID() const;
+
+    //PRE:
+    //POST: @return, program_start
+    uint getProgStartAddress();
+
+    //PRE:
+    //POST: @return, program_end
+    uint getProgEndAddress();
+
+    //PRE:
+    //POST: @return, stack_start
+    uint getStackStartAddress();
+
+    //PRE:
+    //POST: @return, stack_end
+    uint getStackEndAddress();
 
     //PRE:
     //POST: @return the value at the register[SP]
@@ -155,16 +149,23 @@ class PCB {
     //POST: @return whether the program is able to run
     bool ableToRun(int num_steps);
 
-    //PRE: @param uint SP, where the register SP will be set to
-    //POST: registers[STACK_POINTER_INDEX] = stack_end;
-    void initPCB(uint SP);
+
+    //PRE: @param uint p_start, program start address
+    //     @param uint p_end, program end address
+    //     @param uint s_start, stack start address
+    //     @param uint s_end, stack end address
+    //     @param uint SP, where the register SP will be set to
+    //POST: program_start = p_start
+    //      program_end = p_end
+    //      stack_start = s_start
+    //      stack_end = s_end
+    //      registers[STACK_POINTER_INDEX] = stack_end;
+    void initPCB(uint p_start, uint p_end, uint s_start, uint s_end, uint SP);
 
     //PRE:  @param uint PC, the relitive pc, assumes in bounds of the program
-    //      @param uint page_size, the size of the page
-    //      @param uint stack_size, the size of stack
     //POST: @return, return_value gets the address from the machine and calculates
     //               the effective address of memory
-    uint filterPC(uint PC, uint page_size, uint stack_size);
+    uint filterPC(uint PC);
 
     friend ostream & operator <<(ostream & str, const PCB * M);
 

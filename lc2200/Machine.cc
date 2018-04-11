@@ -4,14 +4,12 @@
 #include "constants.h"
 #include "Exception.h"
 #include "PCB.h"
+#include "Freemem.h"
 #include "useful_classes/LList.h"
 #include "useful_classes/MyString.h"
 #include "useful_classes/Queue.h"
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
-
-#include "PageTable.h"
-
 #include <stdio.h>
 #include <fstream>
 using namespace std;
@@ -22,11 +20,12 @@ using namespace std;
 // Post: initlizes the Machine class
 Machine::Machine() {
   importConfigFile();
-  memory = new Memory( memory_size );
+  int start = 0;
+  int end = (memory_size * BYTES_IN_WORD) - BYTES_IN_WORD;
+  Freemem * init_freemem = new Freemem(start, end);
+  freemem.addFront(init_freemem);
+  memory = new Memory( memory_size ); //if is specified
   nextPCBId = 1;
-  page_table.setSize(memory_size / pagesize);
-  page_table.setFreePages(memory_size / pagesize);
-
 }
 
 //PRE:  @param bool & in_bool, iif true the Machine needs input
@@ -124,6 +123,9 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     return_value = sliceSim(input, in_bool, out_bool, done, post_i_o,
                             current_process_done, num_slices);
     evaluteSliceState(done, num_slices);
+  } else if( compareCharArray(command.getString(), COMMANDS[FREEMEM_NUM]) ) {
+    return_value = freememSim();
+    out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[JOBS_NUM]) ) {
     return_value = jobsSim();
     out_bool = true; done = true;
@@ -162,10 +164,12 @@ char * Machine::sliceSim(char * input, bool & in_bool, bool & out_bool,
    current_process_done = false;
   }
   bool job_stepped = false;
-  if(num_slices > num_slices_made) {
+  if(num_slices > num_slices_made && running_queue.getSize() > 0) {
    return_value = stepSim(timeslice, in_bool, out_bool, done);
    job_stepped = true; // track if a job has ran this iteration
-  }
+ } else {
+   done = true;
+ }
   if(job_stepped) {
    //ASSERT: job has stepped this iteration and must be evaluated if it should
    //        removed, moved to the back, or stay at the front of the queue
@@ -196,8 +200,8 @@ void Machine::evaluteJobState(bool & current_process_done,
   }
 }
 
-//PRE:  @param bool & done,
-//      @param uint num_slices
+//PRE: @param bool done, is true iff the Machine hasnt finnished its process
+//      @param uint num_slices, number of slices total the progs neods to slice
 //      should be called after running_queue is edited or a PCB has been ran
 //POST: after the running_queue or PCB has been ran evalutes the state
 //      of slices and sets the proper values to continue or stop
@@ -243,58 +247,54 @@ char * Machine::getProgamName(char * input) {
 //(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
 void Machine::loadSim(char * input) {
   char * file_name = getProgamName(input); //gets the progam name with + .lce
-  fstream stream (file_name, ios::in | ios::out);
-  if(stream == NULL) {
+  ifstream inFile(file_name); //openfile stream
+  if(inFile == NULL) {
     //ASSERT: The file could not be opened
     throw(Exception((char *)"ERROR: FILE FAILED TO OPEN"));
   }
   // //ASSERT: the file is can me read from
   uint length;           // holds the length of progam
-  stream >> length;      // gets the length of the program
-  char ch = stream.get();
-  uint begining = stream.tellg();
-  PCB * proccess = new PCB(file_name, nextPCBId, length, begining);
-  //*(proccess->getStream());
+  inFile >> length;      // gets the length of the program
+  uint prog_start; uint prog_end; uint stack_start, stack_end;
+  getProgamBounds(prog_start, prog_end, length, stack_start, stack_end);
+
+  PCB * proccess = new PCB(file_name, nextPCBId ,length);
   nextPCBId++;
   uint SP = (length + stack_size) * BYTES_IN_WORD - BYTES_IN_WORD;
-  proccess->initPCB(SP);
+  proccess->initPCB(prog_start, prog_end, stack_start, stack_end, SP);
   //load into memory
   running_queue.enqueue(proccess);
   if(running_queue.getSize() == 1) {
     readyCurrentProcessOnCPU();
   }
-  if(page_table.getNumberOfFree() >= 2) {
-    //ASSERT: can import both the stack page and the memory page
-    page_table.insertPage(proccess, 0, true);
-    int physical_number = page_table.insertPage(proccess, 0, false);
-    importPage(proccess, 0, physical_number);
-  } else {
-    throw(Exception((char *)"ERROR: INSUFFICIENT MEMORY"));
-  }
-
+  importProgFile(inFile, prog_start, length);
+  inFile.close(); // close the filestream
 }
 
-//PRE:  @param PCB * proccess, the pointer to the process to get
-//      @param uint virtual_page_number, the virtual_page_number you wish to
-//      @param uint physical_page_number, the physical_page_number to load to
-//POST: imports the page if the space is sufficent
-void Machine::importPage(PCB * proccess, uint virtual_page_number,
-                         uint physical_page_number) {
-  int offset = pagesize * BYTES_IN_WORD * virtual_page_number;
-  int set_file = proccess->getStreamStart() + offset;
-  uint current_line = pagesize * physical_page_number * BYTES_IN_WORD;
-  (proccess->getStream())->seekp(set_file, ios::beg);
-  char ch;
-  for(int word_count = 0; word_count < pagesize; word_count++) {
+
+
+//PRE: @param ifstream & inFile takes the correctly formated file with the
+//     length read from the file and the next thing to be read is the first
+//     byte of memorys
+//     @param uint start_address, the address to load the first word
+//     @param int length the length of the file
+//     assumes that the start till the length is allocated to the program
+//     assumes the inFile is open and it will be closes after this function
+//POST:reads the file into the address starting at start address and ending
+//     at the address (start + length)
+void Machine::importProgFile(ifstream & inFile, uint start_address, int length){
+  uint current_line = start_address; // of memory
+  char ch;                           // will hold each charater
+  inFile.get(ch);                    //gets the new line character
+  for(int word_count = 0; word_count < length; word_count++) {
     uint word = 0;
     //to build the word
     for (int byte_num = 0; byte_num < BYTES_IN_WORD; byte_num++) { //x00112233
       //to add the char in the correct place
-      (proccess->getStream())->get(ch);
+      inFile.get(ch);
       uint byte = getBits((uint)ch, 7, 0);
       word = insertByte (word, byte, byte_num);
     }
-    //printf ("%d: 0x%08X \n", current_line, word);
     memory->setAddress(current_line, word); //adds the line to memory
     current_line = (current_line + BYTES_IN_WORD);
   }
@@ -349,6 +349,25 @@ char * Machine::cpuSim() {
 }
 
 //PRE: the Machine be running
+//POST: @returns the contents of the freemem llist from 0 - n
+char * Machine::freememSim() {
+  int size = freemem.getSize();
+  MyString str;
+  if(size == 0) {
+    str.addString((char *)"FREEMEM IS EMPTY \n");
+  } else {
+    for (int i = 0; i < size; i++) {
+      Freemem * current_freemem = freemem.getNth(i);
+      char * to_add = new char [MAX_FREEMEM_OUTPUT];
+      sprintf (to_add, "Start: %d - End: %d \n", current_freemem->getStart(),
+                                                 current_freemem->getEnd());
+      str.addString(to_add);
+    }
+  }
+  return str.getStringDeepCopy();
+}
+
+//PRE: the Machine be running
 //POST: @return char* the array that displays the jobs to the user
 char * Machine::jobsSim() {
   MyString string;
@@ -358,6 +377,14 @@ char * Machine::jobsSim() {
     sprintf (line, "Name(%d): %s\n", process->getID(), process->getName());
     string.addString(line);
     sprintf (line, "PC: %d\n", process->getPC());
+    string.addString(line);
+    sprintf (line, "Starting Address: %d\n", process->getProgStartAddress());
+    string.addString(line);
+    sprintf (line, "Ending Address: %d\n", process->getProgEndAddress());
+    string.addString(line);
+    sprintf (line, "Stack Start: %d\n", process->getStackStartAddress());
+    string.addString(line);
+    sprintf (line, "Stack End: %d\n", process->getStackEndAddress());
     string.addString(line);
     if(running_queue.getSize() - 1 != i) {
       //add spacing between jobs to make more readable
@@ -409,20 +436,16 @@ char * Machine::configSim() {
   str.addString(line);
   sprintf (line, "stack_size: %d\n", stack_size);
   str.addString(line);
+  sprintf (line, "mem-management: %d\n", mem_management);
+  str.addString(line);
   sprintf (line, "timeslice: %d\n", timeslice);
-  str.addString(line);
-  sprintf (line, "pagesize: %d\n", pagesize);
-  str.addString(line);
-  sprintf (line, "swapspace: %d\n", swapspace);
-  str.addString(line);
-  sprintf (line, "paging: %d\n", paging);
   str.addString(line);
   delete [] line;
   return str.getStringDeepCopy();
 }
 
 //PRE: takes the id of the process being removed
-//POST: removes that process from the running queue and frees the memory_size that
+//POST: removes that process from the running queue and frees the memory that
 //      it was allocating
 //      @return whether the process was found or not
 bool Machine::terminateProcess(uint pid) {
@@ -434,6 +457,10 @@ bool Machine::terminateProcess(uint pid) {
     if(process->getID() == pid) {
       running_queue.deleteNthQueued(i);
       //delete process; //deletes process
+      deallocateMem(process->getProgStartAddress(),
+                    process->getProgEndAddress());
+      deallocateMem(process->getStackStartAddress(),
+                    process->getStackEndAddress());
       found = true;
       if(i == 0) {
         //current_process was removed next process needs to be readied
@@ -517,11 +544,8 @@ void Machine::importConfigFile() {
 		}
 	}
   inFile.close();
-  if(memory_size % pagesize != 0 || stack_size % pagesize != 0 ||
-     swapspace % pagesize != 0 || memory_size == 0 || stack_size == 0) {
-		throw(Exception((char *)"ERROR: Invalid Config file"));
-	}
 }
+
 
 //PRE:  Taking a LList of MyString objects, the LList of the must be no more
 //      than 2 and the second token must be a given option for the lc2200 and
@@ -531,7 +555,7 @@ void Machine::setConfigOption(LList<MyString> tokens) {
   if(tokens.getSize() == PARAMS_IN_CONFIG) {
     MyString token = tokens.getNth(0);
     if(token.isEqual(MyString(CONFIG_OPTIONS[MEMORY_OPTION_INDEX]))) {
-      uint temp = arrayToInt(tokens.getNth(1).getString());
+      int temp = arrayToInt(tokens.getNth(1).getString());
       if(temp > 0) {
         memory_size = temp;
       } else {
@@ -539,39 +563,213 @@ void Machine::setConfigOption(LList<MyString> tokens) {
       }
     }
     if(token.isEqual(MyString(CONFIG_OPTIONS[STACK_OPTION_INDEX]))) {
-      uint temp = arrayToInt(tokens.getNth(1).getString());
+      int temp = arrayToInt(tokens.getNth(1).getString());
       if(temp > 0) {
         stack_size = temp;
       } else {
         throw(Exception((char *)"ERROR: INVALID CONFIG FILE: stack <= 0"));
       }
     }
+    if(token.isEqual(MyString(CONFIG_OPTIONS[MEM_MANAGEMENT_INDEX]))) {
+      int temp = arrayToInt(tokens.getNth(1).getString());
+      if(temp != 0 || temp != 1) {
+        mem_management = temp;
+      } else {
+        throw(Exception((char *)"ERROR: INVALID CONFIG FILE: MEM_MANAGEMENT"));
+      }
+    }
     if(token.isEqual(MyString(CONFIG_OPTIONS[TIMESLICE_INDEX]))) {
-      uint temp = arrayToInt(tokens.getNth(1).getString());
+      int temp = arrayToInt(tokens.getNth(1).getString());
       if(temp > 0) {
         timeslice = temp;
       } else {
         throw(Exception((char *)"ERROR: INVALID CONFIG FILE: TIMESLICE"));
       }
     }
-    if(token.isEqual(MyString(CONFIG_OPTIONS[PAGESIZE_INDEX]))) {
-      uint temp = arrayToInt(tokens.getNth(1).getString());
-      if(temp > 0) {
-        pagesize = temp;
-      } else {
-        throw(Exception((char *)"ERROR: INVALID CONFIG FILE: PAGESIZE"));
-      }
-    }
-    if(token.isEqual(MyString(CONFIG_OPTIONS[SWAPSPACE_INDEX]))) {
-      uint temp = arrayToInt(tokens.getNth(1).getString());
-      swapspace = temp;
-    }
-    if(token.isEqual(MyString(CONFIG_OPTIONS[PAGING_INDEX]))) {
-      uint temp = arrayToInt(tokens.getNth(1).getString());
-      paging = temp;
-    }
   } else {
     throw(Exception((char *)"ERROR: Invalid Config file"));
+  }
+}
+
+//PRE: @param, uint & prog_start, holds the location of the start of prog after
+//             return
+//     @param, uint & prog_end, holds the location of the end of prog after
+//             return
+//     @param, uint length, the length of the prog wanting to be added
+//     @param, uint & stack_start, holds the location of the start of stack
+//             after return
+//     @param, uint & stack_end, holds the location of the end of stack after
+//             return
+//POST: uint & prog_start, uint & prog_end, uint & stack_start,
+//      uint & stack_end are only meanful if error is not thrown
+//throw(Exception((char *)"ERROR: OUT OF MEMORY"));
+void Machine::getProgamBounds(uint & prog_start, uint & prog_end, uint length,
+                             uint & stack_start, uint & stack_end) {
+  bool error = false;
+  getMemLocations(prog_start, prog_end, length, error);
+  if(!error) {
+    //ASSERT: prog had room in mem
+    //get stack memory
+    getMemLocations(stack_start, stack_end, stack_size, error);
+    if(error) {
+      //ASSERT: stack did not have room and have to reallocate prog space
+      deallocateMem(prog_start, prog_end);
+    }
+  }
+  if(error) {
+    throw(Exception((char *)"ERROR: OUT OF MEMORY"));
+  }
+}
+
+
+//PRE:  @param uint & start, holds the location of the start of prog after
+//      return
+//      @param uint & end,holds the location of the end of prog after return
+//      @param uint size the length of the prog wanting to be added to memory
+//      @param bool & error, tracks if an error occurs
+//POST: uint start, uint end are meaning fill iif there is not an error thrown
+void Machine::getMemLocations(uint & start, uint & end, uint size,
+                              bool & error) {
+  try {
+    //get mem locations for progame
+    if(mem_management == 0) {
+      //ASSERT: mem_management = 0, 0 denotes first fit
+      firstFit(start, end, size);
+    } else {
+      //ASSERT: mem_management = 1, 1 denotes best fit
+      bestFit(start, end, size);
+    }
+  } catch (Exception e) {
+    //does tho
+    error = true;
+  }
+}
+
+//PRE: @param, uint & start, where the prog will start
+//     @param, uint & end,   where the prog will end
+//     @param, uint size,    the size of the program
+//POST: start and end will be meaning full and will indicate where the prog
+//      should go iff the program does not through an error. the method finds
+//      the first memory location the size will fit in
+void Machine::firstFit(uint & start, uint & end, uint size) {
+
+  bool found = false;
+  int current_index = 0;
+  uint freemem_size = freemem.getSize();
+  if(freemem_size > 0) {
+    for(int i = 0; freemem_size > i; i++) {
+      Freemem * current_mem = freemem.getNth(current_index);
+      if (size <= current_mem->getSize() && !found) {
+        //ASSERT: found location for memory
+        found = true;
+        start = current_mem->getStart();
+        end   = start + (size * BYTES_IN_WORD) - BYTES_IN_WORD;
+        allocateMem(end + BYTES_IN_WORD, current_index);
+      }
+      current_index++;
+    }
+  }
+  if(!found) {
+    //ASSERT: a problem occured and the prog does not fit
+    throw(Exception((char *)""));
+  }
+}
+
+
+//PRE:  @param, uint & start, where the prog will start
+//      @param, uint & end,   where the prog will end
+//      @param, uint size,    the size of the program
+//POST: start and end will be meaning full and will indicate where the prog
+//      should go iff the program does not through an error. the method finds
+//      the best memory location the size will fit in
+void Machine::bestFit(uint & start, uint & end, uint size) {
+  bool found = false;
+  int best_fit_offset; //meaning the size of memory the prog or stack will
+                       //no use, the goal is to get the smallest offset
+  int index_of_freemem;
+  for(int i = 0; freemem.getSize() > i; i++) {
+    Freemem * current_mem = freemem.getNth(i);
+    if(size <= current_mem->getSize()) {
+      if(!found) {
+        best_fit_offset = current_mem->getSize() - size;
+        start = current_mem->getStart();
+        end = start + (size * BYTES_IN_WORD) - BYTES_IN_WORD;
+        found = true;
+        index_of_freemem = i;
+      } else if(found && (current_mem->getSize() - size) < best_fit_offset){
+        //ASSERT: found a better fit
+        start = current_mem->getStart();
+        end = start + (size * BYTES_IN_WORD) - BYTES_IN_WORD;
+        best_fit_offset = current_mem->getSize() - size;
+        index_of_freemem = i;
+      }
+    }
+  }
+  if(found == false) {
+    //ASSERT: a problem occured and the prog does not fit
+    throw(Exception((char *)""));
+  } else {
+    //ASSERT: claim the memory found
+    allocateMem(end + BYTES_IN_WORD, index_of_freemem);
+  }
+}
+
+//PRE: uint new_start, the new start of the freemem
+//     int freemem_index, the freemem object that is being dealloacted
+//POST:if all the freemem is used it is delete, else it is made smallers
+void Machine::allocateMem(uint new_start, int freemem_index) {
+  Freemem * freemem_object = freemem.getNth(freemem_index);
+  if(new_start > freemem_object->getEnd()) {
+    freemem.deleteNth(freemem_index);
+  } else {
+    freemem_object->setStart(new_start);
+  }
+}
+
+//PRE:  @param uint free_start, the
+//      @param uint free_end,
+//POST: adds the new memory that has been freed to the machine
+void Machine::deallocateMem(uint start, uint end) {
+  Freemem * new_freemem = new Freemem(start, end);
+  int best_index = 0; //keeps track of the loction that is a best fit
+  bool found_location = false; //if false, addFront
+  for(int i = 0; i < freemem.getSize(); i++) {
+    if(start > freemem.getNth(i)->getEnd()) {
+      best_index = i;
+      found_location = true;
+    }
+  }
+  if(found_location) {
+    //ASSERT: location was found to not need to add to front
+    freemem.insertAfterNth(best_index, new_freemem);
+  } else {
+    //ASSERT: needs to be added the front
+    freemem.addFront(new_freemem);
+  }
+  joinFreemem();
+}
+
+//PRE:  free mem is populated with size > 1
+//POST: freemem has to objects that are directl adj to each other meaning,
+//      mem 0 - 4 and 8 - 12 is added to gether to be to 0 - 12.
+void Machine::joinFreemem() {
+  int i = 0;
+  uint current_end;
+  uint next_start;
+  int size = freemem.getSize();
+  while(i < (size - 1)) {
+    current_end = freemem.getNth(i)->getEnd();
+    next_start  = freemem.getNth(i+1)->getStart();
+    if(current_end == (next_start - BYTES_IN_WORD)) {
+      //ASSERT: the two nodes adj
+      uint next_end = freemem.getNth(i+1)->getEnd();
+      freemem.getNth(i)->setEnd(next_end);
+      freemem.deleteNth(i + 1);
+      size--;
+    } else {
+      i++;
+    }
+
   }
 }
 
@@ -618,7 +816,7 @@ uint Machine::getSignedOrOffset(uint line) {
 //POST: @returns the current progame line
 uint Machine::getCurrentLine() {
   PCB * current_process = getCurrentProcess();
-  uint address = current_process->filterPC(cpu.getPC(), pagesize, stack_size);
+  uint address = current_process->filterPC(cpu.getPC());
   return memory->getAddress(address);
 }
 
@@ -626,8 +824,7 @@ uint Machine::getCurrentLine() {
 //POST: @returns the previous progame line
 uint Machine::getPrevLine() {
   PCB * current_process = getCurrentProcess();
-  uint address = current_process->filterPC(cpu.getPC() - BYTES_IN_WORD,
-                                           pagesize, stack_size);
+  uint address = current_process->filterPC(cpu.getPC() - BYTES_IN_WORD);
   return memory->getAddress(address);
 }
 
@@ -719,7 +916,7 @@ void Machine::lw(uint regX, uint regY, uint num) {
   checkAddressOutOfBounds(address);
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
-  address = current_process->filterPC(address, pagesize, stack_size);
+  address = current_process->filterPC(address);
   uint content = memory->getAddress(address); //adds the line to memory
   checkZeroRegisterChange(regX, content);
   cpu.setRegister(regX, content);
@@ -735,7 +932,7 @@ void Machine::sw(uint regX, uint regY, uint num) {
   uint content = cpu.getRegister(regX);
   //ASSERT: Address is valid
   PCB * current_process = getCurrentProcess();
-  address = current_process->filterPC(address, pagesize, stack_size);
+  address = current_process->filterPC(address);
   memory->setAddress(address, content);
 }
 

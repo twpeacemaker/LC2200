@@ -2,21 +2,14 @@
 #include "constants.h"
 #include <stdio.h>
 #include "CPU.h"
-#include <iostream>
-#include <fstream>
-using namespace std;
-
-#include "useful_classes/LList.h"
-
 
 
 //Constructor
 //PRE:  @param char * name, the name of the program
 //      @param int id, the unique id that is given to the PCB
 //      @param uint given_length, the length of the progam
-//      @param fstream & stream, the file stream of the object
 //POST: creates the object
-PCB::PCB(char * given_name, int p_id, uint length, uint prog_stream_start) {
+PCB::PCB(char * given_name, int p_id, uint length) {
   name = given_name;
   program_length = length;
   steps = 0;
@@ -24,14 +17,6 @@ PCB::PCB(char * given_name, int p_id, uint length, uint prog_stream_start) {
   id = p_id;
   PC = 0;
   registers[0] = 0;
-  file_stream = new fstream (given_name, ios::in | ios::out);
-  program_stream_start = prog_stream_start;
-}
-
-//PRE:  @param PageInfo * page, the page to be added to the pagetable
-//POST: adds the page to the page table
-void PCB::addPage(PageInfo * page) {
-  page_table.addBack(page);
 }
 
 //======================================
@@ -39,18 +24,9 @@ void PCB::addPage(PageInfo * page) {
 //======================================
 
 //PRE:
-//POST: @return, uint program_stream_start
-uint PCB::getStreamStart() const {
-  return program_stream_start;
-}
-
-//PRE:
 //POST: @return, uint program_length
 uint PCB::getLength() const {return program_length;}
 
-//PRE:
-//POST: returns fstream & file_stream
-fstream * PCB::getStream() {return file_stream;}
 
 //PRE:
 //POST: @return, int steps
@@ -138,10 +114,39 @@ void PCB::setName(char * new_name) {name = new_name;}
 //POST: sets the program to be halted
 void PCB::haltProgram() {halted = true;}
 
+//PRE:
+//POST: @return, program_start
+uint PCB::getProgStartAddress() {return program_start;}
 
-//PRE: @param uint SP, where the register SP will be set to
-//POST: registers[STACK_POINTER_INDEX] = stack_end;
-void PCB::initPCB(uint SP) {
+//PRE:
+//POST: @return, program_end
+uint PCB::getProgEndAddress() {return program_end;}
+
+//PRE:
+//POST: @return, stack_start
+uint PCB::getStackStartAddress() {return stack_start;}
+
+//PRE:
+//POST: @return, stack_end
+uint PCB::getStackEndAddress() {return stack_end;}
+
+//PRE: @param uint p_start, program start address
+//     @param uint p_end, program end address
+//     @param uint s_start, stack start address
+//     @param uint s_end, stack end address
+//     @param uint SP, where the register SP will be set to
+//POST: program_start = p_start
+//      program_end = p_end
+//      stack_start = s_start
+//      stack_end = s_end
+//      registers[STACK_POINTER_INDEX] = stack_end;
+void PCB::initPCB(uint p_start, uint p_end, uint s_start, uint s_end, uint SP) {
+  //progame address
+  program_start = p_start;
+  program_end = p_end;
+  //stack
+  stack_start = s_start;
+  stack_end = s_end;
   PC = 0;
   registers[STACK_POINTER_INDEX] = SP;
 }
@@ -158,43 +163,26 @@ bool PCB::ableToRun(int num_steps) {
 }
 
 //PRE:  @param uint PC, the relitive pc, assumes in bounds of the program
-//      @param uint page_size, the size of the page
-//      @param uint stack_size, the size of the stack
 //POST: @return, return_value gets the address from the machine and calculates
 //               the effective address of memory
-uint PCB::filterPC(uint PC, uint page_size, uint stack_size) {
+uint PCB::filterPC(uint PC) {
   uint return_value;
-  uint location = PC / BYTES_IN_WORD;
-  uint stack = false;
-  if(location >= program_length) {
-    stack = true;
-  }
-  uint virtual_page_number;
-  if(stack) {
-    location = (location - (program_length - 1)) - stack_size;
-  }
-  virtual_page_number = location / page_size;
-  PageInfo * page;
-  bool found = false;
-  int i = 0;
-  while(i < page_table.getSize() && !found) {
-    page = page_table.getNth(i);
-    if(page->getVirtualPage() == virtual_page_number && page->getStack() == stack) {
-      found = true;
-    }
-    i++;
-  }
-  if(!found) {
-
+  uint upper_bound = program_end - program_start;
+  if(PC <= upper_bound) {
+    //ASSERT: in the program
+    return_value = program_start + PC;
   } else {
-    uint page_line = (location % page_size) * BYTES_IN_WORD;
-    return_value = ((page->getPhysicalPage() * page_size) * BYTES_IN_WORD);
-    if (stack) {
-      return_value = return_value + ((page_size - 1) * BYTES_IN_WORD);
-    } else {
-      return_value += page_line;
-    }
+    //in the stack of the memory
+    // uint offset       = stack_end - stack_start;
+    // uint added_val    = (PC - offset);
+    // return_value = added_val + stack_start;
+
+    uint length = program_length * BYTES_IN_WORD;
+    uint offset = stack_end - stack_start;
+    uint place = length + offset - PC;
+    return_value = stack_end - place;
   }
+
   return return_value;
 }
 
