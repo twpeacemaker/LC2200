@@ -135,55 +135,6 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   } else if( compareCharArray(command.getString(), COMMANDS[CONFIG_NUM]) ) {
     return_value = configSim();
     out_bool = true; done = true;
-  } //========================= FILESYSTEM COMMANDS =========================
-  else if( compareCharArray(command.getString(), COMMANDS[FORMAT_NUM]) ) {
-    //return_value = configSim();
-    cout << "FORMATE" << endl;
-    done = true;
-  }  else if( compareCharArray(command.getString(), COMMANDS[PWD_NUM]) ) {
-    //return_value = configSim();
-    cout << "PWD" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[LS_NUM]) ) {
-    //return_value = configSim();
-    cout << "LS" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[CD_NUM]) ) {
-    //return_value = configSim();
-    cout << "CD" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[MKDIR_NUM]) ) {
-    //return_value = configSim();
-    cout << "MKDIR" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[RMDIR_NUM]) ) {
-    //return_value = configSim();
-    cout << "RMDIR" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[DISPLAYINODE_NUM]) ) {
-    //return_value = configSim();
-    cout << "DISPLAYINODE" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[CP_NUM]) ) {
-    //return_value = configSim();
-    cout << "CP" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[CAT_NUM]) ) {
-    //return_value = configSim();
-    cout << "CAT" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[RM_NUM]) ) {
-    //return_value = configSim();
-    cout << "RM" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[DU_NUM]) ) {
-    //return_value = configSim();
-    cout << "DU" << endl;
-    done = true;
-  } else if( compareCharArray(command.getString(), COMMANDS[DEFRAG_NUM]) ) {
-    //return_value = configSim();
-    cout << "DEFRAG" << endl;
-    done = true;
   }
   return return_value;
 }

@@ -79,10 +79,17 @@ void Terminal::runCommand(char * input) {
 //POST: validates that the commands are correct and that the command is not
 //      the exit command, if the exit command is given thent the program is
 //      exited
-//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO {{command}}"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO MEM"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CPU"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RUN"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO EXIT"));
+//throw(Exception((char *)"INVALID COMMAND GIVEN"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO FREEMEM"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO JOBS"));
+//throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO KILL"));
 void Terminal::validateInput(LList<MyString> tokens) {
   MyString command = tokens.getFront();       //gets the command
-  //================== Machine Commands ================================
   if( compareCharArray(command.getString(), COMMANDS[LOAD_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_LOAD_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LOAD"));
@@ -121,58 +128,7 @@ void Terminal::validateInput(LList<MyString> tokens) {
     if(tokens.getSize() != NUMBER_OF_CONFIG_PARAMS) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CONFIG_NUM"));
     }
-  }
-  //================== File System Commands ================================
-  else if( compareCharArray(command.getString(), COMMANDS[FORMAT_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_FORMAT_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO FORMAT"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[PWD_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_PWD_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO PWD"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[LS_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_LS_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO LS"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[CD_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_CD_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CD"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[MKDIR_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_MKDIR_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO MKDIR"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[RMDIR_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_RMDIR_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RMDIR"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[DISPLAYINODE_NUM])){
-    if(tokens.getSize() != NUMBER_OF_DISPLAYINODE_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO DISPLAYINODE_NUM"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[CP_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_CP_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CP"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[CAT_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_CAT_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO CAT"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[RM_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_RM_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RM"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[DU_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_DU_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO DU"));
-    }
-  } else if( compareCharArray(command.getString(), COMMANDS[DEFRAG_NUM]) ) {
-    if(tokens.getSize() != NUMBER_OF_DEFRAG_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO DEFRAG_NUM"));
-    }
-  }
-  else {
+  } else {
     throw(Exception((char *)"INVALID COMMAND GIVEN"));
   }
 }
