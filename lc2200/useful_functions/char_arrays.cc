@@ -46,6 +46,8 @@ int charToInteger(char c) {
   return (rv);
 }
 
+
+
 // Pre:  @param char * characters takes an array of characters to be converted
 //       to an int
 // Post: @return the intager, represented by the array

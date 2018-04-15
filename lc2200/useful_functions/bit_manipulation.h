@@ -60,5 +60,18 @@ uint insertByte (uint num, uint to_insert, int byte_num);
 //POST:returns the correct number with negitive accounted for
 uint accountForNeg(uint num, int left_index);
 
+//PRE: @param uint num: the number to be inserted to
+//     @param uint to_insert: the number being inserted, should only be a byte
+//            long
+//     @param uint start_byte, the byte number you want the intager to begin at
+//    @param uint  end_byte, the byte number you want the intager to begin at
+//POST: @return, returns the word with the byte inserted
+uint insertNum(uint num, uint to_insert, uint start_byte, uint end_byte);
+
+//PRE: @param uint num, the number to extract the byte form
+//     @param uint byte_num, the byte number to be extracted
+//POST:
+uint getByte(uint num, uint byte_num);
+
 
 #endif

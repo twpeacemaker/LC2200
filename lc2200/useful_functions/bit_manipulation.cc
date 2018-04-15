@@ -119,6 +119,7 @@ uint getByteMask(int byte_num) {
   return return_value;
 }
 
+
 //PRE: @param int num: the number to be inserted to
 //     @param int to_insert: the number being inserted, should only be a byte
 //            long
@@ -147,4 +148,32 @@ uint insertByte (uint num, uint to_insert, int byte_num) {
       return_value = shifted_num2 | temp;
   }
   return(return_value);
+}
+
+//PRE: @param uint num, the number to extract the byte form
+//     @param uint byte_num, the byte number to be extracted
+//POST:
+uint getByte(uint num, uint byte_num) {
+  uint start = byte_num * BITS_IN_BYTES;
+  uint end   = start + BITS_IN_BYTES - 1;
+  return getBits(num, end, start);
+}
+
+//PRE: @param uint num: the number to be inserted to
+//     @param uint to_insert: the number being inserted, should only be a byte
+//            long
+//     @param uint start_byte, the byte number you want the intager to begin at
+//    @param uint  end_byte, the byte number you want the intager to begin at
+//POST: @return, returns the word with the byte inserted
+uint insertNum(uint num, uint to_insert, uint start_byte, uint end_byte) {
+  uint return_value = num;
+  //printf("NUM: %#08x \n" , num);
+  int to_insert_index = 0;
+  for(int i = start_byte; i <= end_byte; i++) {
+    uint byte_to_insert = getByte(to_insert, to_insert_index);
+    to_insert_index++;
+    return_value = insertByte (num, to_insert, i);
+  }
+  //printf("RV: %#08x \n" , return_value);
+  return return_value;
 }

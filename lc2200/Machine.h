@@ -15,6 +15,7 @@ using namespace std;
 #include "useful_classes/Queue.h"
 #include "useful_functions/bit_manipulation.h"
 #include "useful_functions/char_arrays.h"
+#include "FileSystem.h"
 
 class Machine {
 
@@ -44,8 +45,8 @@ class Machine {
 
 
     Queue<PCB*> running_queue;
-    FileSystem filesystem;
-    
+    FileSystem * filesystem;
+
     uint nextPCBId;
     LList<Freemem*> freemem;
 

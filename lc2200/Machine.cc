@@ -28,6 +28,7 @@ Machine::Machine() {
   freemem.addFront(init_freemem);
   memory = new Memory( memory_size ); //if is specified
   nextPCBId = 1;
+  filesystem = new FileSystem(filesyssize);
 }
 
 //PRE:  @param bool & in_bool, iif true the Machine needs input
@@ -1097,5 +1098,9 @@ Machine::~Machine() {
   if(memory != NULL) {
     delete memory;
     memory = NULL;
+  }
+  if(filesystem != NULL) {
+    delete filesystem;
+    filesystem = NULL;
   }
 }

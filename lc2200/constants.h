@@ -8,6 +8,8 @@ static char REGISTER_NAMES[][6] =
 	"$k0"  , "$sp", "$fp", "$ra"
 };
 
+static char FILE_SYSTEM_NAME[5] = "Disk";
+
 typedef unsigned int uint;
 
 #define MAX_INPUT_SIZE 80
@@ -213,5 +215,20 @@ static char CONFIG_OPTIONS[][15] =
 #define MEM_MANAGEMENT_INDEX 		2
 #define TIMESLICE_INDEX 				3
 #define FILESYSSIZE_INDEX 			4
+
+//filesystem
+#define NUM_LINES_IN_INODE 8
+#define NUMBER_OF_INODE_TYPES 4
+#define MAX_NAME_SIZE 21
+
+#define DIRECTORY_ID 0
+#define FREEINODE_ID 3
+
+#define DIR_NUM_CHILD_LINE 5
+#define DIR_NUM_PARENT_LINE 6
+#define DIR_NUM_LEFT_CHILD_NODE_LINE 6
+#define NUM_NEXT_INODE_LINE 7
+#define NUM_PREV_INODE_LINE 7
+
 
 #endif
