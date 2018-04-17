@@ -53,9 +53,9 @@ void FileSystem::mkdir(char * input) {
 }
 
 //PRE:
-//POST: 
-uint findFreeInode() {
-
+//POST:
+uint FreeInode() {
+		make a edited
 }
 
 //PRE:  MyString path, given a
