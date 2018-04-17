@@ -38,6 +38,7 @@ typedef unsigned int uint;
 #define BITS_IN_BYTES 8
 #define WORD_SIZE 		32
 
+
 //char arrays
 #define AOFFSET 10
 
@@ -145,7 +146,7 @@ static char COMMANDS[][13] =
 #define NUMBER_OF_CD_PARAMS 2
 #define NUMBER_OF_MKDIR_PARAMS 2
 #define NUMBER_OF_RMDIR_PARAMS 2
-#define NUMBER_OF_DISPLAYINODE_PARAMS 1
+#define NUMBER_OF_DISPLAYINODE_PARAMS 3
 #define NUMBER_OF_CP_PARAMS 4
 #define NUMBER_OF_CAT_PARAMS 2
 #define NUMBER_OF_RM_PARAMS 3
@@ -229,6 +230,9 @@ static char CONFIG_OPTIONS[][15] =
 #define DIR_NUM_LEFT_CHILD_NODE_LINE 6
 #define NUM_NEXT_INODE_LINE 7
 #define NUM_PREV_INODE_LINE 7
+#define SUPERNODE_FREE_INODE_LINE 1
+#define SUPERNODE_NODE_INFO_LINE 0
 
+#define MAX_COL_DISPLAY_INODE 1000
 
 #endif

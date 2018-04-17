@@ -34,7 +34,7 @@ char_arrays.o: useful_functions/char_arrays.cc useful_functions/char_arrays.h Ex
 PCB.o: PCB.h PCB.cc constants.h CPU.h
 	$(GCC) PCB.cc -c
 
-FileSystem.o: FileSystem.cc FileSystem.cc constants.h useful_functions/bit_manipulation.h useful_classes/MyString.h
+FileSystem.o: FileSystem.cc FileSystem.cc constants.h useful_functions/bit_manipulation.h useful_classes/MyString.h useful_functions/char_arrays.h
 	$(GCC) FileSystem.cc -c
 
 clean:

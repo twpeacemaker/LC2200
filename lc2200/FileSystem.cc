@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "Exception.h"
 #include "useful_functions/bit_manipulation.h"
+#include "useful_functions/char_arrays.h"
 #include "useful_classes/MyString.h"
 #include <iostream>
 #include <fstream>
@@ -18,6 +19,7 @@ FileSystem::FileSystem(uint filesyssize) {
     disk = new fstream (FILE_SYSTEM_NAME, ios::in | ios::out);
     format(filesyssize);
   }
+	present_directory = 1; //sets / to be the present_directory
 }
 
 //PRE: @param uint filesyssize is the size of the current file system
@@ -30,7 +32,102 @@ void FileSystem::format(uint filesyssize) {
   makeSuperNode(filesyssize);
   //ASSERT: init the / at the location 1
   makeDirectory((char *)"/",0,0,0,1);
-  makeFreeInode(uint prev_inode, uint next_inode, uint inode_num);
+  initFreeNodes(filesyssize);
+}
+
+//PRE:  char * input, takes the input from the terminal
+//POST: tokenp[1] should be the path to the directory that
+//      they wish to make
+void FileSystem::mkdir(char * input) {
+	MyString path = extractPath(input);
+	LList<MyString> tokens = path.split('/'); //splits the string at '/'
+	MyString name = tokens.getBack(); tokens.deleteBack();
+	if(!name.empty()) {
+		uint start_directory = getStartDirectory(path);
+		uint location = findLocation(tokens, start_directory);
+		uint prev_sib, uint next_sib, uint inode_num
+		makeDirectory(name.getStringDeepCopy(),location,0,0,1);
+	} else {
+		throw(Exception((char *)"ERROR: DIRECTORY NAME IS EMPTY"));
+	}
+}
+
+//PRE:
+//POST: 
+uint findFreeInode() {
+
+}
+
+//PRE:  MyString path, given a
+//POST: determins if the path is absolut or relitive and returns the correct
+//			beginning directory
+uint FileSystem::getStartDirectory(MyString path) {
+	bool start_directory = present_directory;
+	if(path.requestindex(0) == '/') {
+		start_directory = 1;
+	}
+	return start_directory;
+}
+
+//PRE: LList<MyString> tokens, the tokens to the path of the file
+//		 uint start, where to start to look for the path
+//POST: returns the inode of the destination
+uint FileSystem::findLocation(LList<MyString> tokens, uint start) {
+	uint return_value;
+	if(tokens.getSize() == 0) {
+		return_value = start;
+	} else {
+		cout << "hard part" << endl;
+	}
+
+	return return_value;
+}
+
+//PRE:  char * input, the input from the terminal
+//POST: gets the path from the
+char * FileSystem::extractPath(char * input) {
+	MyString string = input;
+  LList<MyString> tokens = string.split(' '); //splits the string at ' '
+	return tokens.getBack().getStringDeepCopy();
+}
+
+//PRE:  char * input, takes the input from the terminal that should be no
+//      more than three tokens and no less than 1
+//POST: returns the content in the range specifted by the input
+char * FileSystem::displayInode(char * input) {
+	uint lower_bound = 0;
+	uint upper_bound = getTotalNumberNodes() - 1;
+	getUpperLowerBound(input, lower_bound, upper_bound);
+	MyString string;                                     // string to be created
+	char * header = new char[MAX_COL_DISPLAY_INODE];
+	char * temp;
+	for (int i = lower_bound; i <= upper_bound; i++) {
+		sprintf (header, "Inode No. %d \n", i);
+		string.addString(header);
+		temp = getDisplayInode(i);
+		string.addString(temp);
+		delete [] temp;
+		string.add('\n');
+	}
+	return string.getStringDeepCopy();
+}
+
+//PRE: @param int index, takes the index of memory, index > 0 < size
+//POST: @return char* creates a string that represents the proper string
+//      to be printed as one column to the terminal ie 0: 0x00000000 0
+char * FileSystem::getDisplayInode(int index) {
+	MyString string;
+	for(int i = 0; i < NUM_LINES_IN_INODE; i++) {
+		char * temp = new char[MAX_COL_DISPLAY_INODE];
+		sprintf (temp, "0x%08X ", getWord(index, i));
+		string.addString(temp);
+		delete [] temp;
+		if( (i + 1) % NUMBER_OF_COLS_IN_MEM == 0 ) {
+			string.add('\n');
+		}
+
+	}
+  return string.getStringDeepCopy();
 }
 
 //PRE:
@@ -40,11 +137,63 @@ void FileSystem::makeFile() {
   disk->close();
 }
 
-//PRE:  uint prev_free_inode,
-//      uint next_free_inode,
-//      uint inode_num,
-//POST:
-void makeFreeInode(uint prev_free_inode, uint next_free_inode, uint inode_num) {
+//PRE : uint filesyssize, is the size of the current file system
+//POST: creates the init free inodes for the disk
+void FileSystem::initFreeNodes(uint filesyssize) {
+  uint first_free = getFirstFreeInode();
+  uint last_free  = getLastFreeInode();
+  uint previous;
+  uint next;
+  for(int i = first_free; last_free >= i; i++) {
+    if(i == first_free) {
+      previous = 0;
+      next = i + 1;
+      makeFreeInode(previous, next, i);
+    } else if(i == last_free) {
+      previous = i - 1;
+      next = 0;
+      makeFreeInode(previous, next, i);
+    } else {
+      previous = i - 1;
+      next = i + 1;
+      makeFreeInode(previous, next, i);
+    }
+  }
+}
+
+//PRE:  takes no parameters
+//POST: returns the number of free inodes
+uint FileSystem::getNumberFreeNodes() {
+  uint word = getWord(0, SUPERNODE_NODE_INFO_LINE);
+  return getNum(word, 0, 1);
+}
+
+//PRE:  takes no parameters
+//POST: returns the total number of nodes
+uint FileSystem::getTotalNumberNodes() {
+  uint word = getWord(0, SUPERNODE_NODE_INFO_LINE);
+  return getNum(word, 2, 3);
+}
+
+//PRE: takes not params
+//POST: returns the address if the first inode specifed in the supernode
+uint FileSystem::getFirstFreeInode() {
+  uint word = getWord(0, SUPERNODE_FREE_INODE_LINE);
+  return getNum(word, 0, 1);
+}
+
+//PRE: takes not params
+//POST: returns the address of the last inode specifed in the supernode
+uint FileSystem::getLastFreeInode() {
+  uint word = getWord(0, SUPERNODE_FREE_INODE_LINE);
+  return getNum(word, 2, 3);
+}
+
+//PRE:  uint prev_free_inode, the previous free inode address
+//      uint next_free_inode, the next free inode address
+//      uint inode_num, the address of the inode to be added
+//POST: creates a inode with the given values at the given inode_num
+void FileSystem::makeFreeInode(uint prev_free_inode, uint next_free_inode, uint inode_num) {
   insertInodeType(FREEINODE_ID, inode_num);
   insertPrevInode(prev_free_inode, inode_num);
   insertNextInode(next_free_inode, inode_num);
@@ -61,8 +210,8 @@ void FileSystem::makeDirectory(char * name, uint addr_of_parent, uint prev_sib, 
   insertInodeType(DIRECTORY_ID, inode_num);
   insertName(name, inode_num);
   insertParentInodeNum(addr_of_parent, inode_num);
-  insertPrevSibInode(prev_sib, inode_num);
-  insertNextSibInode(prev_sib, inode_num);
+  insertPrevInode(prev_sib, inode_num);
+  insertNextInode(next_sib, inode_num);
 }
 
 //PRE: uint value, the value to be inserted
@@ -129,7 +278,7 @@ void FileSystem::insertName(char * name, uint inode_num) {
     } else {
       c = 0x00;
     }
-    printf("Byte: %#08x \n" , c);
+    //printf("Byte: %#08x \n" , c);
     disk->put(c);
   }
 }
@@ -152,8 +301,8 @@ void FileSystem::makeSuperNode(uint filesyssize) {
     //ASSERT: Bytes 0 and 1 (as a 16 bit value): number of free inodes
     //        So filesyssize - '/')
     uint num_free_inodes = filesyssize - 1;
-    line = insertNum(line, filesyssize, 0, 1);
-    line = insertNum(line, num_free_inodes, 2, 3);
+    line = insertNum(line, num_free_inodes , 0, 1);
+    line = insertNum(line, filesyssize + 1, 2, 3);
     insertWord(line, 0, 0);
 
     //ASSERT: Bytes 0 and 1(as a 16 bit value):inode addr. of first free inode.
@@ -161,10 +310,10 @@ void FileSystem::makeSuperNode(uint filesyssize) {
     //ASSERT: supernode location + '/'
     line = 0x00000000;
     uint first_free = 2;
-    uint last_free = filesyssize - 1;
+    uint last_free = filesyssize;
     line = insertNum(line, first_free, 0, 1);
     line = insertNum(line, last_free , 2, 3);
-    insertWord(line, 0, 1);
+    insertWord(line, 0, SUPERNODE_FREE_INODE_LINE);
     line = 0x00000000;
     //ASSERT: NUM_LINES_IN_INODE - (supernode + '/')
     for (int i = 2; NUM_LINES_IN_INODE > i; i++) {
@@ -224,6 +373,34 @@ bool FileSystem::fileExists(const char * filename) {
   }
   inFile.close();
   return return_value;
+}
+
+//PRE: @param char * input, takes the input from the terminal
+//     @param uint & lower_bound, is the lower requested by user
+//     @param uint & upper_bound, is the upper requested by user
+//POST:changes the upper and lower bound to correspond with the input request
+//throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
+void FileSystem::getUpperLowerBound(char * input, uint & lower_bound,
+                                uint & upper_bound) {
+  MyString string = input;
+  LList<MyString> tokens = string.split(' '); //splits the string at ' '
+  tokens.deleteFront();
+  uint size = getTotalNumberNodes();
+  //ASSERT: tokens size is no more than 2
+  if (tokens.getSize() == 1) {
+    //first token to the end of memory
+    lower_bound = arrayToInt(tokens.getFront().getString());
+    if (lower_bound >= (size)) {
+      throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
+    }
+  } else if(tokens.getSize() > 1) {
+      lower_bound = arrayToInt(tokens.getFront().getString());
+      upper_bound = arrayToInt(tokens.getBack().getString());
+      if (lower_bound >= (size) || upper_bound >= (size) ||
+          lower_bound > upper_bound) {
+        throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
+      }
+  }
 }
 
 

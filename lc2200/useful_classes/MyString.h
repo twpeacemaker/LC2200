@@ -86,6 +86,10 @@ class MyString {
   //POST: return int current size
   int getCurrentSize();
 
+  //PRE:
+  //POST: returns if the string is filled with any charater
+  bool empty();
+
   // Modifiers
 
   // PRE: This MyString object is defined with values

@@ -148,8 +148,8 @@ void Terminal::validateInput(LList<MyString> tokens) {
       throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO RMDIR"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[DISPLAYINODE_NUM])){
-    if(tokens.getSize() != NUMBER_OF_DISPLAYINODE_PARAMS) {
-      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO DISPLAYINODE_NUM"));
+    if(tokens.getSize() > NUMBER_OF_DISPLAYINODE_PARAMS) {
+      throw(Exception((char *)"INVALID NUMBER OF PARAMS GIVEN TO DISPLAYINODE"));
     }
   } else if( compareCharArray(command.getString(), COMMANDS[CP_NUM]) ) {
     if(tokens.getSize() != NUMBER_OF_CP_PARAMS) {

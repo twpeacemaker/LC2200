@@ -58,6 +58,16 @@ MyString & MyString::operator =(const MyString & S) {
                                  //   object.
 }
 
+//PRE:
+//POST: returns if the string is filled with any charater
+bool MyString::empty() {
+  bool rv = false;
+  if(currentSize == 0) {
+    rv = true;
+  }
+  return rv;
+}
+
 // Pre : this object is defined
 // Post: we make a copy of MyString
 MyString::MyString(const MyString & S) {
@@ -283,15 +293,21 @@ ostream & operator <<(ostream & str, const MyString * M){
 LList<MyString> MyString::split(char ch) {
      LList<MyString> list;
      MyString current = MyString();
+
      for(int i = 0; i < currentSize + 1; i++) {
-          //cout << requestindex(i) << ' ' << "Space"<< endl;
-          if(requestindex(i) == ch || i == currentSize) {
-               MyString temp = MyString(current.getString());
-               list.addBack(temp);
-               current.resetString();
-          } else {
-               current.add(requestindex(i));
-          }
+      if(i == 0 && requestindex(i) == ch) {
+         //cout << "here" << endl;
+      } else {
+        if(requestindex(i) == ch || i == currentSize) {
+             MyString temp = MyString(current.getString());
+             list.addBack(temp);
+             current.resetString();
+        } else {
+             current.add(requestindex(i));
+        }
+      }
+      //cout << requestindex(i) << ' ' << "Space"<< endl;
+
      }
      return list;
 }

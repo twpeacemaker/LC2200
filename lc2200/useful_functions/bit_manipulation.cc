@@ -177,3 +177,21 @@ uint insertNum(uint num, uint to_insert, uint start_byte, uint end_byte) {
   //printf("RV: %#08x \n" , return_value);
   return return_value;
 }
+
+//PRE: uint num, the number to get a subnum from
+//     uint start_byte, the very leftmost byte to be included into the num
+//     uint end_byte, the very rightmost byte to be included into the num
+//POST:returns the sub number
+//throw(Exception((char *)"ERROR: INVALID PARAMS GIVEN TO getNum")); if out
+//of bounds of byte size
+uint getNum(uint num, uint start_byte, uint end_byte) {
+  uint return_value;
+  if(start_byte > end_byte || end_byte > 3) {
+    throw(Exception((char *)"ERROR: INVALID PARAMS GIVEN TO getNum"));
+  } else {
+    uint start_bit = (WORD_SIZE - 1) - (start_byte * BITS_IN_BYTES);
+    uint end_bit = (WORD_SIZE) - ((end_byte + 1) * BITS_IN_BYTES);
+    return_value = getBits(num, start_bit, end_bit, 0);
+  }
+  return return_value;
+}

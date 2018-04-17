@@ -74,4 +74,11 @@ uint insertNum(uint num, uint to_insert, uint start_byte, uint end_byte);
 uint getByte(uint num, uint byte_num);
 
 
+//PRE: uint num, the number to get a subnum from
+//     uint start_byte, the very leftmost byte to be included into the num
+//     uint end_byte, the very rightmost byte to be included into the num
+//POST:returns the sub number
+uint getNum(uint num, uint start_byte, uint end_byte);
+
+
 #endif

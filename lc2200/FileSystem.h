@@ -1,8 +1,12 @@
 #ifndef INCLUDED_FileSystem
 #define INCLUDED_FileSystem
 
+#include "FileSystem.h"
 #include "constants.h"
 #include "Exception.h"
+#include "useful_functions/bit_manipulation.h"
+#include "useful_functions/char_arrays.h"
+#include "useful_classes/MyString.h"
 #include <iostream>
 #include <fstream>
 using namespace std;
@@ -13,17 +17,8 @@ class FileSystem {
 
   private:
     fstream * disk;
-  public:
+    uint present_directory;
 
-
-    // Constructor
-    // Pre : uint filesyssize, is the size of the current file system
-    // Post:
-    FileSystem(uint filesyssize);
-
-    //PRE: @param uint filesyssize is the size of the current file system
-    //POST:
-    void format(uint filesyssize);
 
     //PRE:
     //POST: makes the file
@@ -47,6 +42,11 @@ class FileSystem {
     //      uint word_num, the word you want to insert to
     //POST: gets the word at the location specifed
     uint getWord(uint inode_num, uint word_num);
+
+    //PRE:  MyString path, given a
+    //POST: determins if the path is absolut or relitive and returns the correct
+    //			beginning directory
+    uint getStartDirectory(MyString path);
 
     //PRE:  uint byte_num, the byte_num to set the cursor to
     //      uint inode_num, the number inode to set the cursor to
@@ -100,6 +100,80 @@ class FileSystem {
     //POST: inserts the value of the previous node
     void insertNextInode(uint value, uint inode_num);
 
+    //PRE:  uint prev_free_inode, the previous free inode address
+    //      uint next_free_inode, the next free inode address
+    //      uint inode_num, the address of the inode to be added
+    //POST: creates a inode with the given values at the given inode_num
+    void makeFreeInode(uint prev_free_inode, uint next_free_inode,
+                       uint inode_num);
+
+
+     //PRE : uint filesyssize, is the size of the current file system
+     //POST: creates the init free inodes for the disk
+     void initFreeNodes(uint filesyssize);
+
+     //PRE: takes not params
+     //POST: returns the address if the first inode specifed in the supernode
+     uint getFirstFreeInode();
+
+     //PRE: takes not params
+     //POST: returns the address of the last inode specifed in the supernode
+     uint getLastFreeInode();
+
+     //PRE:  takes no parameters
+     //POST: returns the number of free inodes
+     uint getNumberFreeNodes();
+
+     //PRE:  takes no parameters
+     //POST: returns the total number of nodes
+     uint getTotalNumberNodes();
+
+     //PRE: @param char * input, takes the input from the terminal
+     //     @param uint & lower_bound, is the lower requested by user
+     //     @param uint & upper_bound, is the upper requested by user
+     //POST:changes the upper and lower bound to correspond with the input request
+     //throw(Exception((char *)"PARAMETERS ARE INCORRECT"));
+     void getUpperLowerBound(char * input, uint & lower_bound,
+                             uint & upper_bound);
+
+
+     //PRE: @param int index, takes the index of memory, index > 0 < size
+     //POST: @return char* creates a string that represents the proper string
+     //      to be printed as one column to the terminal ie 0: 0x00000000 0
+     char * getDisplayInode(int index);
+
+     //PRE:  char * input, the input from the terminal
+     //POST: gets the path from the
+     char * extractPath(char * input);
+
+     //PRE: LList<MyString> tokens, the tokens to the path of the file
+     //		 uint start, where to start to look for the path
+     //POST: returns the inode of the destination
+     uint findLocation(LList<MyString> tokens, uint start);
+
+
+
+  public:
+
+
+    // Constructor
+    // Pre : uint filesyssize, is the size of the current file system
+    // Post:
+    FileSystem(uint filesyssize);
+
+    //PRE: @param uint filesyssize is the size of the current file system
+    //POST:
+    void format(uint filesyssize);
+
+    //PRE:  char * input, takes the input from the terminal that should be no
+    //      more than three tokens and no less than 1
+    //POST: returns the content in the range specifted by the input
+    char * displayInode(char * input);
+
+    //PRE:  char * input, takes the input from the terminal
+    //POST: tokenp[1] should be the path to the directory that
+    //      they wish to make
+    void mkdir(char * input);
 
     // Pre :
     // Post:

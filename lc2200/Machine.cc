@@ -141,7 +141,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
   } //========================= FILESYSTEM COMMANDS =========================
   else if( compareCharArray(command.getString(), COMMANDS[FORMAT_NUM]) ) {
     //return_value = configSim();
-    cout << "FORMATE" << endl;
+    filesystem->format(filesyssize);
     done = true;
   }  else if( compareCharArray(command.getString(), COMMANDS[PWD_NUM]) ) {
     //return_value = configSim();
@@ -157,7 +157,7 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[MKDIR_NUM]) ) {
     //return_value = configSim();
-    cout << "MKDIR" << endl;
+    filesystem->mkdir(input);
     done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[RMDIR_NUM]) ) {
     //return_value = configSim();
@@ -165,8 +165,8 @@ char * Machine::runCommand(char * input, bool & in_bool, bool & out_bool,
     done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[DISPLAYINODE_NUM]) ) {
     //return_value = configSim();
-    cout << "DISPLAYINODE" << endl;
-    done = true;
+    return_value = displayInodeSim(input);
+    out_bool = true; done = true;
   } else if( compareCharArray(command.getString(), COMMANDS[CP_NUM]) ) {
     //return_value = configSim();
     cout << "CP" << endl;
@@ -393,6 +393,16 @@ char * Machine::stepSim(int num_steps, bool & in, bool & out, bool & done) {
 char * Machine::memSim(char * input) {
   return memory->getOutput(input);
 }
+
+//PRE:  @param char * input, takes the input to rn
+//POST: @return char*, the content of disk
+//      if 1 token given, 0 - size
+//      if 2 tokens token[1] - size
+//      if 3 tokens token[1] - token[2]
+char * Machine::displayInodeSim(char * input) {
+  return filesystem->displayInode(input);
+}
+
 
 //PRE:  @param char * input, takes the input to run
 //POST: @returns a char* that is properly formated

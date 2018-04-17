@@ -282,6 +282,7 @@ class LList {
     if (n == 1) {
       front = NULL;
       back = NULL;
+      n--;
     } else if(n > 1){
       back = back->getPrev();
       if(n == 2) {
@@ -307,8 +308,8 @@ class LList {
   // PRE: L is defined.
   // POST: str contains L.f(0),...,L.f(L.n-1).
   //       NOTE: Here L.f refers to the elements of the LList object L.
-  friend ostream & operator<< (ostream & str, const LList<T> & L){
-    for (int index = 0; index < L.n; index++) {
+  friend ostream & operator<< (ostream & str, const LList<T> & L) {
+    for (int index = 0; L.n > index; index++) {
       str << L.getNth(index) << ", ";
       // ASSERT: str contains L.f(0), L.f(1), ..., L.f(index),
     }

@@ -354,6 +354,13 @@ class Machine {
   //      if 3 tokens token[1] - token[2]
   char * memSim(char * input);
 
+  //PRE:  @param char * input, takes the input to rn
+  //POST: @return char*, the content of disk
+  //      if 1 token given, 0 - size
+  //      if 2 tokens token[1] - size
+  //      if 3 tokens token[1] - token[2]
+  char * displayInodeSim(char * input);
+
   //PRE:  @param char * input, takes the input to run
   //POST: @returns a char* that is properly formated
   char * cpuSim();
