@@ -45,17 +45,45 @@ void FileSystem::mkdir(char * input) {
 	if(!name.empty()) {
 		uint start_directory = getStartDirectory(path);
 		uint location = findLocation(tokens, start_directory);
-		uint prev_sib, uint next_sib, uint inode_num
+		// supernode
+			//set the next of the free_node to be the first in the supernode
+			uint free_node_address = unallocateFreeInode();
+			//make check if it is also the first and last inode
+			//set the number of freenodes to be freenodes - 1
+
+		//node inserted
+			//insert name
+			//insert parent address
+			//insert inode_num
+			//edit when inserting to the parent prev_sib
+			//exit when inserting to the parent next_sib
+
+		//parent
+			//insert the node into the correct location of the parent
+			//Number of children++
 		makeDirectory(name.getStringDeepCopy(),location,0,0,1);
 	} else {
 		throw(Exception((char *)"ERROR: DIRECTORY NAME IS EMPTY"));
 	}
 }
 
-//PRE:
-//POST:
-uint FreeInode() {
-		make a edited
+//PRE:  the disk must be formated
+//POST: returns the location of the inode that is free and unallocates it from
+//			the linked list of inodes
+uint unallocateFreeInode() {
+		uint free_inode;
+		if(getNumberFreeNodes() == 0) {
+			//ASSERT: no more room to insert a node
+			throw(Exception((char *)"ERROR: NOT ENOUGH SPACE"));
+		} else {
+			free_inode = getFirstFreeInode();
+		}
+		//ASSERT: totalFreeNodes - 1
+		setNumberFreeNodes(getNumberFreeNodes() - 1)
+		//set prev
+		uint next_free = getNextInode(free_inode);
+		return free_inode,
+
 }
 
 //PRE:  MyString path, given a
@@ -169,10 +197,26 @@ uint FileSystem::getNumberFreeNodes() {
 }
 
 //PRE:  takes no parameters
+//POST: sets the number of free nodes in the supernode
+void setNumberFreeNodes(uint value) {
+	uint word = getWord(value, SUPERNODE_NODE_INFO_LINE);
+	word = insertNum(word, value, 0, 1);
+	insertWord(word, SUPERNODE_ADDRESS, SUPERNODE_FREE_INODE_LINE);
+}
+
+//PRE:  takes no parameters
 //POST: returns the total number of nodes
 uint FileSystem::getTotalNumberNodes() {
   uint word = getWord(0, SUPERNODE_NODE_INFO_LINE);
   return getNum(word, 2, 3);
+}
+
+//PRE:
+//POST:
+uint setFirstFreeInode(uint value) {
+	uint word = getWord(0, SUPERNODE_FREE_INODE_LINE);
+	word = insertNum(word, value, 0, 1);
+	insertWord(word, SUPERNODE_ADDRESS , SUPERNODE_FREE_INODE_LINE);
 }
 
 //PRE: takes not params
@@ -239,6 +283,20 @@ void FileSystem::insertFirstChildInodeNum(uint value, uint inode_num) {
   uint word = getWord(inode_num, DIR_NUM_CHILD_LINE);
   word = insertNum(word, value, 2, 3);
   insertWord(word, inode_num, DIR_NUM_CHILD_LINE);
+}
+
+//PRE: uint inode_num, the inode address
+//POST: returns the value of the previous inode
+uint FileSystem::getPrevInode(uint inode_num) {
+	uint word = getWord(inode_num, DIR_NUM_CHILD_LINE);
+	return getNum(uint num, 0, 1);
+}
+
+//PRE: uint inode_num, the inode address
+//POST: returns the value of the next inode
+uint FileSystem::getNextInode(uint inode_num) {
+	uint word = getWord(inode_num, DIR_NUM_CHILD_LINE);
+	return getNum(uint num, 3, 4);
 }
 
 //PRE:  uint value, the value to insert
@@ -402,7 +460,6 @@ void FileSystem::getUpperLowerBound(char * input, uint & lower_bound,
       }
   }
 }
-
 
 // Pre :
 // Post:

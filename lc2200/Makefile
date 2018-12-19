@@ -2,7 +2,6 @@ GCC=g++
 
 Machine: Terminal.o main.o Machine.o CPU.o Memory.o MyString.o bit_manipulation.o char_arrays.o PCB.o Freemem.o FileSystem.o
 	$(GCC) main.o Machine.o CPU.o Memory.o Terminal.o MyString.o bit_manipulation.o char_arrays.o PCB.o Freemem.o FileSystem.o -o Simulator
-	rm Disk
 
 Terminal.o: constants.h Exception.h Terminal.h Terminal.cc useful_classes/MyString.h Machine.h  useful_functions/char_arrays.h
 	$(GCC) Terminal.cc -c
