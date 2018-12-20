@@ -2,6 +2,7 @@
 #Author:    Thomas Peacemaker
 #Professor: Dr. Shende
 #Purpose:   to create a low level OS
+#Other:     Complied and tested in Ubuntu and  Mac OS 
 
 #Instructions
   To compile:
